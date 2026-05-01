@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Menu, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -12,11 +12,28 @@ const links = [
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
+  const [hidden, setHidden] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const prevScrollY = useRef(0)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40)
-    window.addEventListener('scroll', onScroll)
+    const onScroll = () => {
+      const current = window.scrollY
+      const prev = prevScrollY.current
+
+      setScrolled(current > 40)
+
+      if (current < 80) {
+        setHidden(false)
+      } else if (current > prev + 4) {
+        setHidden(true)
+      } else if (current < prev - 4) {
+        setHidden(false)
+      }
+
+      prevScrollY.current = current
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
@@ -41,6 +58,7 @@ export default function Navbar() {
             ? 'bg-dark-900/80 backdrop-blur-xl border-b border-white/[0.06]'
             : 'bg-transparent'
         }`}
+        style={{ transform: hidden && !menuOpen ? 'translateY(-100%)' : 'translateY(0)' }}
       >
         <nav className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           {/* Logo */}
