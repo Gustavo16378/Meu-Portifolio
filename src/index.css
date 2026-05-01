@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #02020D;
+  color: #F8FAFC;
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #02020D;
+}
+::-webkit-scrollbar-thumb {
+  background: #0ea5e9;
+  border-radius: 99px;
+}
+
+::selection {
+  background: rgba(14, 165, 233, 0.25);
+  color: #F8FAFC;
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm;
+  }
+  .glass-card-hover {
+    @apply hover:bg-brand-500/[0.06] hover:border-brand-500/30 transition-all duration-300;
+  }
+  .gradient-text {
+    @apply bg-gradient-to-r from-brand-400 via-brand-500 to-indigo-400 bg-clip-text text-transparent;
+  }
+  .section-title {
+    @apply text-3xl md:text-4xl font-bold text-white mb-3;
+  }
+  .section-subtitle {
+    @apply text-slate-400 text-lg max-w-2xl;
+  }
+  .glow-btn {
+    @apply relative overflow-hidden bg-brand-500 hover:bg-brand-400 text-white font-semibold transition-all duration-300;
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.35);
+  }
+  .glow-btn:hover {
+    box-shadow: 0 0 35px rgba(14, 165, 233, 0.55);
+  }
+  .outline-btn {
+    @apply border border-brand-500/50 text-brand-400 hover:bg-brand-500/10 hover:border-brand-400 font-semibold transition-all duration-300;
+  }
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(14, 165, 233, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14, 165, 233, 0.035) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
