@@ -264,7 +264,8 @@ function ProjectCard({ project: p, index, inView }: { project: Project; index: n
         <div className="relative overflow-hidden" style={{ aspectRatio: '16/9' }}>
           <img
             src={p.image}
-            alt={`Screenshot ${p.title}`}
+            alt={`Mockup do projeto ${p.title}`}
+            loading="lazy"
             className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
             onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex' }}
           />

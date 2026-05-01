@@ -5,7 +5,7 @@ import { Code2, Cpu, Layers, MapPin, GraduationCap } from 'lucide-react'
 
 const stats = [
   { value: '3 anos', label: 'Desenvolvendo', icon: <Code2 size={18} /> },
-  { value: '100% Ciclo', label: 'Completo (design -> deploy)', icon: <Layers size={18} /> },
+  { value: '100%', label: 'Design → Deploy', icon: <Layers size={18} /> },
   { value: '30+ horas', label: 'de código por semana', icon: <Cpu size={18} /> },
 ]
 
@@ -93,7 +93,7 @@ export default function About() {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
               {stats.map((s, i) => (
                 <motion.div
                   key={s.label}

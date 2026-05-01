@@ -104,6 +104,7 @@ export default function Navbar() {
               className="fixed inset-0 z-50 md:hidden"
               style={{ backdropFilter: 'blur(6px)', background: 'rgba(2,2,13,0.55)' }}
               onClick={() => setMenuOpen(false)}
+              aria-hidden="true"
             />
 
             {/* Drawer panel — desliza da direita, para no centro */}
