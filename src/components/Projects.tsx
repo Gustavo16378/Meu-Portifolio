@@ -80,7 +80,7 @@ const projects: Project[] = [
     status: 'dev',
     statusLabel: 'Em desenvolvimento',
     gradient: 'from-sky-500/20 to-blue-600/10',
-    image: './photos/ehl.png',
+    image: './photos/EHL_Site/mockuper.png',
     category: 'freelance',
   },
   {
@@ -92,7 +92,7 @@ const projects: Project[] = [
     status: 'dev',
     statusLabel: 'Em desenvolvimento',
     gradient: 'from-indigo-500/20 to-purple-600/10',
-    image: './photos/lcm.png',
+    image: './photos/LCM_Site/mockuper.png',
     category: 'freelance',
   },
   {
@@ -106,6 +106,19 @@ const projects: Project[] = [
     gradient: 'from-emerald-500/20 to-teal-600/10',
     image: './photos/landingpage_site/mockuper.png',
     github: 'https://github.com/Gustavo16378/landing-php-laravel',
+    category: 'freelance',
+  },
+  {
+    title: 'Stewer Gabriel',
+    client: 'Visagista & Consultor de Imagem Masculina, Palmas TO',
+    description:
+      'Site pessoal para visagista e consultor de imagem masculina. Design premium com tema escuro, tipografia serif elegante e identidade visual única — ciclo completo: wireframe, design, desenvolvimento e deploy.',
+    tags: ['React', 'TypeScript', 'Tailwind', 'Vite', 'Cloudflare'],
+    status: 'dev',
+    statusLabel: 'Em desenvolvimento',
+    gradient: 'from-amber-300/20 to-yellow-600/10',
+    image: './photos/Stewer/mockuper.png',
+    github: 'https://github.com/Gustavo16378/Stewer_Gabriel',
     category: 'freelance',
   },
   {
