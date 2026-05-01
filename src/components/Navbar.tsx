@@ -42,21 +42,17 @@ export default function Navbar() {
             : 'bg-transparent'
         }`}
       >
-        <nav className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <nav className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           {/* Logo */}
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="flex items-center gap-2.5"
           >
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white text-sm"
-              style={{ background: 'linear-gradient(135deg, #0ea5e9, #6366f1)' }}
-            >
-              G
-            </div>
-            <span className="font-bold text-white tracking-tight">
-              Gustavo<span className="text-brand-400">Dev</span>
-            </span>
+            <img
+              src="./photos/logo.jpeg"
+              alt="GustavoDev logo"
+              className="h-14 w-auto rounded-lg object-contain"
+            />
           </button>
 
           {/* Desktop links */}
@@ -126,10 +122,12 @@ export default function Navbar() {
               }}
             >
               {/* Header do drawer */}
-              <div className="flex items-center justify-between px-6 h-16 border-b border-white/[0.05]">
-                <span className="font-bold text-white text-sm">
-                  Gustavo<span className="text-brand-400">Dev</span>
-                </span>
+              <div className="flex items-center justify-between px-6 h-20 border-b border-white/[0.05]">
+                <img
+                  src="./photos/logo.jpeg"
+                  alt="GustavoDev logo"
+                  className="h-12 w-auto rounded-md object-contain"
+                />
                 <button
                   onClick={() => setMenuOpen(false)}
                   className="text-slate-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/[0.06]"

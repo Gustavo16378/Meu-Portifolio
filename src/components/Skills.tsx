@@ -5,7 +5,7 @@ import {
   SiReact, SiTypescript, SiJavascript, SiTailwindcss, SiVite,
   SiSpring, SiNodedotjs, SiPostgresql, SiMysql,
   SiDocker, SiGit, SiGithub, SiCloudflare, SiFigma, SiPostman,
-  SiRabbitmq, SiExpo, SiSwagger,
+  SiRabbitmq, SiExpo, SiSwagger, SiJunit5, SiHibernate,
 } from 'react-icons/si'
 import { FaJava } from 'react-icons/fa'
 
@@ -168,9 +168,27 @@ export default function Skills() {
         >
           <p className="text-slate-500 text-xs uppercase tracking-widest font-semibold mb-3">Arquitetura & Boas Práticas</p>
           <div className="flex flex-wrap gap-2">
-            {['SOLID', 'Clean Code', 'Controller/Service/Repository', 'Microsserviços', 'MVC', 'DDD (fundamentos)', 'JUnit', 'Testes unitários', 'E2E', 'Swagger/OpenAPI', 'SMTP transacional', 'JPA/Hibernate'].map((item) => (
-              <span key={item} className="px-3 py-1.5 rounded-lg text-xs bg-brand-500/[0.06] border border-brand-500/20 text-brand-300">
-                {item}
+            {[
+              { label: 'SOLID' },
+              { label: 'Clean Code' },
+              { label: 'Controller/Service/Repository' },
+              { label: 'Microsserviços' },
+              { label: 'MVC' },
+              { label: 'DDD (fundamentos)' },
+              { label: 'JUnit',          icon: <SiJunit5 />,   color: '#25A162' },
+              { label: 'Testes unitários' },
+              { label: 'E2E' },
+              { label: 'Swagger/OpenAPI', icon: <SiSwagger />,  color: '#85EA2D' },
+              { label: 'SMTP transacional' },
+              { label: 'JPA/Hibernate',  icon: <SiHibernate />, color: '#BCAE79' },
+            ].map(({ label, icon, color }) => (
+              <span key={label} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs bg-brand-500/[0.06] border border-brand-500/20 text-brand-300">
+                {icon && (
+                  <span className="text-sm leading-none flex items-center justify-center w-3.5 h-3.5" style={{ color }}>
+                    {icon}
+                  </span>
+                )}
+                {label}
               </span>
             ))}
           </div>

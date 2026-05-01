@@ -53,33 +53,6 @@ export default function Hero() {
       className="relative overflow-hidden bg-grid"
       style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
     >
-      {/* Mobile: foto atual como fundo */}
-      <AnimatePresence mode="wait">
-        {slides[current].src && (
-          <motion.div
-            key={`mobile-bg-${current}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.9 }}
-            className="absolute inset-0 lg:hidden"
-          >
-            <img
-              src={slides[current].src}
-              alt=""
-              className="w-full h-full object-cover object-top"
-            />
-            {/* Vinheta */}
-            <div className="absolute inset-0" style={{
-              background: `
-                linear-gradient(to bottom, rgba(2,2,13,0.92) 0%, rgba(2,2,13,0.55) 30%, rgba(2,2,13,0.78) 65%, rgba(2,2,13,0.99) 90%),
-                linear-gradient(to right, rgba(2,2,13,0.75) 0%, rgba(2,2,13,0.2) 70%)
-              `
-            }} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Background orbs — desktop */}
       <div className="orb w-[600px] h-[600px] animate-glow-pulse pointer-events-none"
         style={{ top: '-150px', left: '-150px', background: 'radial-gradient(circle, rgba(14,165,233,0.18) 0%, transparent 70%)' }} />
@@ -87,11 +60,11 @@ export default function Hero() {
         style={{ bottom: '0', right: '10%', animationDelay: '2s', background: 'radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)' }} />
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 w-full" style={{ paddingTop: '96px', paddingBottom: '64px' }}>
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 w-full pt-28 lg:pt-28 pb-16">
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-16 items-center">
 
           {/* ── LEFT ── */}
-          <div>
+          <div className="order-2 lg:order-1">
             <motion.div
               variants={fadeUp(0)} initial="hidden" animate="show"
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-brand-500/30 bg-brand-500/[0.08] text-brand-400 text-sm font-medium mb-8"
@@ -113,16 +86,15 @@ export default function Hero() {
               <br />
               que entrega
               <br />
-              resultado real
+              do design ao deploy
             </motion.h1>
 
             <motion.p
               variants={fadeUp(2)} initial="hidden" animate="show"
               className="text-base md:text-lg text-slate-400 max-w-md mb-8 leading-relaxed"
             >
-              Do design ao deploy — sites, apps e APIs com{' '}
-              <span className="text-slate-200 font-medium">React, TypeScript e Java</span>.
-              Qualidade de mercado para clientes reais.
+              Sites, apps e APIs com{' '}
+              <span className="text-slate-200 font-medium">React, TypeScript e Java</span>
             </motion.p>
 
             <motion.div
@@ -180,23 +152,6 @@ export default function Hero() {
               ))}
             </motion.div>
 
-            {/* Dots de navegação — só no mobile */}
-            {slides.some(s => s.src) && (
-              <div className="flex items-center gap-2 mt-5 lg:hidden">
-                {slides.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => goTo(i, i > current ? 1 : -1)}
-                    className="rounded-full transition-all duration-300"
-                    style={{
-                      width: i === current ? '22px' : '6px',
-                      height: '6px',
-                      background: i === current ? '#0ea5e9' : 'rgba(255,255,255,0.2)',
-                    }}
-                  />
-                ))}
-              </div>
-            )}
           </div>
 
           {/* ── RIGHT: carousel ── */}
@@ -204,9 +159,9 @@ export default function Hero() {
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="hidden lg:flex flex-col items-center gap-5"
+            className="flex flex-col items-center gap-3 order-1 lg:order-2 lg:gap-5"
           >
-            <div className="relative w-full" style={{ maxWidth: '480px' }}>
+            <div className="relative w-full mx-auto" style={{ maxWidth: 'clamp(180px, 55vw, 480px)' }}>
               {/* Glow aura */}
               <div className="absolute rounded-3xl pointer-events-none"
                 style={{
@@ -217,7 +172,7 @@ export default function Hero() {
 
               {/* Photo frame — sem borda, foto morre no escuro */}
               <div
-                className="relative overflow-hidden"
+                className="relative overflow-hidden rounded-2xl lg:rounded-none"
                 style={{ aspectRatio: '3/4' }}
               >
                 <AnimatePresence mode="wait" custom={direction}>
@@ -266,7 +221,7 @@ export default function Hero() {
                     {/* Vinheta — foto morre suavemente em todos os lados */}
                     <div className="absolute inset-0 pointer-events-none" style={{
                       background: `
-                        linear-gradient(to top,    rgba(2,2,13,0.95) 0%, transparent 35%),
+                        linear-gradient(to top,    rgba(2,2,13,1) 0%, rgba(2,2,13,0.6) 28%, transparent 44%),
                         linear-gradient(to bottom, rgba(2,2,13,0.7)  0%, transparent 25%),
                         linear-gradient(to right,  rgba(2,2,13,0.6)  0%, transparent 25%),
                         linear-gradient(to left,   rgba(2,2,13,0.6)  0%, transparent 25%)

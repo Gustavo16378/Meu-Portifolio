@@ -4,9 +4,9 @@ import { useRef } from 'react'
 import { Code2, Cpu, Layers, MapPin, GraduationCap } from 'lucide-react'
 
 const stats = [
-  { value: '~2 anos', label: 'Estudando Java', icon: <Code2 size={18} /> },
-  { value: '5+', label: 'Projetos entregues', icon: <Layers size={18} /> },
-  { value: '3', label: 'Clientes reais', icon: <Cpu size={18} /> },
+  { value: '3 anos', label: 'Desenvolvendo', icon: <Code2 size={18} /> },
+  { value: '100% Ciclo', label: 'Completo (design -> deploy)', icon: <Layers size={18} /> },
+  { value: '30+ horas', label: 'de código por semana', icon: <Cpu size={18} /> },
 ]
 
 const fadeUp = {
@@ -49,7 +49,7 @@ export default function About() {
               variants={fadeUp} initial="hidden" animate={inView ? 'show' : 'hidden'} custom={3}
               className="text-slate-400 leading-relaxed mb-5"
             >
-              Tenho quase dois anos estudando Java com profundidade: POO, SOLID, arquitetura em camadas e boas práticas.
+              Tenho 3 anos de desenvolvimento de aplicações e quase 2 anos estudando Java com profundidade: POO, SOLID, arquitetura em camadas e boas práticas.
               No front-end cuido também do design dos projetos no Figma, entregando o ciclo completo — do wireframe ao deploy.
             </motion.p>
             <motion.p
@@ -70,7 +70,7 @@ export default function About() {
               </div>
               <div className="flex items-center gap-2">
                 <GraduationCap size={15} className="text-brand-400 shrink-0" />
-                Bacharelado em Sistemas de Informação — UNITINS (3º período)
+                Bacharelado em Sistemas de Informação — UNITINS
               </div>
             </motion.div>
           </div>
@@ -84,10 +84,6 @@ export default function About() {
               <div className="absolute inset-0 bg-gradient-to-br from-brand-500/[0.06] to-indigo-500/[0.03]" />
               <div className="relative z-10">
                 {/* Avatar placeholder */}
-                <div className="w-20 h-20 rounded-2xl mb-6 flex items-center justify-center text-3xl font-black text-white"
-                  style={{ background: 'linear-gradient(135deg, #0ea5e9, #6366f1)' }}>
-                  G
-                </div>
                 <h3 className="text-white font-bold text-xl mb-1">Gustavo Barbosa Lima</h3>
                 <p className="text-brand-400 text-sm font-medium mb-4">Desenvolvedor Full Stack</p>
                 <p className="text-slate-500 text-xs font-mono">

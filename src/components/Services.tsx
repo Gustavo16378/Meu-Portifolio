@@ -22,7 +22,7 @@ const services = [
     unit: 'por projeto',
     color: '#6366f1',
     highlight: true,
-    features: ['Tudo da Landing Page', 'Até 5 páginas', 'CMS headless (Strapi)', 'Formulário de contato', 'SEO completo + Analytics'],
+    features: ['Tudo da Landing Page', 'Até 5 páginas', 'CMS headless', 'Formulário de contato', 'SEO completo + Analytics'],
   },
   {
     icon: <AppWindow size={24} />,
@@ -48,11 +48,11 @@ const services = [
     icon: <Wrench size={24} />,
     title: 'Suporte Mensal',
     description: 'Manutenção contínua, atualizações, correções e melhorias no seu site ou sistema.',
-    price: 'R$ 500',
+    price: 'R$ 800+',
     unit: 'por mês',
     color: '#f59e0b',
     highlight: false,
-    features: ['Atualizações de conteúdo', 'Correções de bugs', 'Monitoramento', 'Backup mensal', 'Suporte por WhatsApp'],
+    features: ['Atualizações de conteúdo', 'Correções de bugs', 'Backup de código-fonte', 'Monitoramento', 'Suporte por WhatsApp'],
   },
 ]
 
