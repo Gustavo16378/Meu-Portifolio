@@ -19,9 +19,9 @@ export default function About() {
   const inView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section id="sobre" ref={ref} className="py-28 relative overflow-hidden">
+    <section id="sobre" ref={ref} className="py-16 lg:py-28 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Left — text */}
           <div>
             <motion.p

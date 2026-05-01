@@ -52,7 +52,7 @@ export default function Contact() {
   const inView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section id="contato" ref={ref} className="py-28 relative overflow-hidden">
+    <section id="contato" ref={ref} className="py-16 lg:py-28 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-brand-500/[0.02] to-transparent pointer-events-none" />
       <div

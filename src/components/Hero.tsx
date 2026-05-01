@@ -60,7 +60,7 @@ export default function Hero() {
         style={{ bottom: '0', right: '10%', animationDelay: '2s', background: 'radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)' }} />
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 w-full pt-28 lg:pt-28 pb-16">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 w-full pt-20 lg:pt-28 pb-10 lg:pb-16">
         <div className="grid lg:grid-cols-2 gap-6 lg:gap-16 items-center">
 
           {/* ── LEFT ── */}
@@ -79,7 +79,7 @@ export default function Hero() {
             <motion.h1
               variants={fadeUp(1)} initial="hidden" animate="show"
               className="font-black tracking-tight text-white leading-[1.06] mb-5"
-              style={{ fontSize: 'clamp(2.4rem, 5vw, 3.6rem)' }}
+              style={{ fontSize: 'clamp(2rem, 8vw, 3.6rem)' }}
             >
               Desenvolvedor{' '}
               <span className="gradient-text">Full Stack</span>
@@ -161,7 +161,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
             className="flex flex-col items-center gap-3 order-1 lg:order-2 lg:gap-5"
           >
-            <div className="relative w-full mx-auto" style={{ maxWidth: 'clamp(180px, 55vw, 480px)' }}>
+            <div className="relative w-full mx-auto" style={{ maxWidth: 'clamp(260px, 82vw, 480px)' }}>
               {/* Glow aura */}
               <div className="absolute rounded-3xl pointer-events-none"
                 style={{

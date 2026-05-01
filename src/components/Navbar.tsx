@@ -142,8 +142,8 @@ export default function Navbar() {
                 {links.map((l, i) => (
                   <motion.button
                     key={l.href}
-                    initial={{ opacity: 0, x: 16 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.055 + 0.08, ease: [0.22, 1, 0.36, 1] }}
                     onClick={() => handleLink(l.href)}
                     className="text-left px-4 py-3.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/[0.05] transition-all text-base font-medium"
