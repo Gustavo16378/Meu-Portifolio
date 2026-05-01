@@ -174,7 +174,7 @@ export default function Projects() {
   const inView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section id="projetos" ref={ref} className="py-28 relative">
+    <section id="projetos" ref={ref} className="py-28 relative overflow-hidden">
       <div
         className="orb w-[500px] h-[400px] bottom-0 left-0 pointer-events-none"
         style={{ background: 'radial-gradient(circle, rgba(14,165,233,0.06) 0%, transparent 70%)' }}

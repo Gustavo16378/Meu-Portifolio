@@ -6,11 +6,16 @@
   scroll-behavior: smooth;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   background-color: #02020D;
   color: #F8FAFC;
   font-family: 'Inter', system-ui, sans-serif;
   overflow-x: hidden;
+  position: relative;
 }
 
 ::-webkit-scrollbar {

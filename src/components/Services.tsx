@@ -66,7 +66,7 @@ export default function Services() {
   const inView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section id="servicos" ref={ref} className="py-28 relative">
+    <section id="servicos" ref={ref} className="py-28 relative overflow-hidden">
       {/* Subtle orb */}
       <div
         className="orb w-[500px] h-[400px] top-0 right-0 pointer-events-none"
