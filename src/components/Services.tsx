@@ -190,7 +190,7 @@ export default function Services() {
           {/* Custom project card — full-width last row */}
           <motion.div
             variants={fadeUp} initial="hidden" animate={inView ? 'show' : 'hidden'} custom={services.length * 0.1 + 3}
-            className="relative rounded-2xl p-6 flex flex-col border border-dashed border-white/10 md:col-span-2 lg:col-span-3"
+            className="relative rounded-2xl p-6 flex flex-col border border-dashed border-white/10"
           >
             <div
               className="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
