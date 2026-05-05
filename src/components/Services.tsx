@@ -1,28 +1,28 @@
 import { motion } from 'framer-motion'
 import { useInView } from 'framer-motion'
 import { useRef } from 'react'
-import { Globe, Building2, AppWindow, Server, Wrench, ArrowRight, Check } from 'lucide-react'
+import { Globe, Building2, AppWindow, Wrench, ArrowRight, Check, RefreshCw, Plug, ShoppingCart, MessageCircle } from 'lucide-react'
 
 const services = [
   {
     icon: <Globe size={24} />,
     title: 'Landing Page',
-    description: 'Página única de alta conversão. Design profissional, responsivo, animações e deploy incluso.',
-    price: 'R$ 2.500',
+    description: 'Foco em conversão — venda, captação ou lançamento. Design profissional, responsivo, animações e deploy incluso.',
+    price: 'R$ 2.500+',
     unit: 'por projeto',
     color: '#0ea5e9',
     highlight: false,
-    features: ['Design no Figma', 'Responsivo mobile/desktop', 'Animações e interações', 'Deploy na Cloudflare', 'SEO básico'],
+    features: ['Design personalizado', 'Responsivo mobile/desktop', 'Animações e interações', 'Deploy na Cloudflare', 'SEO otimizado para conversão'],
   },
   {
     icon: <Building2 size={24} />,
     title: 'Site Institucional',
-    description: 'Até 5 páginas, formulário de contato, painel de conteúdo e posicionamento no Google.',
-    price: 'R$ 5.500',
+    description: 'Representa sua empresa completa — história, serviços, equipe e contato. Do design ao deploy.',
+    price: 'R$ 5.500+',
     unit: 'por projeto',
     color: '#6366f1',
     highlight: true,
-    features: ['Tudo da Landing Page', 'Até 5 páginas', 'CMS headless', 'Formulário de contato', 'SEO completo + Analytics'],
+    features: ['Tudo da Landing Page', 'Estrutura de conteúdo completa', 'CMS headless', 'Formulário de contato', 'SEO completo + Analytics'],
   },
   {
     icon: <AppWindow size={24} />,
@@ -35,24 +35,44 @@ const services = [
     features: ['Tudo do Institucional', 'Backend Java/Node.js', 'Autenticação JWT/OAuth', 'Painel administrativo', 'Docker + CI/CD'],
   },
   {
-    icon: <Server size={24} />,
-    title: 'API / Back-end',
-    description: 'API REST robusta com Java Spring Boot, documentação Swagger e ambiente containerizado.',
-    price: 'R$ 6.000+',
+    icon: <ShoppingCart size={24} />,
+    title: 'E-commerce',
+    description: 'Loja virtual completa com carrinho, pagamento integrado e gestão de pedidos. Pronto pra vender.',
+    price: 'R$ 8.000+',
     unit: 'por projeto',
-    color: '#10b981',
+    color: '#a855f7',
     highlight: false,
-    features: ['API REST com Java', 'Spring Boot ou Quarkus', 'PostgreSQL / MySQL', 'Swagger/OpenAPI', 'Docker + testes unitários'],
+    features: ['Catálogo de produtos', 'Carrinho e checkout', 'Integração com gateway de pagamento', 'Painel de gestão de pedidos', 'Deploy e SEO incluso'],
+  },
+  {
+    icon: <RefreshCw size={24} />,
+    title: 'Redesign de Site',
+    description: 'Transformo seu site desatualizado em algo moderno, rápido e profissional — sem reconstruir do zero.',
+    price: 'R$ 3.000+',
+    unit: 'por projeto',
+    color: '#ec4899',
+    highlight: false,
+    features: ['Auditoria do site atual', 'Novo design personalizado', 'Migração de conteúdo', 'Performance e SEO', 'Deploy incluso'],
   },
   {
     icon: <Wrench size={24} />,
     title: 'Suporte Mensal',
-    description: 'Manutenção contínua, atualizações, correções e melhorias no seu site ou sistema.',
+    description: 'Atualizações semanais de conteúdo, correções, monitoramento e suporte direto via WhatsApp.',
     price: 'R$ 800+',
     unit: 'por mês',
     color: '#f59e0b',
     highlight: false,
     features: ['Atualizações de conteúdo', 'Correções de bugs', 'Backup de código-fonte', 'Monitoramento', 'Suporte por WhatsApp'],
+  },
+  {
+    icon: <Plug size={24} />,
+    title: 'Integrações e Automações',
+    description: 'Conecto sistemas via API — CRM, pagamento, e-mail marketing e muito mais. Sem trocas de plataforma.',
+    price: 'R$ 2.000+',
+    unit: 'por projeto',
+    color: '#f97316',
+    highlight: false,
+    features: ['Integração com APIs externas', 'Webhooks e eventos', 'Automação de processos', 'Documentação inclusa', 'Testes e validação'],
   },
 ]
 
@@ -166,25 +186,52 @@ export default function Services() {
               </div>
             </motion.div>
           ))}
-        </div>
 
-        {/* CTA bottom */}
-        <motion.div
-          variants={fadeUp} initial="hidden" animate={inView ? 'show' : 'hidden'} custom={9}
-          className="mt-10 text-center"
-        >
-          <p className="text-slate-500 text-sm">
-            Precisa de algo fora dos pacotes?{' '}
-            <a
-              href="https://wa.me/5563991114551?text=Ol%C3%A1%20Gustavo%2C%20tenho%20um%20projeto%20personalizado!"
-              target="_blank"
-              rel="noreferrer"
-              className="text-brand-400 hover:text-brand-300 underline underline-offset-2 transition-colors"
+          {/* Custom project card — full-width last row */}
+          <motion.div
+            variants={fadeUp} initial="hidden" animate={inView ? 'show' : 'hidden'} custom={services.length * 0.1 + 3}
+            className="relative rounded-2xl p-6 flex flex-col border border-dashed border-white/10 md:col-span-2 lg:col-span-3"
+          >
+            <div
+              className="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
+              style={{ background: '#0ea5e918', color: '#0ea5e9' }}
             >
-              Fale comigo e montamos um orçamento personalizado.
-            </a>
-          </p>
-        </motion.div>
+              <MessageCircle size={24} />
+            </div>
+
+            <h3 className="text-white font-bold text-lg mb-2">Projeto Personalizado</h3>
+            <p className="text-slate-400 text-sm leading-relaxed mb-5 flex-1">
+              Tem algo que não se encaixa nos pacotes? Me conta o que você precisa e eu monto um orçamento sob medida.
+            </p>
+
+            <div className="border-t border-white/[0.06] pt-5 mt-auto">
+              <div className="flex items-end justify-between mb-4">
+                <div>
+                  <span className="text-2xl font-black text-white">Vamos conversar</span>
+                </div>
+              </div>
+              <a
+                href="https://wa.me/5563991114551?text=Ol%C3%A1%20Gustavo%2C%20tenho%20um%20projeto%20personalizado!"
+                target="_blank"
+                rel="noreferrer"
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all duration-200 hover:text-white"
+                style={{ borderColor: '#0ea5e940', color: '#0ea5e9' }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget
+                  el.style.background = '#0ea5e915'
+                  el.style.borderColor = '#0ea5e980'
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget
+                  el.style.background = 'transparent'
+                  el.style.borderColor = '#0ea5e940'
+                }}
+              >
+                Solicitar via WhatsApp <ArrowRight size={15} />
+              </a>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </section>
   )
