@@ -1,54 +1,54 @@
 import { useState, useEffect, useRef } from 'react'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const links = [
-  { label: 'Sobre', href: '#sobre' },
-  { label: 'Serviços', href: '#servicos' },
-  { label: 'Projetos', href: '#projetos' },
-  { label: 'Skills', href: '#skills' },
-  { label: 'Contato', href: '#contato' },
+  { label: 'Home',     to: '/',         end: true  },
+  { label: 'Sobre',    to: '/sobre',    end: false },
+  { label: 'Serviços', to: '/servicos', end: false },
+  { label: 'Projetos', to: '/projetos', end: false },
+  { label: 'Skills',   to: '/skills',   end: false },
+  { label: 'Contato',  to: '/contato',  end: false },
 ]
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false)
-  const [hidden, setHidden] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const prevScrollY = useRef(0)
+  const [scrolled, setScrolled]   = useState(false)
+  const [hidden, setHidden]       = useState(false)
+  const [menuOpen, setMenuOpen]   = useState(false)
+  const prevScrollY               = useRef(0)
+  const navigate                  = useNavigate()
 
   useEffect(() => {
     const onScroll = () => {
       const current = window.scrollY
-      const prev = prevScrollY.current
-
+      const prev    = prevScrollY.current
       setScrolled(current > 40)
-
-      if (current < 80) {
-        setHidden(false)
-      } else if (current > prev + 4) {
-        setHidden(true)
-      } else if (current < prev - 4) {
-        setHidden(false)
-      }
-
+      if (current < 80)            setHidden(false)
+      else if (current > prev + 4) setHidden(true)
+      else if (current < prev - 4) setHidden(false)
       prevScrollY.current = current
     }
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Trava o scroll do body enquanto menu está aberto
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [menuOpen])
 
-  const handleLink = (href: string) => {
-    setMenuOpen(false)
-    setTimeout(() => {
-      document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' })
-    }, 320)
-  }
+  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+    `relative px-4 py-2 text-sm transition-colors rounded-lg hover:bg-white/[0.05] ${
+      isActive ? 'text-white' : 'text-slate-400 hover:text-white'
+    }`
+
+  const drawerLinkClass = ({ isActive }: { isActive: boolean }) =>
+    `block px-4 py-3.5 rounded-xl text-base font-medium transition-all border-l-2 ${
+      isActive
+        ? 'text-white border-brand-500 bg-brand-500/[0.06]'
+        : 'text-slate-300 hover:text-white hover:bg-white/[0.05] border-transparent'
+    }`
 
   return (
     <>
@@ -61,13 +61,10 @@ export default function Navbar() {
         style={{ transform: hidden && !menuOpen ? 'translateY(-100%)' : 'translateY(0)' }}
       >
         <nav className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          {/* Logo */}
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="flex items-center gap-2.5"
-          >
+          {/* Logo → Home */}
+          <button onClick={() => navigate('/')} className="flex items-center gap-2.5">
             <img
-              src="./photos/logo.jpeg"
+              src="/photos/logo.jpeg"
               alt="GustavoDev logo"
               className="h-14 w-auto rounded-lg object-contain"
             />
@@ -76,13 +73,17 @@ export default function Navbar() {
           {/* Desktop links */}
           <ul className="hidden md:flex items-center gap-1">
             {links.map((l) => (
-              <li key={l.href}>
-                <button
-                  onClick={() => handleLink(l.href)}
-                  className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-white/[0.05]"
-                >
-                  {l.label}
-                </button>
+              <li key={l.to}>
+                <NavLink to={l.to} end={l.end} className={navLinkClass}>
+                  {({ isActive }) => (
+                    <>
+                      {l.label}
+                      {isActive && (
+                        <span className="absolute bottom-0 left-3 right-3 h-px bg-brand-500 rounded-full" />
+                      )}
+                    </>
+                  )}
+                </NavLink>
               </li>
             ))}
           </ul>
@@ -108,11 +109,10 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* ── Mobile drawer ── */}
+      {/* Mobile drawer */}
       <AnimatePresence>
         {menuOpen && (
           <>
-            {/* Backdrop — clique fora fecha */}
             <motion.div
               key="backdrop"
               initial={{ opacity: 0 }}
@@ -125,7 +125,6 @@ export default function Navbar() {
               aria-hidden="true"
             />
 
-            {/* Drawer panel — desliza da direita, para no centro */}
             <motion.div
               key="drawer"
               initial={{ x: '100%' }}
@@ -140,10 +139,9 @@ export default function Navbar() {
                 borderLeft: '1px solid rgba(255,255,255,0.06)',
               }}
             >
-              {/* Header do drawer */}
               <div className="flex items-center justify-between px-6 h-20 border-b border-white/[0.05]">
                 <img
-                  src="./photos/logo.jpeg"
+                  src="/photos/logo.jpeg"
                   alt="GustavoDev logo"
                   className="h-12 w-auto rounded-md object-contain"
                 />
@@ -156,23 +154,26 @@ export default function Navbar() {
                 </button>
               </div>
 
-              {/* Links */}
               <nav className="flex-1 px-4 py-5 flex flex-col gap-0.5">
                 {links.map((l, i) => (
-                  <motion.button
-                    key={l.href}
+                  <motion.div
+                    key={l.to}
                     initial={{ opacity: 0, y: -4 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.055 + 0.08, ease: [0.22, 1, 0.36, 1] }}
-                    onClick={() => handleLink(l.href)}
-                    className="text-left px-4 py-3.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/[0.05] transition-all text-base font-medium"
                   >
-                    {l.label}
-                  </motion.button>
+                    <NavLink
+                      to={l.to}
+                      end={l.end}
+                      onClick={() => setMenuOpen(false)}
+                      className={drawerLinkClass}
+                    >
+                      {l.label}
+                    </NavLink>
+                  </motion.div>
                 ))}
               </nav>
 
-              {/* CTA no rodapé do drawer */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}

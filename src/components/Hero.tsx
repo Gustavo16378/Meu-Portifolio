@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, Linkedin, MessageCircle, ChevronDown } from 'lucide-react'
 import {
@@ -21,9 +22,9 @@ const techBadges = [
 
 // Para adicionar fotos: coloque-as em /public/photos/ e atualize os src abaixo
 const slides = [
-  { src: './photos/foto1.png', label: 'Foto 1' },
-  { src: './photos/foto2.png', label: 'Foto 2' },
-  { src: './photos/foto3.png', label: 'Foto 3' },
+  { src: '/photos/foto1.png', label: 'Foto 1' },
+  { src: '/photos/foto2.png', label: 'Foto 2' },
+  { src: '/photos/foto3.png', label: 'Foto 3' },
 ]
 
 const fadeUp = (i = 0) => ({
@@ -109,12 +110,12 @@ export default function Hero() {
                 <MessageCircle size={16} />
                 Solicitar orçamento
               </a>
-              <button
-                onClick={() => document.querySelector('#projetos')?.scrollIntoView({ behavior: 'smooth' })}
+              <Link
+                to="/projetos"
                 className="outline-btn inline-flex items-center gap-2 px-7 py-3 rounded-xl text-sm"
               >
                 Ver projetos <ArrowRight size={16} />
-              </button>
+              </Link>
             </motion.div>
 
             <motion.div

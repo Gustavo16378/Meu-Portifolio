@@ -55,6 +55,7 @@ interface Project {
   link?: string
   image?: string
   category: 'freelance' | 'personal'
+  hidden?: boolean
 }
 
 const projects: Project[] = [
@@ -68,10 +69,11 @@ const projects: Project[] = [
     statusLabel: 'No ar',
     gradient: 'from-rose-400/20 to-amber-500/10',
     link: 'https://cleanebarbosa.com.br',
-    image: './photos/cleane_site/mockuper.png',
+    image: '/photos/cleane_site/mockuper.png',
     category: 'freelance',
   },
   {
+    hidden: true,
     title: 'EHL — Eletro Hidro Ltda',
     client: 'Maior construtora de pavimentação de Palmas, TO',
     description:
@@ -80,7 +82,7 @@ const projects: Project[] = [
     status: 'dev',
     statusLabel: 'Em desenvolvimento',
     gradient: 'from-sky-500/20 to-blue-600/10',
-    image: './photos/EHL_Site/mockuper.png',
+    image: '/photos/EHL_Site/mockuper.png',
     category: 'freelance',
   },
   {
@@ -92,7 +94,7 @@ const projects: Project[] = [
     status: 'dev',
     statusLabel: 'Em desenvolvimento',
     gradient: 'from-indigo-500/20 to-purple-600/10',
-    image: './photos/LCM_Site/mockuper.png',
+    image: '/photos/LCM_Site/mockuper.png',
     category: 'freelance',
   },
   {
@@ -104,7 +106,7 @@ const projects: Project[] = [
     status: 'done',
     statusLabel: 'Concluído',
     gradient: 'from-emerald-500/20 to-teal-600/10',
-    image: './photos/landingpage_site/mockuper.png',
+    image: '/photos/landingpage_site/mockuper.png',
     github: 'https://github.com/Gustavo16378/landing-php-laravel',
     category: 'freelance',
   },
@@ -117,7 +119,7 @@ const projects: Project[] = [
     status: 'dev',
     statusLabel: 'Em desenvolvimento',
     gradient: 'from-amber-300/20 to-yellow-600/10',
-    image: './photos/Stewer/mockuper.png',
+    image: '/photos/Stewer/mockuper.png',
     github: 'https://github.com/Gustavo16378/Stewer_Gabriel',
     category: 'freelance',
   },
@@ -130,7 +132,7 @@ const projects: Project[] = [
     status: 'dev',
     statusLabel: 'Em desenvolvimento',
     gradient: 'from-green-500/20 to-emerald-600/10',
-    image: './photos/orcamento-api.png',
+    image: '/photos/orcamento-api.png',
     github: 'https://github.com/Gustavo16378',
     category: 'freelance',
   },
@@ -224,7 +226,7 @@ export default function Projects() {
           <Wrench size={13} /> Freelance
         </motion.p>
         <div className="grid md:grid-cols-2 gap-5 mb-10">
-          {projects.filter(p => p.category === 'freelance').map((p, i) => (
+          {projects.filter(p => p.category === 'freelance' && !p.hidden).map((p, i) => (
             <ProjectCard key={p.title} project={p} index={i + 4} inView={inView} />
           ))}
         </div>
