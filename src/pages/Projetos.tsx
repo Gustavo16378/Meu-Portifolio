@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
-import { ExternalLink, Github, Clock, CheckCircle2, Wrench, ImageOff, ArrowRight, Filter } from 'lucide-react'
+import { ExternalLink, Github, Clock, CheckCircle2, Wrench, ImageOff, Filter } from 'lucide-react'
 import { projects, techIconMap, statusConfig, type Status, type Category } from '../data/projects'
 
 const fadeUp = {
@@ -167,6 +167,7 @@ export default function Projetos() {
 
 function ProjectCard({ project: p, index, inView }: { project: typeof projects[0]; index: number; inView: boolean }) {
   const sc = statusConfig[p.status]
+  const navigate = useNavigate()
 
   return (
     <motion.div
@@ -176,43 +177,55 @@ function ProjectCard({ project: p, index, inView }: { project: typeof projects[0
       }}
       initial="hidden"
       animate={inView ? 'show' : 'hidden'}
-      className="glass-card glass-card-hover rounded-2xl overflow-hidden flex flex-col group"
+      onClick={() => navigate(`/projetos/${p.slug}`)}
+      className="glass-card glass-card-hover rounded-2xl overflow-hidden flex flex-col group cursor-pointer"
     >
       {/* Screenshot */}
-      {p.image !== undefined && (
-        <div className="relative overflow-hidden" style={{ aspectRatio: '16/9' }}>
-          <img
-            src={p.image}
-            alt={`Mockup do projeto ${p.title}`}
-            loading="lazy"
-            className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-            onError={(e) => {
-              ;(e.currentTarget as HTMLImageElement).style.display = 'none'
-              ;(e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'
-            }}
-          />
+      <div className="relative overflow-hidden" style={{ aspectRatio: '16/9' }}>
+        {p.image ? (
+          <>
+            <img
+              src={p.image}
+              alt={`Mockup do projeto ${p.title}`}
+              loading="lazy"
+              className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+              onError={(e) => {
+                ;(e.currentTarget as HTMLImageElement).style.display = 'none'
+                ;(e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'
+              }}
+            />
+            <div
+              className="absolute inset-0 items-center justify-center flex-col gap-2"
+              style={{ display: 'none', background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)' }}
+            >
+              <ImageOff size={28} className="text-slate-600" />
+              <span className="text-slate-600 text-xs font-medium">Screenshot em breve</span>
+            </div>
+          </>
+        ) : (
           <div
-            className="absolute inset-0 items-center justify-center flex-col gap-2"
-            style={{ display: 'none', background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)' }}
+            className="w-full h-full flex items-center justify-center flex-col gap-2"
+            style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)' }}
           >
             <ImageOff size={28} className="text-slate-600" />
             <span className="text-slate-600 text-xs font-medium">Screenshot em breve</span>
           </div>
-          <div className="absolute inset-0 pointer-events-none"
-            style={{ background: 'linear-gradient(to bottom, transparent 50%, rgba(7,7,20,0.85) 100%)' }} />
-          <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${p.gradient.replace('/20', '').replace('/10', '')} opacity-80`} />
-          {p.liveUrl && (
-            <a href={p.liveUrl} target="_blank" rel="noreferrer"
-              className="absolute top-3 right-3 p-1.5 rounded-lg bg-black/40 backdrop-blur-sm text-slate-400 hover:text-brand-400 transition-colors opacity-0 group-hover:opacity-100">
-              <ExternalLink size={14} />
-            </a>
-          )}
-        </div>
-      )}
-
-      {p.image === undefined && (
-        <div className={`h-0.5 bg-gradient-to-r ${p.gradient.replace('/20', '').replace('/10', '')} opacity-60`} />
-      )}
+        )}
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: 'linear-gradient(to bottom, transparent 50%, rgba(7,7,20,0.85) 100%)' }} />
+        <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${p.gradient.replace('/20', '').replace('/10', '')} opacity-80`} />
+        {p.liveUrl && (
+          <a
+            href={p.liveUrl}
+            target="_blank"
+            rel="noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="absolute top-3 right-3 p-1.5 rounded-lg bg-black/40 backdrop-blur-sm text-slate-400 hover:text-brand-400 transition-colors opacity-0 group-hover:opacity-100"
+          >
+            <ExternalLink size={14} />
+          </a>
+        )}
+      </div>
 
       <div className="p-6 flex flex-col flex-1">
         <div className="flex items-center justify-between mb-4">
@@ -223,15 +236,14 @@ function ProjectCard({ project: p, index, inView }: { project: typeof projects[0
           </span>
           <div className="flex items-center gap-2">
             {p.github && (
-              <a href={p.github} target="_blank" rel="noreferrer"
-                className="p-1.5 rounded-lg text-slate-500 hover:text-white transition-colors">
+              <a
+                href={p.github}
+                target="_blank"
+                rel="noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="p-1.5 rounded-lg text-slate-500 hover:text-white transition-colors"
+              >
                 <Github size={15} />
-              </a>
-            )}
-            {p.liveUrl && (
-              <a href={p.liveUrl} target="_blank" rel="noreferrer"
-                className="p-1.5 rounded-lg text-slate-500 hover:text-brand-400 transition-colors">
-                <ExternalLink size={15} />
               </a>
             )}
           </div>
@@ -241,7 +253,7 @@ function ProjectCard({ project: p, index, inView }: { project: typeof projects[0
         <p className="text-brand-400/70 text-xs font-medium mb-3">{p.client}</p>
         <p className="text-slate-400 text-sm leading-relaxed mb-5 flex-1">{p.description}</p>
 
-        <div className="flex flex-wrap gap-1.5 mb-5">
+        <div className="flex flex-wrap gap-1.5">
           {p.stack.map((tag) => {
             const tech = techIconMap[tag]
             return (
@@ -256,13 +268,6 @@ function ProjectCard({ project: p, index, inView }: { project: typeof projects[0
             )
           })}
         </div>
-
-        <Link
-          to={`/projetos/${p.slug}`}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-400 hover:text-brand-300 transition-colors mt-auto"
-        >
-          Ver case study <ArrowRight size={13} />
-        </Link>
       </div>
     </motion.div>
   )

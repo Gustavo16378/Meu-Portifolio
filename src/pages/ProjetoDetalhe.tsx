@@ -42,33 +42,43 @@ export default function ProjetoDetalhe() {
         </motion.div>
 
         {/* Hero image */}
-        {project.image && (
-          <motion.div
-            variants={fadeUp(1)} initial="hidden" animate="show"
-            className="relative rounded-2xl overflow-hidden mb-10 glass-card"
-            style={{ aspectRatio: '16/9' }}
-          >
-            <img
-              src={project.image}
-              alt={`Mockup do projeto ${project.title}`}
-              className="w-full h-full object-cover object-top"
-              onError={(e) => {
-                ;(e.currentTarget as HTMLImageElement).style.display = 'none'
-                ;(e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'
-              }}
-            />
+        <motion.div
+          variants={fadeUp(1)} initial="hidden" animate="show"
+          className="relative rounded-2xl overflow-hidden mb-10 glass-card"
+          style={{ aspectRatio: '16/9' }}
+        >
+          {project.image ? (
+            <>
+              <img
+                src={project.image}
+                alt={`Mockup do projeto ${project.title}`}
+                className="w-full h-full object-cover object-top"
+                onError={(e) => {
+                  ;(e.currentTarget as HTMLImageElement).style.display = 'none'
+                  ;(e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'
+                }}
+              />
+              <div
+                className="absolute inset-0 items-center justify-center flex-col gap-3"
+                style={{ display: 'none', background: 'linear-gradient(135deg, rgba(14,165,233,0.06) 0%, rgba(99,102,241,0.04) 100%)' }}
+              >
+                <ImageOff size={36} className="text-slate-600" />
+                <span className="text-slate-600 text-sm">Screenshot em breve</span>
+              </div>
+            </>
+          ) : (
             <div
-              className="absolute inset-0 items-center justify-center flex-col gap-3"
-              style={{ display: 'none', background: 'linear-gradient(135deg, rgba(14,165,233,0.06) 0%, rgba(99,102,241,0.04) 100%)' }}
+              className="w-full h-full flex items-center justify-center flex-col gap-3"
+              style={{ background: 'linear-gradient(135deg, rgba(14,165,233,0.06) 0%, rgba(99,102,241,0.04) 100%)' }}
             >
               <ImageOff size={36} className="text-slate-600" />
               <span className="text-slate-600 text-sm">Screenshot em breve</span>
             </div>
-            <div className="absolute inset-0 pointer-events-none"
-              style={{ background: 'linear-gradient(to bottom, transparent 60%, rgba(7,7,20,0.6) 100%)' }} />
-            <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${project.gradient.replace('/20', '').replace('/10', '')} opacity-90`} />
-          </motion.div>
-        )}
+          )}
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: 'linear-gradient(to bottom, transparent 60%, rgba(7,7,20,0.6) 100%)' }} />
+          <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${project.gradient.replace('/20', '').replace('/10', '')} opacity-90`} />
+        </motion.div>
 
         {/* Title + meta */}
         <motion.div variants={fadeUp(2)} initial="hidden" animate="show" className="mb-8">
@@ -162,14 +172,7 @@ export default function ProjetoDetalhe() {
         </motion.div>
 
         {/* Footer nav */}
-        <motion.div variants={fadeUp(7)} initial="hidden" animate="show" className="flex items-center justify-between">
-          <Link
-            to="/projetos"
-            className="inline-flex items-center gap-2 text-slate-400 hover:text-white text-sm transition-colors group"
-          >
-            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-            Todos os projetos
-          </Link>
+        <motion.div variants={fadeUp(7)} initial="hidden" animate="show" className="flex justify-end">
           <a
             href="https://wa.me/5563991114551?text=Ol%C3%A1%20Gustavo%2C%20vi%20seu%20portf%C3%B3lio%20e%20gostaria%20de%20um%20or%C3%A7amento!"
             target="_blank"

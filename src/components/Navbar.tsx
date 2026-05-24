@@ -53,10 +53,10 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 border-b transition-[transform,background-color,backdrop-filter,border-color] duration-300 ${
           scrolled
-            ? 'bg-dark-900/80 backdrop-blur-xl border-b border-white/[0.06]'
-            : 'bg-transparent'
+            ? 'bg-dark-900/80 backdrop-blur-xl border-white/[0.06]'
+            : 'bg-transparent border-transparent'
         }`}
         style={{ transform: hidden && !menuOpen ? 'translateY(-100%)' : 'translateY(0)' }}
       >

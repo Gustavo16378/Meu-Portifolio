@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { useInView } from 'framer-motion'
 import { useRef } from 'react'
-import { Globe, Building2, AppWindow, Wrench, ArrowRight, Check, RefreshCw, Plug, ShoppingCart, MessageCircle } from 'lucide-react'
+import { Globe, Building2, AppWindow, Wrench, ArrowRight, Check, RefreshCw, Plug, MessageCircle } from 'lucide-react'
 
 const services = [
   {
@@ -33,16 +33,6 @@ const services = [
     color: '#8b5cf6',
     highlight: false,
     features: ['Tudo do Institucional', 'Backend Java/Node.js', 'Autenticação JWT/OAuth', 'Painel administrativo', 'Docker + CI/CD'],
-  },
-  {
-    icon: <ShoppingCart size={24} />,
-    title: 'E-commerce',
-    description: 'Loja virtual completa com carrinho, pagamento integrado e gestão de pedidos. Pronto pra vender.',
-    price: 'R$ 8.000+',
-    unit: 'por projeto',
-    color: '#a855f7',
-    highlight: false,
-    features: ['Catálogo de produtos', 'Carrinho e checkout', 'Integração com gateway de pagamento', 'Painel de gestão de pedidos', 'Deploy e SEO incluso'],
   },
   {
     icon: <RefreshCw size={24} />,
