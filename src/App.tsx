@@ -1,6 +1,6 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback } from 'react'
 import { LenisProvider, getLenis } from './motion/useLenis'
-import { lockScroll, unlockScroll } from './motion/scrollLock'
+import { useOverlayState } from './components/useDialog'
 import type { SectionId } from './data/sections'
 import { Hud } from './components/Hud'
 import { Grain } from './components/Grain'
@@ -16,22 +16,7 @@ import { Story } from './components/Story'
 import { Contact } from './components/Contact'
 
 export default function App() {
-  const [menuOpen, setMenuOpen] = useState(false)
-  const menuOpenRef = useRef(false)
-
-  const openMenu = useCallback(() => {
-    if (menuOpenRef.current) return
-    menuOpenRef.current = true
-    lockScroll()
-    setMenuOpen(true)
-  }, [])
-
-  const closeMenu = useCallback(() => {
-    if (!menuOpenRef.current) return
-    menuOpenRef.current = false
-    unlockScroll()
-    setMenuOpen(false)
-  }, [])
+  const { open: menuOpen, show: openMenu, hide: closeMenu } = useOverlayState()
 
   const navigate = useCallback(
     (id: SectionId) => {
@@ -59,7 +44,7 @@ export default function App() {
         <Story />
         <Contact />
       </main>
-      <Hud menuOpen={menuOpen} onMenu={openMenu} />
+      <Hud menuOpen={menuOpen} onMenu={openMenu} onRecruiter={openRecruiter} />
       <Grain />
       <Menu open={menuOpen} onClose={closeMenu} onNavigate={navigate} onRecruiter={openRecruiter} />
       <Preloader />

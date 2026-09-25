@@ -21,12 +21,15 @@ const edge = {
 interface HudProps {
   menuOpen: boolean
   onMenu: () => void
+  onRecruiter: () => void
 }
 
-export function Hud({ menuOpen, onMenu }: HudProps) {
+export function Hud({ menuOpen, onMenu, onRecruiter }: HudProps) {
   const clockRef = useRef<HTMLSpanElement>(null)
   const menuRef = useRef<HTMLButtonElement>(null)
+  const recruiterRef = useRef<HTMLButtonElement>(null)
   useMagnetic(menuRef, { strength: 0.35 })
+  useMagnetic(recruiterRef, { strength: 0.3 })
   const [active, setActive] = useState(0)
 
   // Hora de Palmas: escreve direto no DOM quando o segundo muda, dentro do ticker do GSAP.
@@ -76,6 +79,14 @@ export function Hud({ menuOpen, onMenu }: HudProps) {
       </div>
 
       <div className="absolute flex items-start gap-8" style={{ top: edge.top, right: edge.right }}>
+        <button
+          ref={recruiterRef}
+          type="button"
+          onClick={onRecruiter}
+          className="pointer-events-auto -m-3 hidden p-3 text-acid md:block"
+        >
+          recrutador?
+        </button>
         <div className="hidden text-right md:block">
           <p>
             <span ref={clockRef} className="text-bone tabular-nums" /> brt

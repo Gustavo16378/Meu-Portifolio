@@ -38,6 +38,7 @@ const cardPlacement = [
 
 export function Hero() {
   const heroRef = useRef<HTMLElement>(null)
+  const titleRef = useRef<HTMLHeadingElement>(null)
   const line1 = useRef<HTMLSpanElement>(null)
   const line2 = useRef<HTMLSpanElement>(null)
   const copyRef = useRef<HTMLDivElement>(null)
@@ -55,7 +56,7 @@ export function Hero() {
     }),
   )
 
-  usePhotoCards(heroRef, cardsRef, cardConfigs)
+  usePhotoCards(heroRef, titleRef, cardsRef, cardConfigs)
 
   // Entrada do título e do texto (depois do preloader), e o indicador sumindo quando a página rola.
   useEffect(() => {
@@ -109,7 +110,7 @@ export function Hero() {
 
       <div className="relative grid min-h-svh grid-cols-1 content-center gap-8 px-4 pt-24 pb-20 md:grid-cols-[1.05fr_1fr] md:items-center md:gap-6 md:px-12 md:pt-28 md:pb-20">
         <div className="relative">
-          <h1 className="font-display text-[26vw] leading-[0.8] tracking-[-0.01em] uppercase md:text-[13.5vw]">
+          <h1 ref={titleRef} className="font-display text-[26vw] leading-[0.8] tracking-[-0.01em] uppercase md:text-[13.5vw]">
             <span ref={line1} className="block origin-left text-bone will-change-transform">
               Gustavo
             </span>

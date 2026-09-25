@@ -34,8 +34,12 @@ interface Body {
   vx: number
   vy: number
   vr: number
+  /** Rotação de repouso (a do lugar original). */
+  baseR: number
   /** Rotação na hora de pegar, base da inclinação durante o arrasto. */
   heldR: number
+  /** Volta agendada quando o cartão para em cima do título. */
+  homeCall?: gsap.core.Tween
   lean: Spring
   amp: number
   phase: number
@@ -60,6 +64,10 @@ const SPIN_ON_HIT = 0.045 // quanto a velocidade tangencial vira giro na batida
 const MAX_THROW = 5200
 const WALL_GAP = 6
 
+// Cartão parado cobrindo o título volta sozinho, depois de um respiro.
+const TITLE_COVER = 0.3 // fração da área do cartão em cima das letras
+const TITLE_RETURN_DELAY = 1.2
+
 const LEAN = { stiffness: 160, damping: 13 }
 
 function offsetWithin(el: HTMLElement, ancestor: HTMLElement): { left: number; top: number } {
@@ -80,6 +88,7 @@ function offsetWithin(el: HTMLElement, ancestor: HTMLElement): { left: number; t
  */
 export function usePhotoCards(
   heroRef: RefObject<HTMLElement | null>,
+  titleRef: RefObject<HTMLElement | null>,
   cardsRef: RefObject<(PhotoCardEls | null)[]>,
   configs: PhotoCardConfig[],
 ): void {
@@ -121,6 +130,7 @@ export function usePhotoCards(
       vx: 0,
       vy: 0,
       vr: 0,
+      baseR: configs[i].rotation,
       heldR: 0,
       lean: createSpring(),
       amp: 1,
@@ -176,6 +186,47 @@ export function usePhotoCards(
       b.r = Number(gsap.getProperty(b.els.body, 'rotation'))
     }
 
+    // Quanto do cartão está em cima das letras do título (caixa real do texto, não da linha inteira).
+    const coversTitle = (b: Body): boolean => {
+      const title = titleRef.current
+      if (!title) return false
+      const card = b.els.body.getBoundingClientRect()
+      const range = document.createRange()
+      let covered = 0
+      for (const line of Array.from(title.children)) {
+        range.selectNodeContents(line)
+        const g = range.getBoundingClientRect()
+        const w = Math.min(card.right, g.right) - Math.max(card.left, g.left)
+        const h = Math.min(card.bottom, g.bottom) - Math.max(card.top, g.top)
+        if (w > 0 && h > 0) covered += w * h
+      }
+      return covered / (card.width * card.height) > TITLE_COVER
+    }
+
+    // De volta ao lugar original: com mola, ou direto quando ninguém está vendo.
+    const goHome = (b: Body, instant = false) => {
+      b.homeCall?.kill()
+      b.homeCall = undefined
+      gsap.killTweensOf(b.els.body, 'x,y,rotation')
+      b.mode = 'rest'
+      b.vx = 0
+      b.vy = 0
+      b.vr = 0
+      if (instant) {
+        gsap.set(b.els.body, { x: 0, y: 0, rotation: b.baseR, scale: 1 })
+        syncFromDom(b)
+        return
+      }
+      gsap.to(b.els.body, {
+        x: 0,
+        y: 0,
+        rotation: b.baseR,
+        duration: 1.3,
+        ease: 'elastic.out(1, 0.6)',
+        onComplete: () => syncFromDom(b),
+      })
+    }
+
     /** Colisão num eixo. Retorna a velocidade tangencial a converter em giro (0 se não bateu). */
     const collide = (b: Body, axis: 'x' | 'y', min: number, max: number, prev: number, dt: number): number => {
       const v = axis === 'x' ? 'vx' : 'vy'
@@ -223,7 +274,10 @@ export function usePhotoCards(
       if (hitY) b.vr -= Math.sign(hitY) * b.vx * SPIN_ON_HIT
 
       const inside = b.x >= l.minX - 1 && b.x <= l.maxX + 1 && b.y >= l.minY - 1 && b.y <= l.maxY + 1
-      if (inside && Math.hypot(b.vx, b.vy) < 10 && Math.abs(b.vr) < 3) b.mode = 'rest'
+      if (inside && Math.hypot(b.vx, b.vy) < 10 && Math.abs(b.vr) < 3) {
+        b.mode = 'rest'
+        if (coversTitle(b)) b.homeCall = gsap.delayedCall(TITLE_RETURN_DELAY, () => goHome(b))
+      }
 
       b.setX(b.x)
       b.setY(b.y)
@@ -295,6 +349,8 @@ export function usePhotoCards(
               },
             },
             onPress: () => {
+              b.homeCall?.kill()
+              b.homeCall = undefined
               gsap.killTweensOf(b.els.body, 'x,y,rotation,opacity')
               gsap.set(b.els.body, { opacity: 1 })
               syncFromDom(b)
@@ -338,6 +394,8 @@ export function usePhotoCards(
           end: 'bottom top',
           scrub: 0.6,
           invalidateOnRefresh: true,
+          // Saiu do hero: quem foi jogado volta pro lugar, e o scroll de volta traz todos arrumados.
+          onLeave: () => bodies.forEach((b) => goHome(b, true)),
         },
       })
       bodies.forEach((b, i) => {
@@ -376,10 +434,11 @@ export function usePhotoCards(
       cancelIntro()
       window.removeEventListener('resize', onResize)
       settle.kill()
+      bodies.forEach((b) => b.homeCall?.kill())
       gsap.ticker.remove(tick)
       draggables.forEach((d) => d.kill())
       bodies.forEach((b) => InertiaPlugin.untrack(b.els.body))
       ctx.revert()
     }
-  }, [heroRef, cardsRef, configs])
+  }, [heroRef, titleRef, cardsRef, configs])
 }

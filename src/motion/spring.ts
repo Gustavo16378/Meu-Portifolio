@@ -35,10 +35,23 @@ export function tickerDt(deltaMs: number): number {
 
 export const clamp = (v: number, min: number, max: number): number => Math.min(max, Math.max(min, v))
 
+/**
+ * Dentro de um palco sticky, a posição "natural" do elemento não diz se ele está na tela:
+ * o que importa é o trecho em que o sticky fica preso, ou seja, o pai dele.
+ */
+function visibilityTarget(el: Element): Element {
+  let node: Element | null = el
+  while (node && node !== document.body) {
+    if (getComputedStyle(node).position === 'sticky') return node.parentElement ?? node
+    node = node.parentElement
+  }
+  return el
+}
+
 /** Chama `onChange(true|false)` quando o elemento entra ou sai da viewport. Pra pausar loops contínuos. */
 export function watchVisibility(el: Element, onChange: (visible: boolean) => void): ScrollTrigger {
   return ScrollTrigger.create({
-    trigger: el,
+    trigger: visibilityTarget(el),
     start: 'top bottom',
     end: 'bottom top',
     onToggle: (self) => onChange(self.isActive),

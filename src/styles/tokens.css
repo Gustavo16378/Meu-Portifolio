@@ -31,6 +31,7 @@
 
   /* menu */
   --overlay: color-mix(in srgb, var(--c-bg) 97%, transparent);
+  --overlay-soft: color-mix(in srgb, var(--c-bg) 60%, transparent);
 
   /* camadas */
   --z-hud: 50;

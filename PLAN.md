@@ -7,7 +7,7 @@ Vite + React + TS + Tailwind. Fontes locais (Tanker, Synonym, Commit Mono) em `p
 Conferir: fontes carregando, HUD atualizando a hora, scroll suave.
 
 ## Etapa 1 · Hero com física
-Título Tanker gigante à esquerda com skew por velocidade de scroll, linha em Synonym, stack em mono. À direita, os cartões de foto (`gustavo-original.png`, `foto2.png`) como objetos físicos: flutuam, inclinam em 3D com o mouse (mola), arrastam e jogam com inércia e quique nas bordas (Draggable + Inertia), se espalham no scroll e voltam. Indicador `scroll` no rodapé. Hooks `useTilt`, `useScrollSkew`, `usePhotoCards` nascem aqui.
+Título Tanker gigante à esquerda com skew por velocidade de scroll, linha em Synonym, stack em mono. À direita, os cartões de foto (`gustavo-original.png`, `foto2.png`) como objetos físicos: flutuam, inclinam em 3D com o mouse (mola), arrastam e jogam com inércia e quique nas bordas (Draggable + Inertia), se espalham no scroll e voltam. Jogado, o cartão fica onde parou; só volta ao lugar pelo scroll (sair do hero e voltar) ou se parar cobrindo o título. Indicador `scroll` no rodapé. Hooks `useTilt`, `useScrollSkew`, `usePhotoCards` nascem aqui.
 Conferir: dá vontade de ficar jogando os cartões; nada trava; mobile sem drag mas com inclinação e espalhamento.
 
 ## Etapa 2 · Cursor, preloader e menu
@@ -23,7 +23,7 @@ Replicar o molde com os ambientes da SPEC (Autoria, Monte Vinhedo, Torra, Cleane
 Conferir: ritmo das cores, transição reversível, nada pesado.
 
 ## Etapa 5 · Resto da página
-Outros projetos (lista com hover glitch), Como funciona (blocos com glitch), História (foto estática + linha do tempo), Contato (título montando em blocos, WhatsApp, footer). Painel do recrutador com CV em PDF (placeholder até o Gustavo mandar o PDF).
+Outros projetos (lista com hover glitch), Como funciona (blocos com glitch), História (foto estática + linha do tempo), Contato (título montando em blocos, WhatsApp, footer). Painel do recrutador com CV em PDF (placeholder até o Gustavo mandar o PDF), aberto pelo botão `recrutador?` do HUD (já existe desde a Etapa 3) e pelo do menu.
 Conferir: seção atual no HUD acompanhando, todos os links.
 
 ## Etapa 6 · Mobile e reduced-motion

@@ -4,6 +4,7 @@ import { gsap } from '../motion/gsap'
 import { prefersReducedMotion } from '../motion/reducedMotion'
 import { useMagnetic } from '../motion/useMagnetic'
 import { pad2, sectionIndex, type SectionId } from '../data/sections'
+import { useDialog } from './useDialog'
 
 interface MenuItemData {
   id: SectionId
@@ -60,28 +61,11 @@ export function Menu({ open, onClose, onNavigate, onRecruiter }: MenuProps) {
   const listRef = useRef<HTMLUListElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
   const recruiterRef = useRef<HTMLButtonElement>(null)
-  const returnFocus = useRef<HTMLElement | null>(null)
 
   useMagnetic(closeRef, { enabled: open })
   useMagnetic(recruiterRef, { strength: 0.25, enabled: open })
 
-  // Esc fecha; foco entra no menu ao abrir e volta pra quem abriu ao fechar.
-  useEffect(() => {
-    const panel = panelRef.current
-    if (!panel) return
-    panel.inert = !open
-    if (open) {
-      returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
-      closeRef.current?.focus({ preventScroll: true })
-      const onKey = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') onClose()
-      }
-      window.addEventListener('keydown', onKey)
-      return () => window.removeEventListener('keydown', onKey)
-    }
-    returnFocus.current?.focus({ preventScroll: true })
-    returnFocus.current = null
-  }, [open, onClose])
+  useDialog(open, onClose, panelRef, closeRef)
 
   // Itens caem no lugar com mola ao abrir e sobem rápido ao fechar.
   useEffect(() => {
@@ -188,7 +172,7 @@ export function Menu({ open, onClose, onNavigate, onRecruiter }: MenuProps) {
             className="-m-3 p-3 font-mono text-xs text-acid md:text-sm"
             style={{ pointerEvents: open ? 'auto' : 'none' }}
           >
-            recrutador? 30 segundos
+            recrutador?
           </button>
         </div>
       </div>

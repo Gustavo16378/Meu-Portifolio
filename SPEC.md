@@ -43,13 +43,13 @@ Grain fino sobre tudo (noise sutil, opacidade baixa). Uma grade de linhas 1px a 
 
 Nos quatro cantos, em mono pequeno e cinza-verde, informação que dá sensação de sistema ativo:
 - canto superior esquerdo: `GUSTAVO BARBOSA LIMA` e abaixo `full-stack · palmas, to`
-- canto superior direito: hora local em tempo real e coordenadas de Palmas (`10°10'S 48°20'W`)
+- canto superior direito: o atalho `recrutador?` em mono lima, ao lado a hora local em tempo real e as coordenadas de Palmas (`10°10'S 48°20'W`), e o botão `menu` na ponta
 - canto inferior esquerdo: seção atual (`01 / 07 · abertura`) que atualiza no scroll
 - canto inferior direito: `status: disponível para projetos` com um ponto lima piscando devagar
 
 O HUD fica fixo; o conteúdo rola por baixo. No mobile, só o canto superior esquerdo e o inferior esquerdo.
 
-Navegação: sem menu tradicional. Um botão `menu` em mono no topo direito que abre um overlay preto com os itens em Tanker gigante (projetos, como trabalho, história, contato) e o atalho `recrutador? 30 segundos`. Fechar com Esc ou clique fora.
+Navegação: sem menu tradicional. Um botão `menu` em mono no topo direito que abre um overlay preto com os itens em Tanker gigante (projetos, como trabalho, história, contato) e o atalho `recrutador?`. Fechar com Esc ou clique fora. No mobile o botão `menu` continua visível (é a navegação) e o atalho `recrutador?` fica só dentro do menu.
 
 ## Preloader
 
@@ -66,8 +66,8 @@ Composição: à esquerda, título em Tanker gigante em duas ou três linhas, ma
 À direita, as fotos do Gustavo **naturais, sem tratamento de cor** (`assets/foto/gustavo-original.png` e `assets/foto/foto2.png`; `foto1.png` é opcional, é a do site antigo). Elas aparecem como **objetos físicos**: dois ou três cartões fotográficos com borda fina e leve sombra, empilhados de forma torta, que:
 - flutuam devagar em repouso (leve oscilação, como se tivessem massa);
 - inclinam em 3D seguindo o mouse (perspective + rotateX/rotateY, com mola, não instantâneo);
-- podem ser **arrastados e jogados**: soltou, o cartão continua com inércia, quica nas bordas do hero e desacelera (GSAP Draggable + InertiaPlugin, com `bounds` no container);
-- no scroll, os cartões se espalham pra fora da tela com velocidade proporcional ao scroll e voltam ao lugar quando se volta ao topo;
+- podem ser **arrastados e jogados**: soltou, o cartão continua com inércia, quica nas bordas do hero e desacelera (GSAP Draggable + InertiaPlugin); onde parou, fica. Não existe retorno automático por tempo. A única exceção: se o cartão parar cobrindo o título, ele volta pro lugar com mola depois de um respiro;
+- no scroll, os cartões se espalham pra fora da tela com velocidade proporcional ao scroll. Quando o hero sai inteiro da tela, os cartões jogados voltam pro lugar original sem ninguém ver, e ao subir de novo eles chegam arrumados;
 - em mobile, sem drag: só a inclinação pelo giroscópio (se permitido) ou pelo toque, e o espalhamento no scroll.
 
 Não usar partículas nem foto colorida de lima. A foto é a pessoa, o site é o que se move em volta dela.
@@ -128,7 +128,7 @@ Footer autoral, uma faixa em mono: GitHub (github.com/Gustavo16378), LinkedIn (l
 
 ## Atalho do recrutador
 
-Botão `recrutador? 30 segundos` em mono no menu e no HUD superior direito (ao lado da hora). Abre um painel lateral sobre a página: uma linha de resumo, stack agrupada (front, back, mobile, infra) em mono, experiência em três linhas, links GitHub e LinkedIn, botão `baixar CV em PDF`. Esc ou clique fora fecha.
+Botão `recrutador?` em mono no menu e no HUD superior direito (ao lado da hora). O texto é só esse, sem complemento. Abre um painel lateral sobre a página: uma linha de resumo, stack agrupada (front, back, mobile, infra) em mono, experiência em três linhas, links GitHub e LinkedIn, botão `baixar CV em PDF`. Esc ou clique fora fecha.
 
 ## Física e dinamismo (vale pro site inteiro)
 
