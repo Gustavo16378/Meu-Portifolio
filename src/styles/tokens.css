@@ -1,0 +1,31 @@
+/* Único lugar do projeto com cores literais. Componentes usam só as vars. */
+:root {
+  /* base */
+  --c-bg: #070907;
+  --c-acid: #c6f24e;
+  --c-bone: #e8e6de;
+  --c-muted: #6f756a;
+  --c-surface: #0e120f;
+  --c-border: #1c221d;
+
+  /* ambientes dos projetos (seção 03) */
+  --c-stewer: #8a7a45;
+  --c-autoria: #c9a24a;
+  --c-vinhedo-bg: #3a0f1e;
+  --c-vinhedo: #c46a7a;
+  --c-torra-bg: #2a1b12;
+  --c-torra: #d8843a;
+  --c-cleane-bg: #1e2a1f;
+  --c-cleane: #9bb79a;
+
+  /* grade e grain */
+  --grid-line: color-mix(in srgb, var(--c-acid) 6%, transparent);
+  --grid-size: 48px;
+  --grain-opacity: 0.07;
+
+  /* camadas */
+  --z-hud: 50;
+  --z-grain: 60;
+  --z-overlay: 9998;
+  --z-panel: 9999;
+}

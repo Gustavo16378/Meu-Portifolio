@@ -1,0 +1,90 @@
+@import 'tailwindcss';
+@import './tokens.css';
+@import './fonts.css';
+
+/* Tema do Tailwind: zera paleta e fontes padrão, só existe o que está em tokens.css. */
+@theme inline {
+  --color-*: initial;
+  --color-bg: var(--c-bg);
+  --color-acid: var(--c-acid);
+  --color-bone: var(--c-bone);
+  --color-muted: var(--c-muted);
+  --color-surface: var(--c-surface);
+  --color-border: var(--c-border);
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --font-*: initial;
+  --font-display: 'Tanker', 'Arial Narrow', sans-serif;
+  --font-sans: 'Synonym', system-ui, sans-serif;
+  --font-mono: 'Commit Mono', ui-monospace, monospace;
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+html {
+  background-color: var(--c-bg);
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--c-bg);
+  color: var(--c-bone);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: var(--c-acid);
+  color: var(--c-bg);
+}
+
+/* Ponto do status: pisca devagar, só opacity. */
+@keyframes hud-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.15;
+  }
+}
+.hud-dot {
+  animation: hud-blink 2.4s ease-in-out infinite;
+}
+
+/* Grain: o ruído é maior que a tela e desloca em saltos, só transform. */
+@keyframes grain-shift {
+  0% { transform: translate3d(0, 0, 0); }
+  20% { transform: translate3d(-4%, 3%, 0); }
+  40% { transform: translate3d(3%, -5%, 0); }
+  60% { transform: translate3d(-2%, 5%, 0); }
+  80% { transform: translate3d(5%, -2%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+.grain-layer {
+  animation: grain-shift 0.9s steps(5) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grain-layer {
+    animation: none;
+  }
+  .hud-dot {
+    animation-duration: 4s;
+  }
+}
