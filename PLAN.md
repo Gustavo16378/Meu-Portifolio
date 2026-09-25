@@ -11,8 +11,8 @@ Título Tanker gigante à esquerda com skew por velocidade de scroll, linha em S
 Conferir: dá vontade de ficar jogando os cartões; nada trava; mobile sem drag mas com inclinação e espalhamento.
 
 ## Etapa 2 · Cursor, preloader e menu
-Cursor customizado (ponto lima + anel com inércia, cresce em links, some no mobile). Botões e links magnéticos (`useMagnetic`). Preloader com log em mono e nome montando em blocos, só na primeira visita da sessão (sessionStorage). Menu overlay com itens em Tanker gigante e o atalho do recrutador, mecânica de portal do CLAUDE.md.
-Conferir: preloader entre 1,5 e 2,5s, menu fecha com Esc e clique fora, scroll travado corretamente no iOS.
+Cursor customizado (ponto lima + anel com inércia, cresce em links, some no mobile). Botões e links magnéticos (`useMagnetic`). Preloader digitando o nome (`Gustavo Lima`, apaga `Lima`, digita `Dev`), cortina subindo, só na primeira visita da sessão (sessionStorage). Menu overlay com itens em Tanker gigante e o atalho do recrutador, mecânica de portal do CLAUDE.md.
+Conferir: preloader entre 2 e 2,5s, menu fecha com Esc e clique fora, scroll travado corretamente no iOS.
 
 ## Etapa 3 · Seção 02 e o primeiro projeto (Stewer)
 Seção "O que eu faço" com glitch curto na entrada das linhas. Depois o projeto 1 completo: ambiente, objetos em linha com parallax, print no espelho, placa, ficha técnica em painel. Trilho lateral `01 / 05` aparecendo. Transição física no fim dele (objetos empurrados pra fora com o scroll, por enquanto pra preto). Navalha em pêndulo reagindo ao mouse.

@@ -1,6 +1,7 @@
 import { useEffect, type RefObject } from 'react'
 import { gsap, Draggable, InertiaPlugin } from './gsap'
 import { prefersReducedMotion } from './reducedMotion'
+import { onIntroDone } from './intro'
 import { clamp, createSpring, stepSpring, tickerDt, watchVisibility, type Spring } from './spring'
 
 /** Camadas de um cartão, de fora pra dentro. Cada uma é dona de uma parte do transform. */
@@ -90,15 +91,20 @@ export function usePhotoCards(
     if (els.length !== configs.length) return
 
     if (prefersReducedMotion()) {
+      let fade: gsap.core.Tween | undefined
       const ctx = gsap.context(() => {
         els.forEach((c, i) => gsap.set(c.body, { rotation: configs[i].rotation }))
-        gsap.fromTo(
+        fade = gsap.fromTo(
           els.map((c) => c.body),
           { opacity: 0 },
-          { opacity: 1, duration: 0.8, stagger: 0.15, ease: 'power1.out' },
+          { opacity: 1, duration: 0.8, stagger: 0.15, ease: 'power1.out', paused: true },
         )
       })
-      return () => ctx.revert()
+      const cancel = onIntroDone(() => fade?.play())
+      return () => {
+        cancel()
+        ctx.revert()
+      }
     }
 
     let heroW = 0
@@ -245,12 +251,14 @@ export function usePhotoCards(
       }
     }
 
+    let entrance: gsap.core.Timeline | undefined
     const ctx = gsap.context(() => {
       measure()
 
-      // Entrada: caem na mesa e assentam com um quique.
+      // Entrada (depois do preloader): caem na mesa e assentam com um quique.
+      entrance = gsap.timeline({ paused: true })
       bodies.forEach((b, i) => {
-        gsap.fromTo(
+        entrance?.fromTo(
           b.els.body,
           { x: 0, y: -window.innerHeight, rotation: b.r + (i % 2 ? 28 : -22), opacity: 0 },
           {
@@ -259,10 +267,10 @@ export function usePhotoCards(
             rotation: b.r,
             opacity: 1,
             duration: 1.25,
-            delay: 0.25 + i * 0.16,
             ease: 'back.out(1.5)',
             onComplete: () => syncFromDom(b),
           },
+          0.2 + i * 0.16,
         )
       })
 
@@ -362,7 +370,10 @@ export function usePhotoCards(
     const onResize = () => settle.restart(true)
     window.addEventListener('resize', onResize)
 
+    const cancelIntro = onIntroDone(() => entrance?.play())
+
     return () => {
+      cancelIntro()
       window.removeEventListener('resize', onResize)
       settle.kill()
       gsap.ticker.remove(tick)

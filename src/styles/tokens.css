@@ -29,9 +29,14 @@
   --shadow-lift: 0 50px 80px -30px rgb(0 0 0 / 0.85), 0 12px 24px -8px rgb(0 0 0 / 0.5);
   --glare: linear-gradient(105deg, transparent 30%, color-mix(in srgb, var(--c-bone) 22%, transparent) 50%, transparent 70%);
 
+  /* menu */
+  --overlay: color-mix(in srgb, var(--c-bg) 97%, transparent);
+
   /* camadas */
   --z-hud: 50;
   --z-grain: 60;
   --z-overlay: 9998;
   --z-panel: 9999;
+  --z-preloader: 10000;
+  --z-cursor: 10001;
 }

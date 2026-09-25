@@ -2,8 +2,16 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import Lenis from 'lenis'
 import { gsap, ScrollTrigger } from './gsap'
 import { prefersReducedMotion } from './reducedMotion'
+import { isScrollLocked } from './scrollLock'
 
 const LenisContext = createContext<Lenis | null>(null)
+
+let current: Lenis | null = null
+
+/** Acesso fora do React (trava de scroll, navegação do menu). */
+export function getLenis(): Lenis | null {
+  return current
+}
 
 /** Liga o Lenis ao ticker único do GSAP e ao ScrollTrigger. */
 export function LenisProvider({ children }: { children: ReactNode }) {
@@ -23,11 +31,14 @@ export function LenisProvider({ children }: { children: ReactNode }) {
     gsap.ticker.add(tick)
     gsap.ticker.lagSmoothing(0)
 
+    if (isScrollLocked()) instance.stop()
+    current = instance
     setLenis(instance)
 
     return () => {
       gsap.ticker.remove(tick)
       instance.destroy()
+      if (current === instance) current = null
       setLenis(null)
     }
   }, [])

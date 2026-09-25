@@ -53,7 +53,7 @@ Navegação: sem menu tradicional. Um botão `menu` em mono no topo direito que 
 
 ## Preloader
 
-Fundo preto. Em mono lima, linhas curtas aparecem uma a uma como log de terminal: `carregando gustavodev.dev`, `carregando fontes`, `pronto`. Ao final, o nome `GUSTAVO DEV` em Tanker gigante monta a partir de blocos (pixels grandes que se encaixam), segura meio segundo, e a tela se desmonta em blocos revelando o hero. Total entre 1,5 e 2,5 segundos. Só na primeira visita da sessão.
+Fundo preto, só isso na tela, sem log antes. Um cursor de texto fino em lima pisca. Em Tanker gigante, maiúsculas, digita `Gustavo Lima` letra por letra, faz uma pausa curta, apaga `Lima` com backspace letra por letra e digita `Dev` em lima (`Gustavo` fica em osso). Ritmo de digitação humano: intervalos levemente irregulares, com hesitação no começo de palavra; o backspace é um pouco mais rápido. O cursor fica aceso enquanto digita e pisca quando para. Pausa de meio segundo com o nome pronto, e a tela abre pro hero com uma cortina subindo (fade rápido em `prefers-reduced-motion`). O hero começa a entrar junto com a cortina. Total entre 2 e 2,5 segundos. Só na primeira visita da sessão.
 
 ## Estrutura da página
 
@@ -122,7 +122,7 @@ Título Tanker: `DESDE OS 16`. Esquerda: a foto do Gustavo (`assets/foto/foto2.p
 
 ### 07 Contato
 
-Título Tanker gigante, uma palavra por linha: `VAMOS` / `CONVERSAR`. A última palavra em lima. Abaixo, e-mail e WhatsApp em texto grande e clicável, botão lima `chamar no WhatsApp`. Ao entrar na seção, o título monta a partir de blocos, igual ao preloader, fechando o ciclo.
+Título Tanker gigante, uma palavra por linha: `VAMOS` / `CONVERSAR`. A última palavra em lima. Abaixo, e-mail e WhatsApp em texto grande e clicável, botão lima `chamar no WhatsApp`. Ao entrar na seção, o título monta a partir de blocos.
 
 Footer autoral, uma faixa em mono: GitHub (github.com/Gustavo16378), LinkedIn (linkedin.com/in/gustavo-barbosa-lima-341886278), Instagram (@ogustavo_dev), e a stack completa: react · typescript · javascript · tailwind · node.js · java · spring boot · quarkus · postgresql · docker · cloudflare · react native/expo. Assinatura: `gustavodev.dev · palmas, to · feito do zero`.
 
@@ -146,7 +146,7 @@ Ferramentas: GSAP (ScrollTrigger, Draggable, InertiaPlugin, Physics2DPlugin, tod
 
 ## Motion, resumo do que precisa existir
 
-- Preloader com log em mono e nome montando em blocos.
+- Preloader digitando `Gustavo Lima`, apagando `Lima` e digitando `Dev`, com cortina subindo.
 - Cartões de foto no hero com inclinação 3D, drag com inércia e quique, e espalhamento no scroll.
 - Cursor customizado: ponto lima pequeno com um anel fino que atrasa; cresce em links. Sem texto dentro do cursor.
 - Glitch curto na entrada de textos (seções 02 e 05) e no hover da lista (04).

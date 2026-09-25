@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap, ScrollTrigger } from '../motion/gsap'
+import { useMagnetic } from '../motion/useMagnetic'
 import { pad2, sections } from '../data/sections'
 
 const clockFormat = new Intl.DateTimeFormat('pt-BR', {
@@ -17,8 +18,15 @@ const edge = {
   right: 'calc(env(safe-area-inset-right) + 16px)',
 }
 
-export function Hud() {
+interface HudProps {
+  menuOpen: boolean
+  onMenu: () => void
+}
+
+export function Hud({ menuOpen, onMenu }: HudProps) {
   const clockRef = useRef<HTMLSpanElement>(null)
+  const menuRef = useRef<HTMLButtonElement>(null)
+  useMagnetic(menuRef, { strength: 0.35 })
   const [active, setActive] = useState(0)
 
   // Hora de Palmas: escreve direto no DOM quando o segundo muda, dentro do ticker do GSAP.
@@ -67,11 +75,24 @@ export function Hud() {
         <p>full-stack · palmas, to</p>
       </div>
 
-      <div className="absolute hidden text-right md:block" style={{ top: edge.top, right: edge.right }}>
-        <p>
-          <span ref={clockRef} className="text-bone tabular-nums" /> brt
-        </p>
-        <p>10°10'S 48°20'W</p>
+      <div className="absolute flex items-start gap-8" style={{ top: edge.top, right: edge.right }}>
+        <div className="hidden text-right md:block">
+          <p>
+            <span ref={clockRef} className="text-bone tabular-nums" /> brt
+          </p>
+          <p>10°10'S 48°20'W</p>
+        </div>
+        <button
+          ref={menuRef}
+          type="button"
+          onClick={onMenu}
+          aria-expanded={menuOpen}
+          aria-haspopup="dialog"
+          className="pointer-events-auto -m-3 flex items-center gap-2 p-3 text-bone"
+        >
+          <span aria-hidden className="inline-block size-1.5 bg-acid" />
+          menu
+        </button>
       </div>
 
       <div className="absolute" style={{ bottom: edge.bottom, left: edge.left }} aria-live="polite">

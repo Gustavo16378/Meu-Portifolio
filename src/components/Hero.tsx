@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from '../motion/gsap'
 import { prefersReducedMotion } from '../motion/reducedMotion'
+import { onIntroDone } from '../motion/intro'
 import { useScrollSkew } from '../motion/useScrollSkew'
 import { usePhotoCards, type PhotoCardConfig, type PhotoCardEls } from '../motion/usePhotoCards'
 import { GridBackdrop } from './GridBackdrop'
@@ -56,36 +57,45 @@ export function Hero() {
 
   usePhotoCards(heroRef, cardsRef, cardConfigs)
 
-  // Entrada do título e do texto, e o indicador sumindo quando a página rola.
+  // Entrada do título e do texto (depois do preloader), e o indicador sumindo quando a página rola.
   useEffect(() => {
     const hero = heroRef.current
-    if (!hero) return
+    const indicator = indicatorRef.current
+    if (!hero || !indicator) return
     const reduced = prefersReducedMotion()
+    let intro: gsap.core.Timeline | undefined
     const ctx = gsap.context(() => {
+      intro = gsap.timeline({ paused: true })
       const lines = [line1.current, line2.current]
       const copy = copyRef.current ? Array.from(copyRef.current.children) : []
+      const marks = Array.from(indicator.children)
       if (reduced) {
-        gsap.from([...lines, ...copy, indicatorRef.current], { opacity: 0, duration: 0.8, stagger: 0.1 })
-        return
+        intro.from([...lines, ...copy, ...marks], { opacity: 0, duration: 0.8, stagger: 0.1 })
+      } else {
+        intro
+          .from(lines, {
+            yPercent: 70,
+            rotation: 4,
+            opacity: 0,
+            duration: 1.1,
+            stagger: 0.12,
+            ease: 'back.out(1.6)',
+            transformOrigin: '0% 100%',
+          })
+          .from(copy, { y: 24, opacity: 0, duration: 0.9, stagger: 0.08, ease: 'back.out(1.4)' }, 0.35)
+          .from(marks, { opacity: 0, duration: 0.8, stagger: 0.1 }, 1.2)
       }
-      gsap.from(lines, {
-        yPercent: 70,
-        rotation: 4,
-        opacity: 0,
-        duration: 1.1,
-        stagger: 0.12,
-        ease: 'back.out(1.6)',
-        transformOrigin: '0% 100%',
-      })
-      gsap.from(copy, { y: 24, opacity: 0, duration: 0.9, stagger: 0.08, delay: 0.35, ease: 'back.out(1.4)' })
-      gsap.from(indicatorRef.current, { opacity: 0, duration: 0.8, delay: 1.2 })
-      gsap.to(indicatorRef.current, {
+      gsap.to(indicator, {
         opacity: 0,
         ease: 'none',
         scrollTrigger: { trigger: hero, start: 'top top', end: '15% top', scrub: true },
       })
     }, hero)
-    return () => ctx.revert()
+    const cancel = onIntroDone(() => intro?.play())
+    return () => {
+      cancel()
+      ctx.revert()
+    }
   }, [])
 
   return (
@@ -97,7 +107,7 @@ export function Hero() {
     >
       <GridBackdrop />
 
-      <div className="relative grid min-h-svh grid-cols-1 content-center gap-10 px-4 pt-24 pb-28 md:grid-cols-[1.05fr_1fr] md:items-center md:gap-6 md:px-12 md:py-24">
+      <div className="relative grid min-h-svh grid-cols-1 content-center gap-8 px-4 pt-24 pb-20 md:grid-cols-[1.05fr_1fr] md:items-center md:gap-6 md:px-12 md:pt-28 md:pb-20">
         <div className="relative">
           <h1 className="font-display text-[26vw] leading-[0.8] tracking-[-0.01em] uppercase md:text-[13.5vw]">
             <span ref={line1} className="block origin-left text-bone will-change-transform">
@@ -108,16 +118,16 @@ export function Hero() {
             </span>
           </h1>
           <div ref={copyRef}>
-            <p className="mt-6 max-w-[26rem] text-base leading-snug text-bone md:mt-8 md:text-lg">
+            <p className="mt-6 max-w-[34rem] text-lg leading-snug text-pretty text-bone md:mt-9 md:max-w-none md:text-[clamp(1.125rem,1.45vw,1.75rem)]">
               Sites, sistemas e APIs. Front e back, do design ao deploy.
             </p>
-            <p className="mt-3 font-mono text-[11px] text-muted md:text-xs">
+            <p className="mt-3 font-mono text-[11px] text-muted md:mt-4 md:text-[clamp(0.75rem,0.8vw,0.95rem)]">
               react · typescript · java · spring · quarkus · postgresql
             </p>
           </div>
         </div>
 
-        <div className="pointer-events-none relative z-10 h-[108vw] md:h-[72svh]">
+        <div className="pointer-events-none relative z-10 h-[92vw] md:h-[72svh]">
           {photos.map((photo, i) => (
             <PhotoCard
               key={photo.webp}

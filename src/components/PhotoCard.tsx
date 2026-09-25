@@ -44,7 +44,7 @@ export function PhotoCard({ photo, className, style, zIndex, register }: PhotoCa
       className={`pointer-events-none absolute will-change-transform ${className}`}
       style={{ ...style, zIndex }}
     >
-      <div ref={body} className="pointer-events-auto relative touch-pan-y select-none will-change-transform">
+      <div ref={body} data-cursor="drag" className="pointer-events-auto relative touch-pan-y select-none will-change-transform">
         <div
           ref={lift}
           aria-hidden
