@@ -1,21 +1,19 @@
-import { useEffect, useRef, type CSSProperties } from 'react'
+import { useRef } from 'react'
 import { gsap } from '../motion/gsap'
-import { MEDIA } from '../motion/media'
 import { usePendulum } from '../motion/usePendulum'
 import { useSlide } from '../motion/useSlide'
 import { useScrollSkew } from '../motion/useScrollSkew'
-import { useSceneTransition } from '../motion/useSceneTransition'
+import { useSceneScrub } from '../motion/useSceneScrub'
 import type { Project } from '../data/projects'
 import { SceneObject } from './SceneObject'
-import { Plaque } from './Plaque'
+import { ProjectScene } from './ProjectScene'
+import { Phone } from './PrintFrame'
 
-interface ProjectSceneProps {
+export interface ProjectSceneProps {
   project: Project
   index: number
   onSheet: () => void
 }
-
-type SceneStyle = CSSProperties & Record<'--accent', string>
 
 // Espelho desenhado num viewBox 1450×1000; lâmpadas na moldura, vidro por dentro.
 const MIRROR_W = 1450
@@ -35,7 +33,6 @@ const glow =
   'radial-gradient(circle, color-mix(in srgb, var(--c-bone) 85%, var(--accent)) 0%, color-mix(in srgb, var(--accent) 55%, transparent) 22%, transparent 68%)'
 const reflection =
   'linear-gradient(115deg, transparent 35%, color-mix(in srgb, var(--c-bone) 10%, transparent) 45%, transparent 56%)'
-const ambient = 'radial-gradient(ellipse 60% 70% at 68% 48%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%)'
 
 export function ProjectStewer({ project, index, onSheet }: ProjectSceneProps) {
   const sceneRef = useRef<HTMLElement>(null)
@@ -49,64 +46,39 @@ export function ProjectStewer({ project, index, onSheet }: ProjectSceneProps) {
   const combRef = useRef<HTMLDivElement>(null)
   const counterRef = useRef<HTMLDivElement>(null)
 
-  useSceneTransition(sceneRef, stageRef)
   usePendulum(razorRef, bladeRef, { period: 1.8, damping: 0.35 })
   useSlide(combRef, counterRef, { scrollPush: 30, friction: 2.4 })
   useScrollSkew(printRef, { factor: 0.16, max: 6, stiffness: 140, damping: 10 })
 
   // Lâmpadas acendem uma a uma com o scroll, e o print aparece no espelho conforme a luz chega.
-  useEffect(() => {
-    const scene = sceneRef.current
-    const stage = stageRef.current
-    const glows = glowsRef.current
-    const dim = dimRef.current
-    const picture = pictureRef.current
-    if (!scene || !stage || !glows || !dim || !picture) return
-
-    const mm = gsap.matchMedia()
-    mm.add(MEDIA, (ctx) => {
-      const lamps = Array.from(glows.children)
-      if (ctx.conditions?.reduced) {
-        gsap.set(lamps, { opacity: 1 })
-        gsap.set(dim, { opacity: 0 })
-        return
-      }
-      const desktop = Boolean(ctx.conditions?.desktop)
+  useSceneScrub(
+    sceneRef,
+    stageRef,
+    (tl) => {
+      const lamps = glowsRef.current ? Array.from(glowsRef.current.children) : []
       const span = lamps.length * 0.1
-      gsap
-        .timeline({
-          scrollTrigger: {
-            trigger: desktop ? scene : stage,
-            start: desktop ? 'top 40%' : 'top 70%',
-            end: desktop ? 'top -60%' : 'bottom 70%',
-            scrub: 0.5,
-          },
-        })
-        // Cada lâmpada treme antes de firmar, como filamento esquentando.
-        .fromTo(lamps, { opacity: 0 }, { keyframes: { opacity: [0, 0.8, 0.25, 1] }, duration: 0.3, stagger: 0.1 }, 0)
-        .fromTo(dim, { opacity: 0.85 }, { opacity: 0, duration: span, ease: 'none' }, 0)
-        .fromTo(picture, { yPercent: 6, scale: 1.06 }, { yPercent: 0, scale: 1, duration: span, ease: 'none' }, 0)
-    })
-    return () => mm.revert()
-  }, [])
+      // Cada lâmpada treme antes de firmar, como filamento esquentando.
+      tl.fromTo(lamps, { opacity: 0 }, { keyframes: { opacity: [0, 0.8, 0.25, 1] }, duration: 0.3, stagger: 0.1 }, 0)
+        .fromTo(dimRef.current, { opacity: 0.85 }, { opacity: 0, duration: span, ease: 'none' }, 0)
+        .fromTo(pictureRef.current, { yPercent: 6, scale: 1.06 }, { yPercent: 0, scale: 1, duration: span, ease: 'none' }, 0)
+    },
+    () => {
+      if (glowsRef.current) gsap.set(glowsRef.current.children, { opacity: 1 })
+      gsap.set(dimRef.current, { opacity: 0 })
+    },
+  )
 
-  const style: SceneStyle = { '--accent': project.accent, backgroundColor: project.background }
-  const { desktop, mobile } = project.prints
+  const { desktop } = project.prints
 
   return (
-    <article
-      ref={sceneRef}
-      data-project-index={index}
-      aria-label={project.name}
-      className="relative overflow-x-clip md:h-[280svh]"
-      style={style}
+    <ProjectScene
+      project={project}
+      index={index}
+      onSheet={onSheet}
+      sceneRef={sceneRef}
+      stageRef={stageRef}
+      stageClassName="h-[54svh] [--mr:5vw] [--mt:11svh] [--mw:82vw] [--rr:60vw] md:[--mr:7vw] md:[--mt:calc(46svh-var(--mw)/2.9)] md:[--mw:min(46vw,88svh)] md:[--rr:calc(var(--mr)+var(--mw)+1.5vw)]"
     >
-      <div
-        ref={stageRef}
-        data-sticky
-        className="relative h-[54svh] overflow-hidden [--mr:5vw] [--mt:11svh] [--mw:82vw] [--rr:60vw] md:sticky md:top-0 md:h-svh md:[--mr:7vw] md:[--mt:calc(46svh-var(--mw)/2.9)] md:[--mw:min(46vw,88svh)] md:[--rr:calc(var(--mr)+var(--mw)+1.5vw)]"
-      >
-        <div data-ambient aria-hidden className="pointer-events-none absolute inset-0" style={{ backgroundImage: ambient }} />
 
         {/* Espelho com o print dentro */}
         <SceneObject
@@ -200,25 +172,7 @@ export function ProjectStewer({ project, index, onSheet }: ProjectSceneProps) {
               </svg>
             </div>
 
-            <div
-              className="absolute right-[7%] bottom-[55%] w-[calc(var(--mw)*0.2)] -rotate-[5deg]"
-              style={{ transformOrigin: '50% 100%' }}
-            >
-              <div className="rounded-[16px] p-[5%] md:rounded-[20px]" style={{ border: '1.25px solid var(--accent)' }}>
-                <picture>
-                  <source srcSet={mobile.webp} type="image/webp" />
-                  <img
-                    src={mobile.png}
-                    alt={`Print do site ${project.name} no celular`}
-                    width={mobile.width}
-                    height={mobile.height}
-                    loading="lazy"
-                    decoding="async"
-                    className="block w-full rounded-[10px] md:rounded-[13px]"
-                  />
-                </picture>
-              </div>
-            </div>
+            <Phone project={project} className="absolute right-[7%] bottom-[55%] w-[calc(var(--mw)*0.2)] origin-bottom -rotate-[5deg]" />
           </div>
         </SceneObject>
 
@@ -241,13 +195,6 @@ export function ProjectStewer({ project, index, onSheet }: ProjectSceneProps) {
             </svg>
           </div>
         </SceneObject>
-      </div>
-
-      <Plaque
-        project={project}
-        onSheet={onSheet}
-        className="relative px-4 pt-6 pb-28 pl-12 md:absolute md:top-[72svh] md:left-0 md:w-[40vw] md:pt-0 md:pr-0 md:pb-0 md:pl-24"
-      />
-    </article>
+    </ProjectScene>
   )
 }

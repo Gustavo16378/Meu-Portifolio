@@ -130,9 +130,12 @@ export function TechSheet({ project, open, onClose }: TechSheetProps) {
               <h3 className="font-mono text-[11px] text-muted md:text-xs">links</h3>
               <div className="mt-3 flex flex-col gap-2 font-mono text-xs md:text-sm">
                 {sheet && (
-                  <a href={sheet.repo.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>
-                    {sheet.repo.label} ↗
-                  </a>
+                  <p>
+                    <a href={sheet.repo.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>
+                      {sheet.repo.label} ↗
+                    </a>
+                    {sheet.repoNote && <span className="text-muted"> · {sheet.repoNote}</span>}
+                  </p>
                 )}
                 <a href={project.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>
                   {project.url.replace('https://', '')} ↗

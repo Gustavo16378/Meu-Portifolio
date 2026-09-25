@@ -12,6 +12,8 @@ export interface ProjectSheet {
   architecture: string
   decisions: [string, string, string]
   repo: { label: string; url: string }
+  /** Aviso ao lado do link (ex.: código privado). */
+  repoNote?: string
 }
 
 export interface Project {
@@ -28,7 +30,7 @@ export interface Project {
   /** Fundo do ambiente (CSS var de tokens.css). */
   background: string
   prints: { desktop: Print; mobile: Print }
-  sheet?: ProjectSheet
+  sheet: ProjectSheet
 }
 
 const prints = (id: string): Project['prints'] => ({
@@ -38,6 +40,7 @@ const prints = (id: string): Project['prints'] => ({
 
 const github = { label: 'github', url: 'https://github.com/Gustavo16378' }
 
+// Ordem da seção 03: dourado, âmbar, vinho, laranja, verde.
 export const projects: Project[] = [
   {
     id: 'stewer',
@@ -59,6 +62,7 @@ export const projects: Project[] = [
         'Agendamento fora do site, num sistema próprio, pro site continuar leve e o sistema crescer sem mexer nele.',
       ],
       repo: github,
+      repoNote: 'código privado, projeto de cliente',
     },
   },
   {
@@ -72,6 +76,16 @@ export const projects: Project[] = [
     accent: 'var(--c-autoria)',
     background: 'var(--c-bg)',
     prints: prints('autoria'),
+    sheet: {
+      architecture:
+        'Front em React e TypeScript. As fotos dos carros passam por um pipeline antes de entrar no site: Playwright coleta as imagens e o rembg tira o fundo.',
+      decisions: [
+        'Tratamento de foto automatizado, pra trocar o estoque sem editar imagem na mão.',
+        'Carros sem fundo, pro modelo ficar sozinho na tela e o layout mandar na composição.',
+        'Imagens leves e carregadas sob demanda, pra página continuar rápida com muitas fotos.',
+      ],
+      repo: github,
+    },
   },
   {
     id: 'monte-vinhedo',
@@ -84,6 +98,16 @@ export const projects: Project[] = [
     accent: 'var(--c-vinhedo)',
     background: 'var(--c-vinhedo-bg)',
     prints: prints('monte-vinhedo'),
+    sheet: {
+      architecture:
+        'One page em React com animações em GSAP ligadas ao scroll. Publicado no Cloudflare Pages.',
+      decisions: [
+        'Animação presa ao scroll com ScrollTrigger, pra o ritmo seguir a leitura e voltar junto.',
+        'Paleta vinho e rosé fechada em poucas cores, pra o site ter cara de rótulo.',
+        'Imagens em WebP e carregadas sob demanda, pra as seções pesadas não travarem o celular.',
+      ],
+      repo: github,
+    },
   },
   {
     id: 'torra',
@@ -96,6 +120,15 @@ export const projects: Project[] = [
     accent: 'var(--c-torra)',
     background: 'var(--c-torra-bg)',
     prints: prints('torra'),
+    sheet: {
+      architecture: 'Site em React e TypeScript com Tailwind, publicado no Cloudflare Pages.',
+      decisions: [
+        'Componentes pequenos e reaproveitados entre cardápio e página da loja.',
+        'Tailwind com tokens de cor da marca, marrom e laranja, sem cor solta no código.',
+        'Layout pensado primeiro pro celular, que é onde o cliente de cafeteria abre o site.',
+      ],
+      repo: github,
+    },
   },
   {
     id: 'cleane',
@@ -108,6 +141,15 @@ export const projects: Project[] = [
     accent: 'var(--c-cleane)',
     background: 'var(--c-cleane-bg)',
     prints: prints('cleane'),
+    sheet: {
+      architecture: 'Site institucional em React e TypeScript com Tailwind, servido pelo Cloudflare Pages.',
+      decisions: [
+        'Visual calmo e pouco movimento, porque quem chega ali quer confiança, não efeito.',
+        'Contato direto pelo WhatsApp em todas as seções, sem formulário no meio do caminho.',
+        'Site estático, rápido de abrir e sem servidor pra manter.',
+      ],
+      repo: github,
+    },
   },
 ]
 

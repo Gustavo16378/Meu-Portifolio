@@ -1,11 +1,26 @@
-import { useCallback, useRef, useState } from 'react'
-import { projectById, projects, type ProjectId } from '../data/projects'
+import { Fragment, useCallback, useMemo, useRef, useState, type ComponentType } from 'react'
+import { projects, projectById, type ProjectId } from '../data/projects'
 import { useOverlayState } from './useDialog'
 import { ProjectRail } from './ProjectRail'
-import { ProjectStewer } from './ProjectStewer'
+import { ProjectStewer, type ProjectSceneProps } from './ProjectStewer'
+import { ProjectAutoria } from './ProjectAutoria'
+import { ProjectVinhedo } from './ProjectVinhedo'
+import { ProjectTorra } from './ProjectTorra'
+import { ProjectCleane } from './ProjectCleane'
 import { TechSheet } from './TechSheet'
 
-/** Seção 03: os cinco projetos um embaixo do outro, com trilho lateral e ficha técnica. */
+const scenes: Record<ProjectId, ComponentType<ProjectSceneProps>> = {
+  stewer: ProjectStewer,
+  autoria: ProjectAutoria,
+  'monte-vinhedo': ProjectVinhedo,
+  torra: ProjectTorra,
+  cleane: ProjectCleane,
+}
+
+/**
+ * Seção 03: os cinco projetos um embaixo do outro. Entre um e outro, uma faixa de 30svh
+ * em degradê faz a cor de fundo de um sangrar no próximo; o último sangra no preto do site.
+ */
 export function Projects() {
   const sectionRef = useRef<HTMLElement>(null)
   const sheet = useOverlayState()
@@ -20,12 +35,28 @@ export function Projects() {
     },
     [show],
   )
-  const openStewer = useCallback(() => openSheet('stewer'), [openSheet])
+  const openers = useMemo(
+    () => Object.fromEntries(projects.map((p) => [p.id, () => openSheet(p.id)])) as Record<ProjectId, () => void>,
+    [openSheet],
+  )
 
   return (
     <section id="projetos" data-section ref={sectionRef} className="relative">
       <ProjectRail sectionRef={sectionRef} total={projects.length} />
-      <ProjectStewer project={projectById('stewer')} index={0} onSheet={openStewer} />
+      {projects.map((project, i) => {
+        const Scene = scenes[project.id]
+        const next = projects[i + 1]?.background ?? 'var(--c-bg)'
+        return (
+          <Fragment key={project.id}>
+            <Scene project={project} index={i} onSheet={openers[project.id]} />
+            <div
+              aria-hidden
+              className="h-[30svh]"
+              style={{ backgroundImage: `linear-gradient(to bottom, ${project.background}, ${next})` }}
+            />
+          </Fragment>
+        )
+      })}
       <TechSheet project={sheetId ? projectById(sheetId) : null} open={sheet.open} onClose={sheet.hide} />
     </section>
   )

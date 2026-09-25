@@ -15,6 +15,7 @@ const num = (el: Element, key: string): number => Number((el as HTMLElement).dat
 export function useSceneTransition(
   sceneRef: RefObject<HTMLElement | null>,
   stageRef: RefObject<HTMLElement | null>,
+  { calm = false }: { calm?: boolean } = {},
 ): void {
   useEffect(() => {
     const scene = sceneRef.current
@@ -48,7 +49,8 @@ export function useSceneTransition(
       const enter = gsap.timeline({
         scrollTrigger: {
           trigger,
-          start: desktop ? 'top 80%' : 'top 95%',
+          // Começa assim que o palco aparece embaixo: os objetos já caem enquanto a cena anterior sai.
+          start: desktop ? 'top bottom' : 'top 95%',
           end: desktop ? 'top top' : 'top 30%',
           scrub: 0.8,
           invalidateOnRefresh: true,
@@ -58,7 +60,8 @@ export function useSceneTransition(
         enter.fromTo(
           el,
           { y: () => -vh() * (0.75 + i * 0.12), rotation: num(el, 'fallR'), opacity: 0 },
-          { y: 0, rotation: 0, opacity: 1, duration: 1, ease: 'back.out(1.6)' },
+          // Cena calma: pousa sem passar do ponto.
+          { y: 0, rotation: 0, opacity: 1, duration: 1, ease: calm ? 'power3.out' : 'back.out(1.6)' },
           i * 0.16,
         )
       })
@@ -78,8 +81,9 @@ export function useSceneTransition(
       const exit = gsap.timeline({
         scrollTrigger: {
           trigger,
-          start: desktop ? 'bottom 185%' : 'bottom 75%',
-          end: desktop ? 'bottom 100%' : 'bottom top',
+          // Continua depois que o palco solta, pra se sobrepor à queda da próxima cena.
+          start: desktop ? 'bottom 170%' : 'bottom 75%',
+          end: desktop ? 'bottom 25%' : 'bottom top',
           scrub: 0.6,
           invalidateOnRefresh: true,
         },
@@ -90,9 +94,9 @@ export function useSceneTransition(
           {
             y: () => -vh() * 1.25,
             x: () => (num(el, 'exitX') * window.innerWidth) / 100,
-            rotation: num(el, 'exitR'),
+            rotation: num(el, 'exitR') * (calm ? 0.4 : 1),
             duration: 1,
-            ease: 'power2.in',
+            ease: calm ? 'power1.in' : 'power2.in',
           },
           i * 0.08,
         )
@@ -104,5 +108,5 @@ export function useSceneTransition(
     })
 
     return () => mm.revert()
-  }, [sceneRef, stageRef])
+  }, [sceneRef, stageRef, calm])
 }

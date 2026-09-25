@@ -8,17 +8,19 @@ import type { Project } from '../data/projects'
 interface PlaqueProps {
   project: Project
   onSheet: () => void
+  /** Cena sem quique: entrada e skew sem passar do ponto. */
+  calm?: boolean
   className?: string
 }
 
 /** Placa do projeto: nome, ano, tipo, uma linha, stack e os dois links. Nada de texto de conceito. */
-export function Plaque({ project, onSheet, className = '' }: PlaqueProps) {
+export function Plaque({ project, onSheet, calm = false, className = '' }: PlaqueProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
   const liveRef = useRef<HTMLAnchorElement>(null)
   const sheetRef = useRef<HTMLButtonElement>(null)
 
-  useScrollSkew(titleRef, { stiffness: 120, damping: 9 })
+  useScrollSkew(titleRef, calm ? { stiffness: 60, damping: 16 } : { stiffness: 120, damping: 9 })
   useMagnetic(liveRef, { strength: 0.3 })
   useMagnetic(sheetRef, { strength: 0.3 })
 
@@ -33,12 +35,12 @@ export function Plaque({ project, onSheet, className = '' }: PlaqueProps) {
         opacity: 0,
         duration: reduced ? 0.5 : 0.9,
         stagger: 0.07,
-        ease: reduced ? 'power1.out' : 'back.out(1.6)',
+        ease: reduced || calm ? 'power2.out' : 'back.out(1.6)',
         scrollTrigger: { trigger: root, start: 'top 80%', toggleActions: 'play none none reverse' },
       })
     }, root)
     return () => ctx.revert()
-  }, [])
+  }, [calm])
 
   return (
     <div ref={rootRef} className={className}>
