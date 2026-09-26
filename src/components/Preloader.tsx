@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { gsap } from '../motion/gsap'
 import { prefersReducedMotion } from '../motion/reducedMotion'
 import { lockScroll, unlockScroll } from '../motion/scrollLock'
-import { finishIntro, markPreloaderSeen, shouldShowPreloader } from '../motion/intro'
+import { finishIntro } from '../motion/intro'
 import { Personagem } from './Personagem'
 
 const FIRST = 'Gustavo '
@@ -29,7 +29,7 @@ const rand = (min: number, max: number) => min + Math.random() * (max - min)
  * segura meio segundo e a cortina sobe revelando o hero.
  */
 export function Preloader() {
-  const [show, setShow] = useState(shouldShowPreloader)
+  const [show, setShow] = useState(true)
   const rootRef = useRef<HTMLDivElement>(null)
   const firstRef = useRef<HTMLSpanElement>(null)
   const secondRef = useRef<HTMLSpanElement>(null)
@@ -54,7 +54,6 @@ export function Preloader() {
     window.scrollTo(0, 0)
 
     const finish = () => {
-      markPreloaderSeen()
       unlockScroll()
       setShow(false)
     }

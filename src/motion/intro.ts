@@ -1,7 +1,5 @@
 /** Sinal de "a abertura terminou": o preloader dispara, o hero espera por ele pra entrar. */
 
-const KEY = 'gd:preloaded'
-
 let done = false
 const waiting = new Set<() => void>()
 
@@ -24,18 +22,3 @@ export function onIntroDone(cb: () => void): () => void {
   }
 }
 
-export function shouldShowPreloader(): boolean {
-  try {
-    return sessionStorage.getItem(KEY) !== '1'
-  } catch {
-    return false
-  }
-}
-
-export function markPreloaderSeen(): void {
-  try {
-    sessionStorage.setItem(KEY, '1')
-  } catch {
-    // sem storage: o preloader volta na próxima visita, sem problema
-  }
-}
