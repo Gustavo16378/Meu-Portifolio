@@ -1,20 +1,9 @@
-import { Fragment, useCallback, useMemo, useRef, useState, type ComponentType } from 'react'
+import { Fragment, useCallback, useMemo, useRef, useState } from 'react'
 import { projects, projectById, type ProjectId } from '../data/projects'
 import { useOverlayState } from './useDialog'
 import { ProjectRail } from './ProjectRail'
-import type { ProjectSceneProps } from './ProjectScene'
-import { ProjectStewer } from './ProjectStewer'
-import { ProjectPlain } from './ProjectPlain'
+import { ProjectScene } from './ProjectScene'
 import { TechSheet } from './TechSheet'
-
-// Stewer tem cena própria (lâmpadas, navalha, pente); os outros usam a cena padrão até as fotos chegarem.
-const scenes: Record<ProjectId, ComponentType<ProjectSceneProps>> = {
-  stewer: ProjectStewer,
-  autoria: ProjectPlain,
-  'monte-vinhedo': ProjectPlain,
-  torra: ProjectPlain,
-  cleane: ProjectPlain,
-}
 
 /**
  * Seção 03: os cinco projetos um embaixo do outro. Entre um e outro, uma faixa de 30svh
@@ -43,11 +32,10 @@ export function Projects() {
     <section id="projetos" data-section ref={sectionRef} className="relative">
       <ProjectRail sectionRef={sectionRef} total={projects.length} />
       {projects.map((project, i) => {
-        const Scene = scenes[project.id]
         const next = projects[i + 1]?.background ?? 'var(--c-bg)'
         return (
           <Fragment key={project.id}>
-            <Scene project={project} index={i} onSheet={openers[project.id]} />
+            <ProjectScene project={project} index={i} onSheet={openers[project.id]} />
             <div
               aria-hidden
               className="h-[30svh]"

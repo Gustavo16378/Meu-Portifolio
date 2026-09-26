@@ -22,9 +22,15 @@ Conferir: é o molde dos outros quatro. Aprovar só quando estiver certo.
 Replicar o molde com os ambientes da SPEC (Autoria, Monte Vinhedo, Torra, Cleane). Fronteiras físicas entre eles (sai empurrado, entra caindo com mola), trilho preenchendo, cor sangrando. Grãos com gravidade na Torra, líquido balançando no Monte Vinhedo, folhas oscilando na Cleane. Dados em `data/projects.ts`.
 Conferir: ritmo das cores, transição reversível, nada pesado.
 
-## Etapa 4.1 · Revisão dos projetos (Bloco A)
-Os objetos desenhados em linha saem dos cinco projetos. O print vira o foco (cerca de 60% da largura). Cada projeto fica preso enquanto a cena se monta (Stewer ~150vh no desktop, mais curto no mobile) e só solta com a cena pronta; a placa fica parada. Stewer refeito com lâmpadas de camarim em CSS em volta do print e fotos recortadas (navalha em pêndulo atrás do print, desfocada; pente deslizando embaixo). Os outros quatro com fundo, print grande e placa, prontos pra receber fotos em `objetos/<projeto>/` pelo campo `photos` em `data/projects.ts`. Mantém cores de ambiente, trilho, cor sangrando e a física das fronteiras.
-Conferir: o print manda na cena, a freada não cansa, a navalha e o pente parecem objetos de verdade, mobile com pin curto.
+## Etapa 4.1 · Projetos como site vivo (Bloco A)
+Saem todos os objetos de cena dos cinco projetos (desenhos em linha, fotos de navalha e pente, lâmpadas, círculos de luz, montanhas); a pasta `objetos/` não é mais usada. Cada projeto vira o site vivo: frame grande (~65% da largura) sem chrome de navegador, borda de 1px na cor de ambiente e sombra suave, com vídeo do site rodando (`public/videos/`, muted, loop, playsinline, preload none, poster, play ao entrar na tela e pause ao sair). Mobile menor em vídeo no canto inferior direito. Placa à esquerda, parada. Física só no frame (mola na entrada, inclinação de 2 a 3 graus com o mouse, skew leve pelo scroll). Pin de ~120vh; no mobile pin curto e vídeos empilhados. Mantém cor de fundo por projeto, cor sangrando e trilho. Grain neutro, no máximo 3%, desligado nos projetos.
+Conferir: dá tempo de ver o site rodando, vídeo toca e pausa na hora certa, nada além do site na cena.
+
+## Etapa 4.2 · Personagem (Bloco B)
+Componente Personagem com as poses de `personagem-gustavo-poses/` (copiadas pra `public/personagem/`), sempre pequeno, nos pontos definidos na SPEC. Sem personagem dentro dos projetos.
+
+## Etapa 4.3 · Testes (Bloco C)
+Passar seção por seção no Chrome headless em 1440x900 e 390x844 e reportar preloader, hero, seção 02, projetos (vídeo, pin, cor, trilho), menu e ficha, HUD, personagem, reduced-motion, console e tempo de carregamento da seção de projetos.
 
 ## Etapa 5 · Resto da página
 Outros projetos (lista com hover glitch), Como funciona (blocos com glitch), História (foto estática + linha do tempo), Contato (título montando em blocos, WhatsApp, footer). Painel do recrutador com CV em PDF (placeholder até o Gustavo mandar o PDF), aberto pelo botão `recrutador?` do HUD (já existe desde a Etapa 3) e pelo do menu.

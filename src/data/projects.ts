@@ -1,8 +1,10 @@
 export type ProjectId = 'stewer' | 'autoria' | 'monte-vinhedo' | 'torra' | 'cleane'
 
-export interface Print {
-  webp: string
-  png: string
+export interface SiteVideo {
+  /** Opcional: sem ele o navegador usa o MP4. */
+  webm?: string
+  mp4: string
+  poster: string
   width: number
   height: number
 }
@@ -14,27 +16,6 @@ export interface ProjectSheet {
   repo: { label: string; url: string }
   /** Aviso ao lado do link (ex.: código privado). */
   repoNote?: string
-}
-
-/**
- * Foto recortada (PNG/WebP com fundo transparente) usada como objeto de cena.
- * Os arquivos ficam em public/objetos/<projeto>/.
- */
-export interface ScenePhoto {
-  webp: string
-  png: string
-  width: number
-  height: number
-  /** Posição e tamanho no palco, em classes Tailwind (mobile primeiro). */
-  className: string
-  /** Atrás do print: fica embaixo dele e com blur leve, pra dar profundidade. */
-  behind?: boolean
-  /** Parallax: 0 parado, 1 primeiro plano. */
-  depth?: number
-  /** Quando cai na cena, de 0 a 1 dentro do trecho preso. */
-  enterAt?: number
-  fallRotation?: number
-  exit?: { x: number; rotation: number }
 }
 
 export interface Project {
@@ -50,15 +31,23 @@ export interface Project {
   accent: string
   /** Fundo do ambiente (CSS var de tokens.css). */
   background: string
-  prints: { desktop: Print; mobile: Print }
+  /** O site rodando, gravado em desktop e mobile (public/videos/). */
+  videos: { desktop: SiteVideo; mobile: SiteVideo }
   sheet: ProjectSheet
-  /** Objetos da cena. Vazio até as fotos recortadas chegarem. */
-  photos: ScenePhoto[]
 }
 
-const prints = (id: string): Project['prints'] => ({
-  desktop: { webp: `/prints/${id}-desktop.webp`, png: `/prints/${id}-desktop.png`, width: 1600, height: 1000 },
-  mobile: { webp: `/prints/${id}-mobile.webp`, png: `/prints/${id}-mobile.png`, width: 480, height: 1039 },
+const video = (id: string, kind: 'desktop' | 'mobile', width: number, height: number, webm: boolean): SiteVideo => ({
+  webm: webm ? `/videos/${id}-${kind}.webm` : undefined,
+  mp4: `/videos/${id}-${kind}.mp4`,
+  poster: `/videos/${id}-${kind}-poster.jpg`,
+  width,
+  height,
+})
+
+// Os WebM mobile atuais decodificam com as primeiras linhas verdes; o mobile usa só o MP4 até serem reexportados.
+const videos = (id: string): Project['videos'] => ({
+  desktop: video(id, 'desktop', 1280, 800, true),
+  mobile: video(id, 'mobile', 390, 844, false),
 })
 
 const github = { label: 'github', url: 'https://github.com/Gustavo16378' }
@@ -75,7 +64,7 @@ export const projects: Project[] = [
     stack: ['react', 'typescript', 'tailwind', 'vite', 'cloudflare'],
     accent: 'var(--c-stewer)',
     background: 'var(--c-bg)',
-    prints: prints('stewer'),
+    videos: videos('stewer'),
     sheet: {
       architecture:
         'Site estático em React e TypeScript, empacotado com Vite e servido pelo Cloudflare Pages. O agendamento vai virar um app à parte: API em Quarkus com PostgreSQL e app em React Native com Expo, ainda em desenvolvimento.',
@@ -87,7 +76,6 @@ export const projects: Project[] = [
       repo: github,
       repoNote: 'código privado, projeto de cliente',
     },
-    photos: [],
   },
   {
     id: 'autoria',
@@ -99,7 +87,7 @@ export const projects: Project[] = [
     stack: ['react', 'typescript', 'playwright', 'rembg'],
     accent: 'var(--c-autoria)',
     background: 'var(--c-bg)',
-    prints: prints('autoria'),
+    videos: videos('autoria'),
     sheet: {
       architecture:
         'Front em React e TypeScript. As fotos dos carros passam por um pipeline antes de entrar no site: Playwright coleta as imagens e o rembg tira o fundo.',
@@ -110,7 +98,6 @@ export const projects: Project[] = [
       ],
       repo: github,
     },
-    photos: [],
   },
   {
     id: 'monte-vinhedo',
@@ -122,7 +109,7 @@ export const projects: Project[] = [
     stack: ['react', 'gsap'],
     accent: 'var(--c-vinhedo)',
     background: 'var(--c-vinhedo-bg)',
-    prints: prints('monte-vinhedo'),
+    videos: videos('monte-vinhedo'),
     sheet: {
       architecture:
         'One page em React com animações em GSAP ligadas ao scroll. Publicado no Cloudflare Pages.',
@@ -133,7 +120,6 @@ export const projects: Project[] = [
       ],
       repo: github,
     },
-    photos: [],
   },
   {
     id: 'torra',
@@ -145,7 +131,7 @@ export const projects: Project[] = [
     stack: ['react', 'typescript', 'tailwind'],
     accent: 'var(--c-torra)',
     background: 'var(--c-torra-bg)',
-    prints: prints('torra'),
+    videos: videos('torra'),
     sheet: {
       architecture: 'Site em React e TypeScript com Tailwind, publicado no Cloudflare Pages.',
       decisions: [
@@ -155,7 +141,6 @@ export const projects: Project[] = [
       ],
       repo: github,
     },
-    photos: [],
   },
   {
     id: 'cleane',
@@ -167,7 +152,7 @@ export const projects: Project[] = [
     stack: ['react', 'typescript', 'tailwind', 'cloudflare'],
     accent: 'var(--c-cleane)',
     background: 'var(--c-cleane-bg)',
-    prints: prints('cleane'),
+    videos: videos('cleane'),
     sheet: {
       architecture: 'Site institucional em React e TypeScript com Tailwind, servido pelo Cloudflare Pages.',
       decisions: [
@@ -178,7 +163,6 @@ export const projects: Project[] = [
       repo: github,
       repoNote: 'código privado, projeto de cliente',
     },
-    photos: [],
   },
 ]
 

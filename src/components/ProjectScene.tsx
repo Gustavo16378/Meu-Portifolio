@@ -1,143 +1,81 @@
-import { useRef, type CSSProperties, type ReactNode, type RefObject } from 'react'
-import { gsap } from '../motion/gsap'
+import { useRef, type CSSProperties } from 'react'
 import { useScenePin } from '../motion/useScenePin'
-import type { Project, ScenePhoto } from '../data/projects'
+import { useTilt } from '../motion/useTilt'
+import { useScrollSkew } from '../motion/useScrollSkew'
+import type { Project } from '../data/projects'
 import { Plaque } from './Plaque'
-import { PrintFrame } from './PrintFrame'
-import { SceneObject } from './SceneObject'
+import { SiteVideo } from './SiteVideo'
 
 type SceneStyle = CSSProperties & Record<'--accent', string>
 
-export interface ProjectSceneProps {
+interface ProjectSceneProps {
   project: Project
   index: number
   onSheet: () => void
 }
 
-interface SceneShellProps extends ProjectSceneProps {
-  sceneRef: RefObject<HTMLElement>
-  stageRef: RefObject<HTMLDivElement>
-  /** Altura total do artigo: 100svh do palco + o trecho preso (mobile primeiro). */
-  heightClass: string
-  /** Onde a luz ambiente do projeto se concentra (posição do radial-gradient). */
-  lightAt?: string
-  /** Cena sem quique (Cleane). */
-  calm?: boolean
-  phone?: 'left' | 'right'
-  /** Presas ao print (lâmpadas). */
-  printDecor?: ReactNode
-  /** Timeline da montagem, depois do que a casca já faz (print entrando, luz subindo). */
-  build?: (tl: gsap.core.Timeline) => void
-  reduced?: () => void
-  /** Objetos da cena além das fotos dos dados. */
-  children?: ReactNode
-}
-
-/** Objeto de cena vindo de uma foto recortada (public/objetos/<projeto>/). */
-export function PhotoObject({ photo }: { photo: ScenePhoto }) {
-  return (
-    <SceneObject
-      className={`absolute ${photo.behind ? 'z-0' : 'z-20'} ${photo.className}`}
-      depth={photo.depth ?? (photo.behind ? 0.2 : 0.6)}
-      enterAt={photo.enterAt ?? 0.4}
-      fallRotation={photo.fallRotation ?? 0}
-      exit={photo.exit ?? { x: 0, rotation: 0 }}
-    >
-      <picture>
-        <source srcSet={photo.webp} type="image/webp" />
-        <img
-          src={photo.png}
-          alt=""
-          width={photo.width}
-          height={photo.height}
-          loading="lazy"
-          decoding="async"
-          draggable={false}
-          className="block h-auto w-full select-none"
-          style={{ filter: photo.behind ? 'blur(1.5px) var(--shadow-object)' : 'var(--shadow-object)' }}
-        />
-      </picture>
-    </SceneObject>
-  )
-}
+const frameStyle: CSSProperties = { border: '1px solid var(--frame-edge)', boxShadow: 'var(--shadow-frame)' }
 
 /**
- * Casca comum dos cinco projetos. O palco fica preso enquanto a cena se monta
- * (print entra, luz sobe, objetos caem) e só solta com a cena pronta. A placa fica parada ao lado.
- * Objetos atrás do print ficam embaixo dele e desfocados; os da frente, nítidos por cima.
+ * Um projeto é o site vivo: frame grande com o vídeo do site rodando, o mobile menor no canto,
+ * e a placa ao lado. O palco fica preso um trecho pra dar tempo de olhar.
+ * Física só no frame: entra com mola, inclina um pouco seguindo o mouse, skew leve pela velocidade do scroll.
  */
-export function ProjectScene({
-  project,
-  index,
-  onSheet,
-  sceneRef,
-  stageRef,
-  heightClass,
-  lightAt = '64% 46%',
-  calm = false,
-  phone = 'left',
-  printDecor,
-  build,
-  reduced,
-  children,
-}: SceneShellProps) {
-  const dimRef = useRef<HTMLDivElement>(null)
+export function ProjectScene({ project, index, onSheet }: ProjectSceneProps) {
+  const sceneRef = useRef<HTMLElement>(null)
+  const stageRef = useRef<HTMLDivElement>(null)
+  const tiltRef = useRef<HTMLDivElement>(null)
+  const skewRef = useRef<HTMLDivElement>(null)
+  const calm = project.id === 'cleane'
 
-  useScenePin(sceneRef, stageRef, {
-    calm,
-    build: (tl) => {
-      // O print acende conforme entra; a cena pode somar mais coisas por cima.
-      tl.fromTo(dimRef.current, { opacity: 0.8 }, { opacity: 0, duration: 0.4, ease: 'none' }, 0.12)
-      build?.(tl)
-    },
-    reduced: () => {
-      gsap.set(dimRef.current, { opacity: 0 })
-      reduced?.()
-    },
-  })
+  useScenePin(sceneRef, stageRef, { calm })
+  useTilt(tiltRef, { maxX: 2, maxY: 3, perspective: 1600, stiffness: 60, damping: calm ? 16 : 9 })
+  useScrollSkew(skewRef, calm ? { factor: 0.06, max: 2, stiffness: 60, damping: 16 } : { factor: 0.08, max: 2.5, stiffness: 120, damping: 11 })
 
   const style: SceneStyle = { '--accent': project.accent, backgroundColor: project.background }
-  const ambient = `radial-gradient(ellipse 60% 70% at ${lightAt}, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%)`
-  const behind = project.photos.filter((p) => p.behind)
-  const front = project.photos.filter((p) => !p.behind)
+  const { desktop, mobile } = project.videos
 
   return (
     <article
       ref={sceneRef}
       data-project-index={index}
       aria-label={project.name}
-      className={`relative ${heightClass}`}
+      className="relative h-[135svh] md:h-[220svh]"
       style={style}
     >
-      <div ref={stageRef} data-sticky className="sticky top-0 h-svh overflow-hidden">
-        <div data-ambient aria-hidden className="pointer-events-none absolute inset-0" style={{ backgroundImage: ambient }} />
-
-        {behind.map((p) => (
-          <PhotoObject key={p.webp} photo={p} />
-        ))}
-
-        <SceneObject
-          className="absolute top-[11svh] left-[12vw] z-10 w-[80vw] md:top-1/2 md:right-[10vw] md:left-auto md:w-[min(56vw,104svh)] md:-translate-y-1/2"
-          depth={0.15}
-          enterAt={0}
-          fallRotation={calm ? 0 : -4}
-          exit={{ x: 6, rotation: 8 }}
+      <div
+        ref={stageRef}
+        data-sticky
+        className="sticky top-0 flex h-svh flex-col justify-center gap-6 overflow-hidden px-4 pl-12 md:block md:p-0"
+      >
+        <div
+          data-enter
+          data-enter-at="0"
+          className="relative w-full will-change-transform md:absolute md:top-1/2 md:right-[4vw] md:w-[min(65vw,128svh)] md:-translate-y-1/2"
         >
-          <PrintFrame project={project} phone={phone} dimRef={dimRef} calm={calm}>
-            {printDecor}
-          </PrintFrame>
-        </SceneObject>
+          <div ref={tiltRef} className="will-change-transform">
+            <div ref={skewRef} className="will-change-transform">
+              <div className="aspect-[16/10] overflow-hidden rounded-[6px] bg-surface" style={frameStyle}>
+                <SiteVideo video={desktop} label={`${project.name} rodando no desktop`} />
+              </div>
 
-        {front.map((p) => (
-          <PhotoObject key={p.webp} photo={p} />
-        ))}
-        {children}
+              <div
+                data-enter
+                data-enter-at="0.18"
+                className="relative mx-auto mt-4 w-[26vw] will-change-transform md:absolute md:right-[-3%] md:bottom-[-10%] md:mx-0 md:mt-0 md:w-[17%]"
+              >
+                <div className="aspect-[390/844] overflow-hidden rounded-[14px] bg-surface md:rounded-[16px]" style={frameStyle}>
+                  <SiteVideo video={mobile} label={`${project.name} rodando no celular`} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <Plaque
           project={project}
           onSheet={onSheet}
-          calm={calm}
-          className="absolute inset-x-0 bottom-[6svh] z-30 px-4 pl-12 md:top-1/2 md:right-auto md:bottom-auto md:w-[31vw] md:-translate-y-1/2 md:pr-0 md:pl-24"
+          className="relative md:absolute md:top-1/2 md:left-0 md:w-[27vw] md:-translate-y-1/2 md:pl-24"
         />
       </div>
     </article>
