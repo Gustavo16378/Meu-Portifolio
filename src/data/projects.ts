@@ -222,55 +222,122 @@ export const projectById = (id: ProjectId): Project => {
   return p
 }
 
-/** Outros projetos no ar (seção 04). Miniatura opcional: sem print, a lista mostra as iniciais. */
+/** Print de um projeto da lista (public/prints-outros/), com versões menores pro srcset. */
+export interface OtherPrint {
+  webp: string
+  png: string
+  /** Largura -> arquivo, pro srcset. */
+  sizes: [number, string][]
+  width: number
+  height: number
+}
+
+/** Outros projetos no ar (seção 04). Sem print, a miniatura mostra as iniciais. */
 export interface OtherProject {
+  id: string
   name: string
   kind: 'cliente' | 'projeto em grupo'
   year: number
-  /** O que é, em poucas palavras. */
+  /** O que é, em poucas palavras (linha fechada). */
   line: string
+  /** Dois ou três parágrafos (linha aberta). Placeholders com a intenção certa. */
+  about: string[]
+  /** Vazio quando ainda não sei a stack. */
   stack: string[]
   url?: string
-  thumb?: { webp: string; png: string; width: number; height: number }
+  repo?: string
+  prints?: { desktop: OtherPrint; mobile: OtherPrint }
 }
 
+const otherPrints = (id: string): OtherProject['prints'] => ({
+  desktop: {
+    webp: `/prints-outros/${id}-desktop.webp`,
+    png: `/prints-outros/${id}-desktop.png`,
+    sizes: [
+      [320, `/prints-outros/${id}-desktop-320.webp`],
+      [800, `/prints-outros/${id}-desktop-800.webp`],
+      [1600, `/prints-outros/${id}-desktop.webp`],
+    ],
+    width: 1600,
+    height: 1000,
+  },
+  mobile: {
+    webp: `/prints-outros/${id}-mobile.webp`,
+    png: `/prints-outros/${id}-mobile.png`,
+    sizes: [
+      [240, `/prints-outros/${id}-mobile-240.webp`],
+      [480, `/prints-outros/${id}-mobile.webp`],
+    ],
+    width: 480,
+    height: 1039,
+  },
+})
+
+// Ordem da lista: a ONG primeiro (e aberta), porque é o design mais forte.
 export const otherProjects: OtherProject[] = [
   {
+    id: 'arte-de-amar',
+    name: 'ONG Arte de Amar',
+    kind: 'projeto em grupo',
+    year: 2026,
+    line: 'one page de ONG de Palmas, com animações em GSAP',
+    about: [
+      'One page da ONG Arte de Amar, que atua em Palmas desde 2015 com crianças e famílias. O site apresenta o trabalho da organização e leva quem visita até a doação.',
+      'Projeto em grupo. A página abre com um preloader e é atravessada de ponta a ponta por um fio verde contínuo, animado em GSAP conforme a rolagem.',
+    ],
+    stack: ['react', 'gsap'],
+    url: 'https://arte-de-amar-site.pages.dev',
+    prints: otherPrints('arte-de-amar'),
+  },
+  {
+    id: 'tina-aires',
     name: 'Tina Aires',
     kind: 'cliente',
     year: 2025,
     line: 'site de neuropsicopedagoga, com SEO técnico completo',
+    about: [
+      'Site institucional da Tina Aires, neuropsicopedagoga em Porto Nacional, no Tocantins.',
+      'O foco foi ser encontrado: SEO técnico completo, com robots, sitemap, dados estruturados em JSON-LD e o site verificado no Search Console.',
+      'Feito em React, leve e rápido de abrir no celular.',
+    ],
     stack: ['react'],
     url: 'https://tinaaires.com.br',
+    prints: otherPrints('tina-aires'),
   },
   {
+    id: 'suelen',
     name: 'Suelen Pratas e Perfumaria',
     kind: 'cliente',
     year: 2025,
-    line: 'loja de semijoias e perfumaria',
+    line: 'loja de semijoias em prata 925 e perfumaria',
+    about: [
+      'Loja da Suelen Pratas e Perfumaria, de semijoias em prata 925 e perfumaria.',
+      'Visual editorial e claro, que deixa as peças em primeiro plano. O catálogo leva a venda direto pro WhatsApp, onde a loja já atende.',
+    ],
     stack: ['react'],
     url: 'https://suelen.pages.dev',
+    prints: otherPrints('suelen'),
   },
   {
-    name: 'ONG Arte de Amar',
+    id: 'automato-celular',
+    name: 'Autômato celular',
     kind: 'projeto em grupo',
     year: 2026,
-    line: 'one page com animações em GSAP',
-    stack: ['react', 'gsap'],
-    url: 'https://arte-de-amar-site.pages.dev',
+    line: 'simulação 2D de acidente nuclear e retomada da natureza',
+    about: [
+      'Simulação 2D de um acidente nuclear: a contaminação se espalha pela grade e, com o tempo, a natureza retoma o espaço.',
+      'Projeto em grupo. Tem controles de execução (executar, avançar uma geração, reiniciar, velocidade) e de cenário (acidente, sarcófago, vento), e mostra o estado da simulação em números e gráfico.',
+    ],
+    stack: [],
+    prints: otherPrints('automato-celular'),
   },
   {
+    id: 'fincontrol',
     name: 'FinControl',
     kind: 'projeto em grupo',
     year: 2026,
     line: 'sistema de controle financeiro',
+    about: ['Sistema de controle financeiro, feito em grupo.', 'Back-end em Java com Spring Boot e banco PostgreSQL.'],
     stack: ['java', 'spring boot', 'postgresql'],
-  },
-  {
-    name: 'Autômato celular',
-    kind: 'projeto em grupo',
-    year: 2026,
-    line: 'simulação de contaminação ambiental',
-    stack: ['java'],
   },
 ]

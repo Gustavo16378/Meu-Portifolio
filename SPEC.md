@@ -152,13 +152,22 @@ Ritmo: dourado, âmbar, vinho, laranja, verde.
 
 ### 04 Outros projetos
 
-Lista, visível sem clicar, logo depois do quinto projeto. Título Tanker: `OUTROS NO AR`. Cada linha: miniatura pequena (print quando houver; sem print, as iniciais do projeto em mono), nome, uma linha do que é, tipo, ano, stack em mono, link. No celular o endereço vira só a seta. Hover: a linha inteira acende em lima e a miniatura ganha um glitch rápido. Dados em `otherProjects` no `data/projects.ts`, prontos pra crescer.
+Lista logo depois do quinto projeto, visível sem clicar. Título Tanker: `OUTROS NO AR`. Dados em `otherProjects` no `data/projects.ts`, prontos pra crescer.
 
-- Tina Aires (2025, cliente) · tinaaires.com.br · site institucional de neuropsicopedagoga, SEO técnico completo · React
-- Suelen Pratas e Perfumaria (2025, cliente) · suelen.pages.dev · loja de semijoias e perfumaria · React
-- ONG Arte de Amar (2026, projeto em grupo) · arte-de-amar-site.pages.dev · one page com GSAP · React
-- FinControl (2026, projeto em grupo) · sistema de controle financeiro · Java, Spring Boot, PostgreSQL
-- Autômato celular (2026, projeto em grupo) · simulação de contaminação ambiental
+**Linha fechada:** miniatura real do print desktop (16:10, uns 160px de largura no desktop; sem print, as iniciais do projeto em mono), nome em Tanker, uma linha do que é, metadados em mono (tipo, ano, stack), link e um `+`. No celular o endereço vira só a seta. Hover: a miniatura cresce um pouco e dá um glitch rápido, e a linha acende em lima.
+
+**Linha aberta:** clicar em qualquer ponto da linha abre; só uma aberta por vez; clicar de novo ou Esc fecha. A abertura não anima altura (regra do CLAUDE.md: só transform e opacity): o layout muda de uma vez e as linhas de baixo deslizam com mola da posição antiga pra nova (FLIP), e o conteúdo entra com fade. Dentro: o print desktop grande à esquerda e o mobile menor ao lado; à direita, dois ou três parágrafos normais sobre o projeto (o que é, o que foi feito, decisões técnicas), a stack completa em mono, `ver no ar` como botão preenchido e `código` com borda quando houver repositório. No celular, imagem em cima e texto embaixo.
+
+Prints em `prints-outros/` (`<projeto>-desktop.png` e `-mobile.png`), servidos de `public/prints-outros/` em WebP com versões menores pro srcset.
+
+Ordem (a ONG vem primeiro e já aberta, porque é o design mais forte; as outras fechadas):
+- ONG Arte de Amar (2026, projeto em grupo) · arte-de-amar-site.pages.dev · one page de ONG de Palmas, com preloader e um fio verde contínuo em GSAP · React, GSAP
+- Tina Aires (2025, cliente) · tinaaires.com.br · neuropsicopedagoga em Porto Nacional, site institucional com SEO técnico completo (robots, sitemap, JSON-LD, Search Console) · React
+- Suelen Pratas e Perfumaria (2025, cliente) · suelen.pages.dev · semijoias em prata 925 e perfumaria, editorial claro, catálogo que leva a venda pro WhatsApp · React
+- Autômato celular (2026, projeto em grupo) · simulação 2D de acidente nuclear, contaminação e retomada da natureza, com controles de execução e cenário · stack a definir
+- FinControl (2026, projeto em grupo) · sistema de controle financeiro · Java, Spring Boot, PostgreSQL · sem imagem por enquanto (iniciais)
+
+Na tela nunca aparece "faculdade" nem "vitrine": a ONG é "projeto em grupo" e a Suelen tem "catálogo".
 
 ### 05 Como eu trabalho
 
