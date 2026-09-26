@@ -58,6 +58,8 @@ export function useProjectsStage(
 ) {
   const manual = useRef<Set<number>>(new Set())
   const api = useRef<{ playManually: (i: number) => void }>({ playManually: () => undefined })
+  // Sobrevive a remontagens (tela mudando entre mobile e desktop): projeto atual e se estava preso.
+  const memory = useRef({ current: 0, engaged: false })
   const cb = useRef({ onCurrent, onEngaged })
   cb.current = { onCurrent, onEngaged }
 
@@ -116,23 +118,26 @@ export function useProjectsStage(
     const kids = (i: number) => Array.from(els.texts[i].children)
 
     /**
-     * A timeline mestra: estado do projeto 0 no começo, e uma troca de STEP segundos entre cada par.
+     * A timeline mestra: uma troca de STEP segundos entre cada par de projetos.
      * Etiqueta p0..p4 no fim de cada troca. Ir pra frente ou pra trás é só andar nela.
      */
     const build = () => {
       master?.kill()
-      const tl = gsap.timeline({ paused: true, onUpdate: syncRing })
+      // Estado do projeto 0 aplicado na hora. Dentro da timeline (set no tempo 0) ele não apareceria:
+      // ela nasce pausada no 0, e ir pro 0 não muda nada, então nada é desenhado até o primeiro passo.
       const c0 = comps[0]
-      tl.set(els.deskTravel, frameVars(frames[0], c0.desk, c0.deskOn), 0)
-      tl.set(els.mobTravel, frameVars(frames[1], c0.mob, c0.mobOn), 0)
+      gsap.set(els.deskTravel, frameVars(frames[0], c0.desk, c0.deskOn))
+      gsap.set(els.mobTravel, frameVars(frames[1], c0.mob, c0.mobOn))
       for (let j = 0; j < n; j++) {
-        tl.set([els.deskLayers[j], els.mobLayers[j]], { opacity: j === 0 ? 1 : 0 }, 0)
-        tl.set(els.names[j], { x: 0, opacity: j === 0 ? NAME_OPACITY : 0 }, 0)
-        tl.set(kids(j), { y: 0, opacity: j === 0 ? 1 : 0 }, 0)
+        gsap.set([els.deskLayers[j], els.mobLayers[j]], { opacity: j === 0 ? 1 : 0 })
+        gsap.set(els.names[j], { x: 0, opacity: j === 0 ? NAME_OPACITY : 0 })
+        gsap.set(kids(j), { y: 0, opacity: j === 0 ? 1 : 0 })
       }
-      tl.set(els.stage, { backgroundColor: projects[0].background }, 0)
-      tl.set(els.wipe, { xPercent: -100, backgroundColor: projects[0].background }, 0)
-      tl.set(els.glow, { '--glow': projects[0].accent }, 0)
+      gsap.set(els.stage, { backgroundColor: projects[0].background })
+      gsap.set(els.wipe, { xPercent: -100, backgroundColor: projects[0].background })
+      gsap.set(els.glow, { '--glow': projects[0].accent })
+
+      const tl = gsap.timeline({ paused: true, onUpdate: syncRing })
       tl.addLabel(label(0), 0)
 
       const move = { duration: STEP, ease: 'power3.inOut', immediateRender: false }
@@ -486,9 +491,12 @@ export function useProjectsStage(
 
     measure()
     build()
-    gx = comps[0].desk.cx
-    gy = comps[0].desk.cy
-    applyInstant(0)
+    const start = Math.min(memory.current.current, n - 1)
+    gx = comps[start].desk.cx
+    gy = comps[start].desk.cy
+    applyInstant(start)
+    // Estava preso antes de remontar: continua preso no mesmo projeto.
+    if (memory.current.engaged && Math.abs(stageTop()) <= EDGE) engage(start)
 
     const onResize = () => {
       measure()
@@ -499,6 +507,7 @@ export function useProjectsStage(
     window.addEventListener('resize', onResize)
 
     return () => {
+      memory.current = { current, engaged }
       moving?.kill()
       master?.kill()
       vis.kill()
