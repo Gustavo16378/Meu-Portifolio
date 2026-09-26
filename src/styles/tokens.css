@@ -37,6 +37,9 @@
   --glint: linear-gradient(90deg, transparent, color-mix(in srgb, var(--c-bone) 85%, transparent), transparent);
   --shadow-frame: 0 30px 70px -30px rgb(0 0 0 / 0.55), 0 8px 20px -10px rgb(0 0 0 / 0.35);
 
+  /* listas */
+  --row-hover: color-mix(in srgb, var(--c-acid) 6%, transparent);
+
   /* botões */
   --button-ghost: color-mix(in srgb, var(--c-bg) 82%, transparent);
   --hud-edge: color-mix(in srgb, var(--c-bone) 35%, transparent);

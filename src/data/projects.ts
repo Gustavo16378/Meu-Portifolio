@@ -221,3 +221,56 @@ export const projectById = (id: ProjectId): Project => {
   if (!p) throw new Error(`projeto ${id} não existe`)
   return p
 }
+
+/** Outros projetos no ar (seção 04). Miniatura opcional: sem print, a lista mostra as iniciais. */
+export interface OtherProject {
+  name: string
+  kind: 'cliente' | 'projeto em grupo'
+  year: number
+  /** O que é, em poucas palavras. */
+  line: string
+  stack: string[]
+  url?: string
+  thumb?: { webp: string; png: string; width: number; height: number }
+}
+
+export const otherProjects: OtherProject[] = [
+  {
+    name: 'Tina Aires',
+    kind: 'cliente',
+    year: 2025,
+    line: 'site de neuropsicopedagoga, com SEO técnico completo',
+    stack: ['react'],
+    url: 'https://tinaaires.com.br',
+  },
+  {
+    name: 'Suelen Pratas e Perfumaria',
+    kind: 'cliente',
+    year: 2025,
+    line: 'loja de semijoias e perfumaria',
+    stack: ['react'],
+    url: 'https://suelen.pages.dev',
+  },
+  {
+    name: 'ONG Arte de Amar',
+    kind: 'projeto em grupo',
+    year: 2026,
+    line: 'one page com animações em GSAP',
+    stack: ['react', 'gsap'],
+    url: 'https://arte-de-amar-site.pages.dev',
+  },
+  {
+    name: 'FinControl',
+    kind: 'projeto em grupo',
+    year: 2026,
+    line: 'sistema de controle financeiro',
+    stack: ['java', 'spring boot', 'postgresql'],
+  },
+  {
+    name: 'Autômato celular',
+    kind: 'projeto em grupo',
+    year: 2026,
+    line: 'simulação de contaminação ambiental',
+    stack: ['java'],
+  },
+]

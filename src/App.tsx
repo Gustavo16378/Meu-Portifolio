@@ -16,6 +16,7 @@ import { Process } from './components/Process'
 import { Story } from './components/Story'
 import { Contact } from './components/Contact'
 import { IdleWalker } from './components/IdleWalker'
+import { RecruiterPanel } from './components/RecruiterPanel'
 
 export default function App() {
   const { open: menuOpen, show: openMenu, hide: closeMenu } = useOverlayState()
@@ -31,8 +32,13 @@ export default function App() {
     [closeMenu],
   )
 
-  // O painel do recrutador entra na Etapa 5; por enquanto o atalho só fecha o menu.
-  const openRecruiter = closeMenu
+  const recruiter = useOverlayState()
+  const { show: showRecruiter } = recruiter
+  // Do HUD ou do menu: fecha o menu (se aberto) e abre o painel.
+  const openRecruiter = useCallback(() => {
+    closeMenu()
+    showRecruiter()
+  }, [closeMenu, showRecruiter])
 
   return (
     <LenisProvider>
@@ -49,6 +55,7 @@ export default function App() {
       <IdleWalker />
       <Grain />
       <Menu open={menuOpen} onClose={closeMenu} onNavigate={navigate} onRecruiter={openRecruiter} />
+      <RecruiterPanel open={recruiter.open} onClose={recruiter.hide} />
       <Preloader />
       <Cursor />
     </LenisProvider>

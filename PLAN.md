@@ -46,7 +46,7 @@ Conferir: tamanho discreto, entrada com mola, some no primeiro arrasto do hero, 
 Passar seção por seção no Chrome headless em 1440x900 e 390x844 e reportar preloader, hero, seção 02, projetos (vídeo, pin, cor, trilho), menu e ficha, HUD, personagem, reduced-motion, console e tempo de carregamento da seção de projetos.
 
 ## Etapa 5 · Resto da página
-Outros projetos (lista com hover glitch), Como funciona (blocos com glitch), História (foto estática + linha do tempo), Contato (título montando em blocos, WhatsApp, footer). Painel do recrutador com CV em PDF (placeholder até o Gustavo mandar o PDF), aberto pelo botão `recrutador?` do HUD (já existe desde a Etapa 3) e pelo do menu.
+Outros projetos (lista com hover glitch), Como funciona (blocos com glitch e o personagem por passo), História (foto do capuz como cartão com tilt, linha do tempo, personagem com café), Contato (título digitado, e-mail e WhatsApp reais, footer, personagem acenando). Painel do recrutador com CV em PDF (placeholder até o Gustavo mandar o PDF), aberto pelo botão `recrutador?` do HUD (já existe desde a Etapa 3) e pelo do menu.
 Conferir: seção atual no HUD acompanhando, todos os links.
 
 ## Etapa 6 · Mobile e reduced-motion

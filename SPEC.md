@@ -152,27 +152,29 @@ Ritmo: dourado, âmbar, vinho, laranja, verde.
 
 ### 04 Outros projetos
 
-Lista, visível sem clicar, logo depois do quinto projeto. Título Tanker: `OUTROS NO AR`. Cada linha: miniatura pequena (print, anexo quando houver), nome, tipo, ano, stack em mono, link. Hover: a linha inteira acende em lima e a miniatura ganha um glitch rápido. Estrutura preparada para crescer.
+Lista, visível sem clicar, logo depois do quinto projeto. Título Tanker: `OUTROS NO AR`. Cada linha: miniatura pequena (print quando houver; sem print, as iniciais do projeto em mono), nome, uma linha do que é, tipo, ano, stack em mono, link. No celular o endereço vira só a seta. Hover: a linha inteira acende em lima e a miniatura ganha um glitch rápido. Dados em `otherProjects` no `data/projects.ts`, prontos pra crescer.
 
 - Tina Aires (2025, cliente) · tinaaires.com.br · site institucional de neuropsicopedagoga, SEO técnico completo · React
 - Suelen Pratas e Perfumaria (2025, cliente) · suelen.pages.dev · loja de semijoias e perfumaria · React
 - ONG Arte de Amar (2026, projeto em grupo) · arte-de-amar-site.pages.dev · one page com GSAP · React
-- FinControl (2026, projeto em grupo) · sistema acadêmico · Java, Spring Boot, PostgreSQL
+- FinControl (2026, projeto em grupo) · sistema de controle financeiro · Java, Spring Boot, PostgreSQL
 - Autômato celular (2026, projeto em grupo) · simulação de contaminação ambiental
 
 ### 05 Como eu trabalho
 
-Título Tanker: `COMO FUNCIONA`. Quatro passos em linha horizontal, numerados em mono, cada um com título curto e duas linhas de texto normal: conversa e briefing; identidade e design; construção (front, back, API, banco); deploy e acompanhamento. Os blocos entram um a um com o mesmo glitch curto da seção 02. Abaixo, uma linha: "Cada projeto tem escopo e orçamento próprios. O primeiro passo é uma conversa." e link `ir para o contato`.
+Título Tanker: `COMO FUNCIONA`. Quatro passos em linha horizontal (empilhados no celular), numerados em mono, cada um com o personagem na pose do passo, título curto e duas linhas de texto normal: conversa; identidade e design; construção (front, back, API, banco); deploy e acompanhamento. Os blocos entram um a um com o mesmo glitch curto da seção 02. Abaixo, uma linha: "Cada projeto tem escopo e orçamento próprios. O primeiro passo é uma conversa." e o botão `ir para o contato`, que rola até o contato.
 
 ### 06 História
 
-Título Tanker: `DESDE OS 16`. Esquerda: a foto do Gustavo (`assets/foto/foto2.png`, natural, com o capuz), como cartão físico que inclina com o mouse. Direita: texto em Synonym, dois parágrafos normais: de Palmas, programa desde os 16, freelance desde 2024, faz site e sistema, o que busca hoje. Abaixo, linha do tempo em mono: `2024 – hoje · freelance próprio`, `nov 2025 – mai 2026 · DS Web Dev, freelance remoto`, `mar – jul 2026 · Platano Solution, suporte técnico`. Não mencionar faculdade.
+Título Tanker: `DESDE OS 16`. Esquerda: a foto do Gustavo (`assets/foto/foto2.png`, natural, com o capuz), como cartão físico que inclina com o mouse. Direita: texto em Synonym, dois parágrafos normais: de Palmas, programa desde os 16, freelance desde 2024, faz site e sistema, o que busca hoje. Abaixo, linha do tempo em mono, com o personagem tomando café ao lado: `2024 a hoje · freelance próprio`, `nov 2025 a mai 2026 · DS Web Dev, freelance remoto`, `mar a jul 2026 · Platano Solution, suporte técnico` (datas com "a", sem traço). Dados em `data/timeline.ts`. Não mencionar faculdade.
 
 ### 07 Contato
 
-Título Tanker gigante, uma palavra por linha: `VAMOS` / `CONVERSAR`. A última palavra em lima. Abaixo, e-mail e WhatsApp em texto grande e clicável, botão lima `chamar no WhatsApp`. Ao entrar na seção, o título monta a partir de blocos.
+Título Tanker gigante, uma palavra por linha: `VAMOS` / `CONVERSAR?`, a última palavra em lima. Ao entrar na seção o título é digitado letra por letra, no mesmo ritmo do preloader, com o cursor de texto lima (em reduced-motion aparece pronto). Abaixo, e-mail e WhatsApp em texto grande e clicável e o botão lima `chamar no WhatsApp`, com o personagem acenando ao lado.
 
-Footer autoral, uma faixa em mono: GitHub (github.com/Gustavo16378), LinkedIn (linkedin.com/in/gustavo-barbosa-lima-341886278), Instagram (@ogustavo_dev), e a stack completa: react · typescript · javascript · tailwind · node.js · java · spring boot · quarkus · postgresql · docker · cloudflare · react native/expo. Assinatura: `gustavodev.dev · palmas, to · feito do zero`.
+Contato (em `data/contact.ts`, o mesmo em todo lugar: contato, painel do recrutador, rodapé e JSON-LD): e-mail `gustavo@gustavodev.dev`; WhatsApp `(63) 99111-4551`, link `https://wa.me/5563991114551?text=Oi%20Gustavo`.
+
+Footer autoral, uma faixa em mono: GitHub (github.com/Gustavo16378), LinkedIn (linkedin.com/in/gustavo-barbosa-lima-341886278), Instagram (@ogustavo_dev), e a stack completa: react · typescript · javascript · tailwind · node.js · java · spring boot · quarkus · postgresql · docker · cloudflare · react native/expo. Também o e-mail. Assinatura: `gustavodev.dev · palmas, to · feito do zero`.
 
 ## Personagem
 
@@ -194,7 +196,7 @@ As outras poses (`bracos-cruzados`, `frente`, `lado`, `olhando-cima`, `pulando`,
 
 ## Atalho do recrutador
 
-Botão `recrutador?` em mono no menu e no HUD superior direito (ao lado da hora). O texto é só esse, sem complemento. Abre um painel lateral sobre a página: uma linha de resumo, stack agrupada (front, back, mobile, infra) em mono, experiência em três linhas, links GitHub e LinkedIn, botão `baixar CV em PDF`. Esc ou clique fora fecha.
+Botão `recrutador?` em mono no menu e no HUD superior direito (ao lado da hora). O texto é só esse, sem complemento. Abre um painel lateral sobre a página (portal no body, mesma mecânica do menu e da ficha): uma linha de resumo, stack agrupada (front, back, mobile, infra) em mono (`data/stack.ts`), experiência em três linhas (a mesma linha do tempo da História), links GitHub e LinkedIn, e-mail, e o botão `baixar CV em PDF`, que baixa `public/cv-gustavo-lima.pdf`. Esc ou clique fora fecha. Do menu, o atalho fecha o menu e abre o painel.
 
 ## Física e dinamismo (vale pro site inteiro)
 
@@ -219,6 +221,6 @@ Ferramentas: GSAP (ScrollTrigger, Draggable, InertiaPlugin, Physics2DPlugin, tod
 - Projetos em passos: palco preso, um gesto por projeto, cada troca uma timeline completa (frames viajando com mola entre as composições, varredura diagonal de cor, nome em contorno trocando, texto saindo pra cima e entrando de baixo); luz na cor de acento atrás do frame, nome deslizando sozinho, frame flutuando com brilho na borda; trilho lateral acompanhando. Sem blocos.
 - Skew por velocidade de scroll em títulos e nos frames dos projetos; botões magnéticos.
 - HUD fixo com hora real e seção atual.
-- Título do contato montando em blocos.
+- Título do contato digitado, como o preloader.
 - Personagem pequeno nos pontos definidos, com mola na entrada e flutuação leve; atravessa o rodapé quando o usuário fica parado.
 - Tudo com GSAP (ScrollTrigger, Draggable, Inertia, Physics2D) + Lenis.
