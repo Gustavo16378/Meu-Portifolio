@@ -1,30 +1,32 @@
 import { useEffect, useRef } from 'react'
-import { gsap } from './gsap'
+import { gsap, Observer, ScrollTrigger } from './gsap'
+import { getLenis } from './useLenis'
 import { prefersReducedMotion } from './reducedMotion'
-import { clamp, createSpring, stepSpring, tickerDt, watchVisibility, type Spring } from './spring'
-import { compose, SEGMENTS, type Composition, type FrameRect } from '../components/projectLayout'
+import { holdScroll, isScrollLocked, onLockChange, releaseScroll } from './scrollLock'
+import { isNavigating, onNavigate } from './navigate'
+import { tickerDt, watchVisibility } from './spring'
+import { compose, type Composition, type FrameRect } from '../components/projectLayout'
 import type { Project } from '../data/projects'
 
 export interface StageEls {
-  section: HTMLElement
+  /** O palco (altura da tela) que prende. */
   stage: HTMLElement
-  /** Frames que viajam (desktop e mobile) e as caixas com a borda. */
+  /** Tudo que troca de projeto, menos o fundo (em reduced-motion some e volta inteiro). */
+  content: HTMLElement
+  /** Varredura diagonal: um preenchimento só, reiniciado a cada troca. */
+  wipe: HTMLElement
+  glow: HTMLElement
   deskTravel: HTMLElement
   mobTravel: HTMLElement
-  deskBox: HTMLElement
-  mobBox: HTMLElement
-  /** Uma camada por projeto dentro de cada frame (vídeo ou poster). */
+  deskFloat: HTMLElement
+  mobFloat: HTMLElement
+  glints: HTMLElement[]
   deskLayers: HTMLElement[]
   mobLayers: HTMLElement[]
-  /** Nome em contorno de cada projeto (com cópias repetidas dentro). */
+  /** Nome em contorno: camada que entra e sai, e a faixa dentro que desliza sozinha. */
   names: HTMLElement[]
-  /** Varreduras de cor: uma por troca de projeto e a última de volta pro preto. */
-  wipers: HTMLElement[]
-  /** Bloco de texto de cada projeto; os filhos entram e saem em stagger. */
+  nameTracks: HTMLElement[]
   texts: HTMLElement[]
-  /** Marcadores no fluxo, um por projeto, pra saber o que está a uma tela de distância. */
-  markers: HTMLElement[]
-  /** O vídeo que toca em cada projeto (o outro frame mostra poster). */
   videos: (HTMLVideoElement | null)[]
 }
 
@@ -33,113 +35,98 @@ interface Options {
   desktop: boolean
   posterOnly: boolean
   onCurrent: (index: number) => void
+  onEngaged: (engaged: boolean) => void
 }
 
-const FOLLOW = { stiffness: 95, damping: 12.5 }
-const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2)
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t
-const lerpRect = (a: FrameRect, b: FrameRect, t: number): FrameRect => ({
-  cx: lerp(a.cx, b.cx, t),
-  cy: lerp(a.cy, b.cy, t),
-  w: lerp(a.w, b.w, t),
-  rot: lerp(a.rot, b.rot, t),
-})
-
-interface FrameMotion {
-  el: HTMLElement
-  box: HTMLElement
-  baseW: number
-  baseH: number
-  springs: { cx: Spring; cy: Spring; w: Spring; rot: Spring }
-  set: { x: (v: number) => void; y: (v: number) => void; sx: (v: number) => void; sy: (v: number) => void; r: (v: number) => void }
-  lastRing: number
-}
+const TRAVEL = 1.15
+const COOLDOWN = 280 // ms depois de uma troca, pra inércia do trackpad não pular dois projetos
+const NAME_OPACITY = 0.55
+const DRIFT = 26 // px/s do nome em contorno, parado
 
 /**
- * Controla o palco da seção de projetos, preso durante a seção inteira. A cada quadro lê onde o scroll
- * está (projeto atual e progresso da viagem até o próximo) e move tudo a partir disso, de forma reversível.
- * Devolve `playManually(i)`, usado pelo botão "ver em movimento" quando o aparelho só mostra poster.
+ * Palco da seção de projetos. Quando o topo do palco chega no topo da tela, o scroll trava e
+ * cada gesto (wheel, toque, seta, page up/down, espaço) leva pro projeto seguinte ou anterior numa
+ * timeline completa; gestos durante a troca são ignorados. No primeiro, gesto pra cima solta pra seção
+ * anterior; no último, gesto pra baixo solta pra seguinte.
  */
-export function useProjectsStage(getEls: () => StageEls | null, { projects, desktop, posterOnly, onCurrent }: Options) {
+export function useProjectsStage(
+  getEls: () => StageEls | null,
+  { projects, desktop, posterOnly, onCurrent, onEngaged }: Options,
+) {
   const manual = useRef<Set<number>>(new Set())
   const api = useRef<{ playManually: (i: number) => void }>({ playManually: () => undefined })
+  const cb = useRef({ onCurrent, onEngaged })
+  cb.current = { onCurrent, onEngaged }
 
   useEffect(() => {
     const els = getEls()
     if (!els) return
     const n = projects.length
     const reduced = prefersReducedMotion()
-    const seg = desktop ? SEGMENTS.desktop : SEGMENTS.mobile
 
     let vw = 0
     let vh = 0
     let comps: Composition[] = []
-    let nameUnits: number[] = []
+    let current = 0
+    let engaged = false
+    let releasing = false
+    let busy: gsap.core.Timeline | null = null
+    let cooldownUntil = 0
+    let stageVisible = false
+    let stageNear = false
 
-    const makeFrame = (el: HTMLElement, box: HTMLElement): FrameMotion => ({
-      el,
-      box,
-      baseW: 0,
-      baseH: 0,
-      springs: { cx: createSpring(), cy: createSpring(), w: createSpring(), rot: createSpring() },
-      set: {
-        x: gsap.quickSetter(el, 'x', 'px') as (v: number) => void,
-        y: gsap.quickSetter(el, 'y', 'px') as (v: number) => void,
-        // quickSetter não aceita o atalho 'scale': os dois eixos separados.
-        sx: gsap.quickSetter(el, 'scaleX') as (v: number) => void,
-        sy: gsap.quickSetter(el, 'scaleY') as (v: number) => void,
-        r: gsap.quickSetter(el, 'rotation', 'deg') as (v: number) => void,
-      },
-      lastRing: 0,
-    })
-    const desk = makeFrame(els.deskTravel, els.deskBox)
-    const mob = makeFrame(els.mobTravel, els.mobBox)
+    // --- Frames: tamanho base (o maior que assumem), e daí só transform ---
+    const frames = [
+      { travel: els.deskTravel, key: 'desk' as const, baseW: 0, baseH: 0, ratio: 1000 / 1600 },
+      { travel: els.mobTravel, key: 'mob' as const, baseW: 0, baseH: 0, ratio: 1039 / 480 },
+    ]
     gsap.set([els.deskTravel, els.mobTravel], { transformOrigin: '50% 50%' })
 
-    // Tamanho base de cada frame: o maior que ele assume, pra só reduzir com scale (vídeo nunca esticado).
     const measure = () => {
       vw = els.stage.clientWidth
       vh = els.stage.clientHeight
       comps = projects.map((p) => compose(p.id, vw, vh, desktop))
-      desk.baseW = Math.max(...comps.map((c) => c.desk.w))
-      desk.baseH = (desk.baseW * 800) / 1280
-      mob.baseW = Math.max(...comps.map((c) => c.mob.w))
-      mob.baseH = (mob.baseW * 844) / 390
-      for (const f of [desk, mob]) {
-        f.el.style.width = `${f.baseW}px`
-        f.el.style.height = `${f.baseH}px`
+      for (const f of frames) {
+        f.baseW = Math.max(...comps.map((c) => c[f.key].w))
+        f.baseH = f.baseW * f.ratio
+        f.travel.style.width = `${f.baseW}px`
+        f.travel.style.height = `${f.baseH}px`
       }
-      nameUnits = els.names.map((l) => (l.firstElementChild as HTMLElement | null)?.offsetWidth ?? vw)
     }
-    measure()
-    // Primeiro quadro já no lugar, sem viagem.
-    for (const [f, r] of [
-      [desk, comps[0].desk],
-      [mob, comps[0].mob],
-    ] as const) {
-      f.springs.cx.value = f.springs.cx.target = r.cx
-      f.springs.cy.value = f.springs.cy.target = r.cy
-      f.springs.w.value = f.springs.w.target = r.w
-      f.springs.rot.value = f.springs.rot.target = r.rot
+    const frameVars = (f: (typeof frames)[number], r: FrameRect, on: boolean) => ({
+      x: r.cx - f.baseW / 2,
+      y: r.cy - f.baseH / 2,
+      scaleX: r.w / f.baseW,
+      scaleY: r.w / f.baseW,
+      rotation: r.rot,
+      opacity: on ? 1 : 0,
+    })
+    // Borda sempre de 1px na tela, qualquer que seja a escala.
+    const syncRing = () => {
+      for (const f of frames) {
+        const s = Number(gsap.getProperty(f.travel, 'scaleX')) || 1
+        f.travel.style.setProperty('--ring', `${1 / s}px`)
+      }
     }
 
-    // --- Vídeos: carregar perto, descarregar longe, tocar só o atual ---
-    const near = new Array<boolean>(n).fill(false)
+    const kids = (i: number) => Array.from(els.texts[i].children)
+    const setInteractive = () =>
+      els.texts.forEach((el, j) => {
+        el.style.pointerEvents = j === current ? 'auto' : 'none'
+        el.inert = j !== current
+      })
+    const setGlowColor = (i: number) => els.glow.style.setProperty('--glow', projects[i].accent)
+
+    // --- Vídeos: só com mídia em vídeo; o atual e os vizinhos carregam, só o atual toca ---
     const loaded = new Array<boolean>(n).fill(false)
-    let visible = false
-    let current = -1
-
-    const srcFor = (i: number, video: HTMLVideoElement) => {
-      const hero = comps[i]?.hero ?? 'desktop'
-      const v = projects[i].videos[hero]
-      const webm = v.webm && video.canPlayType('video/webm') !== '' && video.dataset.webmFailed !== '1'
-      return webm && v.webm ? v.webm : v.mp4
-    }
+    const allowed = (i: number) => projects[i].media === 'video' && (!posterOnly || manual.current.has(i))
     const load = (i: number) => {
       const video = els.videos[i]
       if (!video || loaded[i]) return
+      const v = projects[i].videos[comps[i]?.hero ?? 'desktop']
+      const webm = v.webm && video.canPlayType('video/webm') !== '' && video.dataset.webmFailed !== '1'
       video.muted = true
-      video.src = srcFor(i, video)
+      video.src = webm && v.webm ? v.webm : v.mp4
       video.load()
       loaded[i] = true
     }
@@ -151,214 +138,301 @@ export function useProjectsStage(getEls: () => StageEls | null, { projects, desk
       video.load()
       loaded[i] = false
     }
-    const allowed = (i: number) => !posterOnly || manual.current.has(i)
-    const syncLoading = () => {
+    const syncVideos = () => {
       for (let i = 0; i < n; i++) {
-        if (near[i] && allowed(i)) load(i)
-        else if (!near[i]) unload(i)
+        const video = els.videos[i]
+        if (!video) continue
+        if (stageNear && Math.abs(i - current) <= 1 && allowed(i)) load(i)
+        else unload(i)
+        if (stageVisible && i === current && loaded[i]) video.play().catch(() => undefined)
+        else video.pause()
       }
     }
-    const syncPlayback = () => {
-      els.videos.forEach((video, i) => {
-        if (!video) return
-        if (visible && i === current && loaded[i]) video.play().catch(() => undefined)
-        else video.pause()
-      })
-    }
     // WebM que o navegador não abre: cai pro MP4.
-    const onError = (e: Event) => {
+    const onVideoError = (e: Event) => {
       const video = e.currentTarget as HTMLVideoElement
       const i = els.videos.indexOf(video)
       if (i < 0 || !loaded[i] || !video.currentSrc.endsWith('.webm')) return
       video.dataset.webmFailed = '1'
       loaded[i] = false
-      load(i)
-      syncPlayback()
+      syncVideos()
     }
-    els.videos.forEach((v) => v?.addEventListener('error', onError))
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) near[els.markers.indexOf(e.target as HTMLElement)] = e.isIntersecting
-        syncLoading()
-        syncPlayback()
+    els.videos.forEach((v) => v?.addEventListener('error', onVideoError))
+    const nearIO = new IntersectionObserver(
+      ([e]) => {
+        stageNear = e.isIntersecting
+        syncVideos()
       },
-      // A uma tela de distância já começa a carregar.
       { rootMargin: '100% 0px 100% 0px' },
     )
-    els.markers.forEach((m) => io.observe(m))
-
+    nearIO.observe(els.stage)
     api.current.playManually = (i: number) => {
       manual.current.add(i)
-      near[i] = true
-      load(i)
-      syncPlayback()
+      syncVideos()
     }
 
-    // --- Setters dos textos, nomes, varreduras e camadas ---
-    const textKids = els.texts.map((t) => Array.from(t.children) as HTMLElement[])
-    const textSet = textKids.map((kids) =>
-      kids.map((k) => ({
-        y: gsap.quickSetter(k, 'y', 'px') as (v: number) => void,
-        o: gsap.quickSetter(k, 'opacity') as (v: number) => void,
-      })),
-    )
-    const nameSet = els.names.map((el) => ({
-      x: gsap.quickSetter(el, 'x', 'px') as (v: number) => void,
-      o: gsap.quickSetter(el, 'opacity') as (v: number) => void,
-    }))
-    // Começa fora da tela; só o GSAP mexe no transform (um translate fixo no estilo somaria com o xPercent).
-    gsap.set(els.wipers, { xPercent: -100 })
-    const wipeSet = els.wipers.map((el) => gsap.quickSetter(el, 'xPercent') as (v: number) => void)
-    const deskLayerO = els.deskLayers.map((el) => gsap.quickSetter(el, 'opacity') as (v: number) => void)
-    const mobLayerO = els.mobLayers.map((el) => gsap.quickSetter(el, 'opacity') as (v: number) => void)
-    const travelO = [gsap.quickSetter(els.deskTravel, 'opacity'), gsap.quickSetter(els.mobTravel, 'opacity')] as ((v: number) => void)[]
-
-    const place = (f: FrameMotion, target: FrameRect, dt: number) => {
-      const s = f.springs
-      s.cx.target = target.cx
-      s.cy.target = target.cy
-      s.w.target = target.w
-      s.rot.target = target.rot
-      for (const sp of [s.cx, s.cy, s.w, s.rot]) {
-        if (reduced) sp.value = sp.target
-        else stepSpring(sp, dt, FOLLOW)
+    /** Coloca o projeto i no lugar, sem animação. */
+    const applyInstant = (i: number) => {
+      busy?.progress(1)
+      current = i
+      const c = comps[i]
+      gsap.set(els.deskTravel, frameVars(frames[0], c.desk, c.deskOn))
+      gsap.set(els.mobTravel, frameVars(frames[1], c.mob, c.mobOn))
+      syncRing()
+      for (let j = 0; j < n; j++) {
+        gsap.set([els.deskLayers[j], els.mobLayers[j]], { opacity: j === i ? 1 : 0 })
+        gsap.set(els.names[j], { x: 0, opacity: j === i ? NAME_OPACITY : 0 })
+        gsap.set(kids(j), { y: 0, opacity: j === i ? 1 : 0 })
       }
-      const scale = s.w.value / f.baseW
-      f.set.x(s.cx.value - f.baseW / 2)
-      f.set.y(s.cy.value - f.baseH / 2)
-      f.set.sx(scale)
-      f.set.sy(scale)
-      f.set.r(s.rot.value)
-      // Borda sempre de 1px na tela, qualquer que seja a escala.
-      const ring = 1 / Math.max(scale, 0.05)
-      if (Math.abs(ring - f.lastRing) > 0.02) {
-        f.box.style.setProperty('--ring', `${ring}px`)
-        f.lastRing = ring
-      }
+      gsap.set(els.stage, { backgroundColor: projects[i].background })
+      gsap.set(els.wipe, { xPercent: -100 })
+      setGlowColor(i)
+      setInteractive()
+      cb.current.onCurrent(i)
+      syncVideos()
     }
 
-    const tick = (time: number, deltaMs: number) => {
-      const dt = tickerDt(deltaMs)
-      const top = els.section.getBoundingClientRect().top
-      const s = -top // quanto da seção já passou
-      const hold = seg.hold * vh
-      const trans = seg.trans * vh
-      const step = hold + trans
+    // --- Troca de projeto: uma timeline só ---
+    let drift = 0
+    let boost = 0
 
-      // Onde estamos: projeto i, viagem t (0 parado, 1 chegou no próximo), fim de volta ao preto.
-      const i = clamp(Math.floor(Math.max(s, 0) / step), 0, n - 1)
-      const local = Math.max(s, 0) - i * step
-      let t = 0
-      let end = 0
-      if (i === n - 1) {
-        end = clamp((local - hold) / (seg.end * vh), 0, 1)
-      } else if (local > hold) {
-        t = clamp((local - hold) / trans, 0, 1)
-      }
-      const te = easeInOut(t)
-      const next = Math.min(i + 1, n - 1)
-
-      // Entrada da seção: os frames sobem com mola enquanto o palco chega.
-      const arrive = clamp(1 + s / (vh * 0.7), 0, 1)
-
-      const a = comps[i]
+    const goto = (next: number, dir: 1 | -1) => {
+      const from = current
       const b = comps[next]
-      const lift = (1 - arrive) * vh * 0.3
-      place(desk, { ...lerpRect(a.desk, b.desk, te), cy: lerp(a.desk.cy, b.desk.cy, te) + lift }, dt)
-      place(mob, { ...lerpRect(a.mob, b.mob, te), cy: lerp(a.mob.cy, b.mob.cy, te) + lift * 1.2 }, dt)
-      travelO[0](arrive)
-      travelO[1](arrive)
+      current = next
+      setInteractive()
+      cb.current.onCurrent(next)
+      syncVideos()
 
-      // Vídeo troca no meio da viagem.
-      const cross = clamp((te - 0.35) / 0.3, 0, 1)
-      for (let j = 0; j < n; j++) {
-        const o = j === i ? (i === next ? 1 : 1 - cross) : j === next ? cross : 0
-        deskLayerO[j](o)
-        mobLayerO[j](o)
+      const tl = gsap.timeline({
+        onComplete: () => {
+          busy = null
+          cooldownUntil = performance.now() + COOLDOWN
+          syncRing()
+        },
+      })
+      busy = tl
+
+      if (reduced) {
+        tl.to(els.content, { opacity: 0, duration: 0.25 })
+          .call(() => {
+            busy = null
+            applyInstant(next)
+            busy = tl
+          })
+          .to(els.content, { opacity: 1, duration: 0.3 })
+        return
       }
 
-      // Nome em contorno: desliza com o scroll (Lenis) e um pouco com o tempo; na troca, sai por um lado e o próximo entra pelo outro.
-      for (let j = 0; j < n; j++) {
-        const unit = nameUnits[j] || vw
-        const drift = reduced ? 0 : -(((s * 0.25 + time * 14) % unit) + unit) % unit
-        let slide = 0
-        let o = 0
-        if (j === i) {
-          o = i === next ? 1 : reduced ? 1 - te : 1
-          slide = reduced ? 0 : -te * vw
-        } else if (j === next) {
-          o = reduced ? te : te > 0 ? 1 : 0
-          slide = reduced ? 0 : (1 - te) * vw
-        }
-        // Contorno discreto: é fundo, não compete com o texto.
-        nameSet[j].o(o * 0.55)
-        if (o > 0) nameSet[j].x(drift + slide)
-      }
-
-      // Varredura diagonal de cor: cada troca empurra a cor do próximo por cima.
-      for (let k = 0; k < els.wipers.length; k++) {
-        const p = k < n - 1 ? (k < i ? 1 : k === i ? te : 0) : end
-        wipeSet[k](-100 + p * 100)
-      }
-
+      boost = 700 * dir
+      // Frames viajam com mola até a nova composição.
+      tl.to(els.deskTravel, { ...frameVars(frames[0], b.desk, b.deskOn), duration: TRAVEL, ease: 'back.out(1.25)', onUpdate: syncRing }, 0)
+      tl.to(els.mobTravel, { ...frameVars(frames[1], b.mob, b.mobOn), duration: TRAVEL, ease: 'back.out(1.25)' }, 0.06)
+      // Imagem troca no meio da viagem.
+      tl.to([els.deskLayers[from], els.mobLayers[from]], { opacity: 0, duration: 0.3, ease: 'none' }, 0.3)
+      tl.to([els.deskLayers[next], els.mobLayers[next]], { opacity: 1, duration: 0.3, ease: 'none' }, 0.3)
+      // Varredura diagonal: a cor do próximo cobre a tela vindo do lado do gesto; no fim vira o fundo e a varredura some.
+      tl.set(els.wipe, { backgroundColor: projects[next].background, xPercent: dir > 0 ? -100 : 100 }, 0)
+      tl.to(els.wipe, { xPercent: 0, duration: 0.85, ease: 'power3.inOut' }, 0)
+      tl.set(els.stage, { backgroundColor: projects[next].background }, 0.85)
+      tl.set(els.wipe, { xPercent: -100 }, 0.85)
+      // Luz troca de cor apagando e acendendo.
+      tl.to(els.glow, { opacity: 0, duration: 0.3 }, 0)
+      tl.call(() => setGlowColor(next), undefined, 0.3)
+      tl.to(els.glow, { opacity: 1, duration: 0.6 }, 0.4)
+      // Nome em contorno: o atual sai por um lado, o próximo entra pelo outro.
+      tl.to(els.names[from], { x: -dir * vw * 0.5, opacity: 0, duration: 0.6, ease: 'power2.in' }, 0)
+      tl.fromTo(els.names[next], { x: dir * vw * 0.5, opacity: 0 }, { x: 0, opacity: NAME_OPACITY, duration: 0.8, ease: 'power3.out' }, 0.35)
       // Texto: o atual sai pra cima, o próximo entra de baixo, em stagger.
-      for (let j = 0; j < n; j++) {
-        const kids = textSet[j]
-        kids.forEach((k, c) => {
-          let y = 0
-          let o = 0
-          if (j === i) {
-            const p = i === next ? 0 : clamp((te - c * 0.06) / 0.45, 0, 1)
-            y = reduced ? 0 : -40 * p
-            o = 1 - p
-          } else if (j === next) {
-            const p = clamp((te - 0.45 - c * 0.06) / 0.45, 0, 1)
-            y = reduced ? 0 : 40 * (1 - p)
-            o = p
-          }
-          k.y(y)
-          k.o(o)
-        })
-      }
-
-      // Projeto que está mais na tela: o único que toca e o único clicável.
-      const now = t >= 0.5 ? next : i
-      if (now !== current) {
-        current = now
-        els.texts.forEach((el, j) => {
-          el.style.pointerEvents = j === current ? 'auto' : 'none'
-          el.inert = j !== current
-        })
-        onCurrent(current)
-        syncPlayback()
-      }
+      tl.to(kids(from), { y: -40, opacity: 0, duration: 0.4, stagger: 0.05, ease: 'power2.in' }, 0)
+      tl.fromTo(kids(next), { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, stagger: 0.06, ease: 'power3.out' }, 0.5)
     }
 
+    // --- Prender e soltar ---
+    const stageY = () => els.stage.getBoundingClientRect().top + window.scrollY
+
+    function step(dir: 1 | -1) {
+      if (!engaged || busy || performance.now() < cooldownUntil) return
+      const next = current + dir
+      if (next < 0 || next >= n) release(dir)
+      else goto(next, dir)
+    }
+
+    const observer = Observer.create({
+      target: window,
+      type: 'wheel,touch',
+      wheelSpeed: -1,
+      tolerance: 10,
+      preventDefault: true,
+      onUp: () => step(1),
+      onDown: () => step(-1),
+    })
+    observer.disable()
+
+    const engage = (i: number) => {
+      if (engaged || releasing || isNavigating() || isScrollLocked()) return
+      engaged = true
+      const y = stageY()
+      const lenis = getLenis()
+      if (lenis) lenis.scrollTo(y, { immediate: true, force: true })
+      else window.scrollTo(0, y)
+      holdScroll()
+      if (i !== current) applyInstant(i)
+      observer.enable()
+      cooldownUntil = performance.now() + COOLDOWN
+      cb.current.onEngaged(true)
+    }
+
+    const disengage = () => {
+      if (!engaged) return
+      engaged = false
+      observer.disable()
+      releaseScroll()
+      cb.current.onEngaged(false)
+    }
+
+    function release(dir: 1 | -1) {
+      disengage()
+      releasing = true
+      const target = stageY() + dir * vh * 0.75
+      const lenis = getLenis()
+      if (lenis) lenis.scrollTo(target, { duration: 1, force: true })
+      else window.scrollTo({ top: target, behavior: 'smooth' })
+      gsap.delayedCall(1.1, () => {
+        releasing = false
+      })
+    }
+
+    const onKey = (e: KeyboardEvent) => {
+      if (!engaged || e.defaultPrevented) return
+      const t = e.target as HTMLElement | null
+      if (t?.closest('input, textarea, [role=dialog]')) return
+      const down = ['ArrowDown', 'PageDown', ' '].includes(e.key)
+      const up = ['ArrowUp', 'PageUp'].includes(e.key)
+      if (!down && !up) return
+      e.preventDefault()
+      step(down ? 1 : -1)
+    }
+    window.addEventListener('keydown', onKey)
+
+    // Chegou de cima: primeiro projeto. Chegou de baixo: último.
+    const pin = ScrollTrigger.create({
+      trigger: els.stage,
+      start: 'top top',
+      onEnter: () => engage(0),
+      onLeaveBack: () => engage(n - 1),
+    })
+
+    // Menu e ficha por cima: gestos param de ser lidos enquanto a camada está aberta.
+    const offLock = onLockChange((locked) => {
+      if (!engaged) return
+      if (locked) observer.disable()
+      else observer.enable()
+    })
+
+    // Navegação pelo menu atravessa o palco sem prender; no fim, prende se parou nele.
+    const offNav = onNavigate((phase) => {
+      if (phase === 'start') {
+        busy?.progress(1)
+        disengage()
+        return
+      }
+      const r = els.stage.getBoundingClientRect()
+      if (Math.abs(r.top) < 4) engage(0)
+      else if (r.top > 0) applyInstant(0)
+      else applyInstant(n - 1)
+    })
+
+    // --- Vida contínua: nome deslizando, luz atrás do frame, flutuação e brilho ---
+    const trackX = els.nameTracks.map((t) => gsap.quickSetter(t, 'x', 'px') as (v: number) => void)
+    const glowX = gsap.quickSetter(els.glow, 'x', 'px') as (v: number) => void
+    const glowY = gsap.quickSetter(els.glow, 'y', 'px') as (v: number) => void
+    let pointer: { x: number; y: number } | null = null
+    const onPointer = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse') pointer = { x: e.clientX, y: e.clientY }
+    }
+    window.addEventListener('pointermove', onPointer, { passive: true })
+    let gx = 0
+    let gy = 0
+
+    const tick = (_t: number, deltaMs: number) => {
+      const dt = tickerDt(deltaMs)
+      const velocity = Math.abs(getLenis()?.velocity ?? 0)
+      drift += (DRIFT + velocity * 40 + boost) * dt
+      boost *= Math.exp(-2.5 * dt)
+      els.nameTracks.forEach((t, j) => {
+        const unit = (t.firstElementChild as HTMLElement | null)?.offsetWidth || vw
+        trackX[j](-(((drift % unit) + unit) % unit))
+      })
+      // Luz: segue o mouse devagar no desktop; no mobile fica no frame principal.
+      const c = comps[current]
+      const main = c.deskOn ? c.desk : c.mob
+      const rect = els.stage.getBoundingClientRect()
+      const tx = desktop && pointer ? pointer.x - rect.left : main.cx
+      const ty = desktop && pointer ? pointer.y - rect.top : main.cy
+      const k = 1 - Math.exp(-1.6 * dt)
+      gx += (tx - gx) * k
+      gy += (ty - gy) * k
+      glowX(gx)
+      glowY(gy)
+    }
+
+    let loops: gsap.core.Animation[] = []
+    if (!reduced) {
+      loops = [
+        gsap.to(els.deskFloat, { y: -2.5, duration: 3, ease: 'sine.inOut', yoyo: true, repeat: -1, paused: true }),
+        gsap.to(els.mobFloat, { y: -2.5, duration: 3, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 1.5, paused: true }),
+        ...els.glints.map((g, i) =>
+          gsap.fromTo(
+            g,
+            { xPercent: -100 },
+            { xPercent: 300, duration: 1.4, ease: 'power2.inOut', repeat: -1, repeatDelay: 6.6, delay: 2 + i * 0.3, paused: true },
+          ),
+        ),
+      ]
+    }
     let running = false
-    const trigger = watchVisibility(els.section, (v) => {
-      visible = v
+    const vis = watchVisibility(els.stage, (v) => {
+      stageVisible = v
       if (v && !running) gsap.ticker.add(tick)
       if (!v && running) gsap.ticker.remove(tick)
       running = v
-      syncPlayback()
+      loops.forEach((l) => (v ? l.play() : l.pause()))
+      syncVideos()
     })
-    tick(gsap.ticker.time, 16)
 
-    const onResize = () => measure()
+    measure()
+    gx = comps[0].desk.cx
+    gy = comps[0].desk.cy
+    applyInstant(0)
+
+    const onResize = () => {
+      measure()
+      applyInstant(current)
+      if (engaged) getLenis()?.scrollTo(stageY(), { immediate: true, force: true })
+    }
     window.addEventListener('resize', onResize)
 
     return () => {
-      trigger.kill()
+      busy?.kill()
+      pin.kill()
+      vis.kill()
+      observer.kill()
+      offLock()
+      offNav()
+      disengage()
+      nearIO.disconnect()
+      loops.forEach((l) => l.kill())
       gsap.ticker.remove(tick)
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('pointermove', onPointer)
       window.removeEventListener('resize', onResize)
-      io.disconnect()
       els.videos.forEach((v, i) => {
-        v?.removeEventListener('error', onError)
+        v?.removeEventListener('error', onVideoError)
         if (loaded[i]) unload(i)
       })
     }
-  }, [getEls, projects, desktop, posterOnly, onCurrent])
+  }, [getEls, projects, desktop, posterOnly])
 
   return api
 }

@@ -78,12 +78,13 @@ export function Hud({ menuOpen, onMenu, onRecruiter }: HudProps) {
         <p>full-stack · palmas, to</p>
       </div>
 
-      <div className="absolute flex items-start gap-8" style={{ top: edge.top, right: edge.right }}>
+      <div className="absolute flex items-center gap-6" style={{ top: edge.top, right: edge.right }}>
         <button
           ref={recruiterRef}
           type="button"
           onClick={onRecruiter}
-          className="pointer-events-auto -m-3 hidden p-3 text-acid md:block"
+          className="pointer-events-auto -my-2 hidden rounded-[3px] px-3 py-2 text-acid md:block"
+          style={{ border: '1px solid var(--c-acid)' }}
         >
           recrutador?
         </button>
@@ -99,7 +100,8 @@ export function Hud({ menuOpen, onMenu, onRecruiter }: HudProps) {
           onClick={onMenu}
           aria-expanded={menuOpen}
           aria-haspopup="dialog"
-          className="pointer-events-auto -m-3 flex items-center gap-2 p-3 text-bone"
+          className="pointer-events-auto -my-2 flex items-center gap-2 rounded-[3px] px-3 py-2 text-bone"
+          style={{ border: '1px solid var(--hud-edge)' }}
         >
           <span aria-hidden className="inline-block size-1.5 bg-acid" />
           menu

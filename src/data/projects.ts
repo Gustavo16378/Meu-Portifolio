@@ -9,6 +9,21 @@ export interface SiteVideo {
   height: number
 }
 
+export interface Print {
+  webp: string
+  png: string
+  width: number
+  height: number
+}
+
+/**
+ * O que aparece dentro dos frames: print (imagem) ou video (o site rodando).
+ * A infraestrutura de vídeo (carregar perto, um tocando por vez, fallback, só poster em conexão lenta) está pronta;
+ * pra ligar, troque aqui ou em um projeto só.
+ */
+export type Media = 'print' | 'video'
+export const DEFAULT_MEDIA: Media = 'print'
+
 export interface ProjectSheet {
   /** Duas ou três linhas. */
   architecture: string
@@ -31,6 +46,9 @@ export interface Project {
   accent: string
   /** Fundo do ambiente (CSS var de tokens.css). */
   background: string
+  media: Media
+  /** Prints do site (public/prints/). */
+  prints: { desktop: Print; mobile: Print }
   /** O site rodando, gravado em desktop e mobile (public/videos/). */
   videos: { desktop: SiteVideo; mobile: SiteVideo }
   sheet: ProjectSheet
@@ -50,6 +68,11 @@ const videos = (id: string): Project['videos'] => ({
   mobile: video(id, 'mobile', 390, 844, false),
 })
 
+const prints = (id: string): Project['prints'] => ({
+  desktop: { webp: `/prints/${id}-desktop.webp`, png: `/prints/${id}-desktop.png`, width: 1600, height: 1000 },
+  mobile: { webp: `/prints/${id}-mobile.webp`, png: `/prints/${id}-mobile.png`, width: 480, height: 1039 },
+})
+
 const github = { label: 'github', url: 'https://github.com/Gustavo16378' }
 
 // Ordem da seção 03: dourado, âmbar, vinho, laranja, verde.
@@ -63,7 +86,9 @@ export const projects: Project[] = [
     line: 'Site de visagista e consultor de imagem em Palmas.',
     stack: ['react', 'typescript', 'tailwind', 'vite', 'cloudflare'],
     accent: 'var(--c-stewer)',
-    background: 'var(--c-bg)',
+    background: 'var(--c-stewer-bg)',
+    media: DEFAULT_MEDIA,
+    prints: prints('stewer'),
     videos: videos('stewer'),
     sheet: {
       architecture:
@@ -87,6 +112,8 @@ export const projects: Project[] = [
     stack: ['react', 'typescript', 'playwright', 'rembg'],
     accent: 'var(--c-autoria)',
     background: 'var(--c-bg)',
+    media: DEFAULT_MEDIA,
+    prints: prints('autoria'),
     videos: videos('autoria'),
     sheet: {
       architecture:
@@ -109,6 +136,8 @@ export const projects: Project[] = [
     stack: ['react', 'gsap'],
     accent: 'var(--c-vinhedo)',
     background: 'var(--c-vinhedo-bg)',
+    media: DEFAULT_MEDIA,
+    prints: prints('monte-vinhedo'),
     videos: videos('monte-vinhedo'),
     sheet: {
       architecture:
@@ -131,6 +160,8 @@ export const projects: Project[] = [
     stack: ['react', 'typescript', 'tailwind'],
     accent: 'var(--c-torra)',
     background: 'var(--c-torra-bg)',
+    media: DEFAULT_MEDIA,
+    prints: prints('torra'),
     videos: videos('torra'),
     sheet: {
       architecture: 'Site em React e TypeScript com Tailwind, publicado no Cloudflare Pages.',
@@ -152,6 +183,8 @@ export const projects: Project[] = [
     stack: ['react', 'typescript', 'tailwind', 'cloudflare'],
     accent: 'var(--c-cleane)',
     background: 'var(--c-cleane-bg)',
+    media: DEFAULT_MEDIA,
+    prints: prints('cleane'),
     videos: videos('cleane'),
     sheet: {
       architecture: 'Site institucional em React e TypeScript com Tailwind, servido pelo Cloudflare Pages.',

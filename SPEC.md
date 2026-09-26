@@ -18,7 +18,7 @@ Referência de impacto (não de cópia): portfólios técnicos e futuristas com 
 4. Tipografia exclusiva deste site. Proibido: Fraunces, Inter, Cormorant, Space Grotesk, JetBrains Mono, Satoshi, Manrope, Geist. Nenhuma serifa neste site.
 5. Sem seção de preço.
 6. Textos normais, diretos, sem frase de efeito, sem tom de trailer de filme. Escrever como quem explica pra um amigo o que faz. O Gustavo vai reescrever tudo depois nas palavras dele, então os textos são placeholders com a intenção certa, não peças de retórica.
-7. Mobile-first: no mobile os projetos continuam no palco preso, com trechos curtos e tudo empilhado (só o vídeo do celular carrega), mantendo a troca de cor; o resto da página é scroll vertical normal.
+7. Mobile-first: no mobile os projetos continuam em passos (swipe), cada um com sua composição simplificada; o resto da página é scroll vertical normal.
 8. Performance: nada que trave celular médio. Partículas no máximo ~12k pontos no desktop, ~4k no mobile. Respeitar prefers-reduced-motion.
 
 ## Paleta base
@@ -43,7 +43,7 @@ Grain fino e neutro (só tons de cinza, sem tingir com a cor do ambiente), no m�
 
 Nos quatro cantos, em mono pequeno e cinza-verde, informação que dá sensação de sistema ativo:
 - canto superior esquerdo: `GUSTAVO BARBOSA LIMA` e abaixo `full-stack · palmas, to`
-- canto superior direito: o atalho `recrutador?` em mono lima, ao lado a hora local em tempo real e as coordenadas de Palmas (`10°10'S 48°20'W`), e o botão `menu` na ponta
+- canto superior direito: o atalho `recrutador?` em mono lima com borda de 1px lima, ao lado a hora local em tempo real e as coordenadas de Palmas (`10°10'S 48°20'W`), e o botão `menu` na ponta, com borda de 1px e padding. Os dois têm que parecer clicáveis pra qualquer pessoa.
 - canto inferior esquerdo: seção atual (`01 / 07 · abertura`) que atualiza no scroll
 - canto inferior direito: `status: disponível para projetos` com um ponto lima piscando devagar
 
@@ -78,46 +78,60 @@ Sem botão de "contratar" no hero. Um indicador `scroll` em mono no rodapé da s
 
 Duas colunas. Esquerda, título Tanker: `NÃO É SÓ A TELA`. Direita, texto em Synonym, três parágrafos curtos, normais: que ele desenha e constrói do zero, sem template; que back, API e banco fazem parte do trabalho dele, não só o front; que cada projeto tem identidade própria. Sem frases de impacto. Ao rolar, as linhas do texto entram com um efeito de glitch curto (deslocamento horizontal de 2 a 3 frames) e estabilizam.
 
-### 03 Projetos (cinco, o site vivo)
+### 03 Projetos (cinco, em passos)
 
-Os cinco projetos passam num **palco único, preso durante a seção inteira**. Nunca em carrossel. Cada projeto fica parado cerca de 120vh pra olhar e depois viaja pro próximo em cerca de 70vh de scroll; tudo é controlado pelo scroll e reversível.
+Os cinco projetos passam num **palco da altura da tela**, entre duas faixas de degradê (preto para a cor do primeiro, cor do último para preto). Nunca em carrossel.
 
-**Cada projeto é o site vivo.** Nada além do site na cena: sem objetos, sem desenhos, sem luzes. Dois frames sem chrome de navegador, só borda de 1px na cor de acento e sombra suave: o desktop e o mobile, com o vídeo do site rodando.
+**Scroll em passos.** Quando o topo do palco chega no topo da tela, o scroll trava e a seção passa a andar por gesto (GSAP Observer): um gesto de wheel, um swipe ou uma tecla (seta, page up/down, espaço) leva pro projeto seguinte ou anterior. Cada troca roda completa como uma timeline única (viagem do frame, varredura de cor, troca do nome em contorno, troca do texto), e enquanto ela roda qualquer outro gesto é ignorado. No primeiro projeto, gesto pra cima solta o scroll pra seção anterior; no último, gesto pra baixo solta pra seção seguinte. Chegando de cima, o palco prende no primeiro; chegando de baixo, no último. Vale no desktop e no mobile. A navegação pelo menu atravessa o palco sem prender (ou prende nele, se o destino for projetos). Com menu ou ficha abertos, os gestos não são lidos.
 
-**Composição própria por projeto.** Os mesmos dois frames **viajam entre as composições com mola** (posição, tamanho e rotação, só via transform) enquanto o vídeo troca no meio da viagem:
+**Mídia.** Uma flag em `data/projects.ts` (`media: "print" | "video"`, padrão `print`) decide o que aparece nos frames. Hoje: os prints de `public/prints/` (desktop e mobile de cada projeto). A infraestrutura de vídeo fica pronta pra ligar depois (ver abaixo). Com print, não existe o botão `ver em movimento`.
+
+**Cada projeto é o site.** Nada além do site na cena: sem objetos, sem desenhos. Dois frames sem chrome de navegador, só borda de 1px na cor de acento e sombra suave: o desktop e o mobile.
+
+**Composição própria por projeto.** Os mesmos dois frames **viajam entre as composições com mola** (posição, tamanho e rotação, só via transform) enquanto a imagem troca no meio da viagem.
+
+Desktop:
 1. Stewer: texto à esquerda, frame à direita, celular sobreposto no canto inferior direito.
 2. AUTORIA: frame à esquerda, mais largo; texto à direita.
-3. Monte Vinhedo: frame gigante centralizado, quase a tela toda; só o nome, `ver no ar` e `ficha técnica` sobrepostos no canto superior esquerdo do vídeo, com sombra.
+3. Monte Vinhedo: frame gigante centralizado, quase a tela toda; só o nome, `ver no ar` e `ficha técnica` sobrepostos no canto superior esquerdo, com sombra.
 4. TORRA: o celular é o protagonista, grande no centro; o desktop atrás, menor e inclinado 6 graus; texto centralizado embaixo.
 5. Cleane: metade e metade, frame à esquerda, texto à direita.
 
-No mobile todos empilham igual: desktop (poster) em cima, celular com o vídeo embaixo, texto depois; pin curto.
+Mobile (versão simplificada de cada uma, um frame só):
+1. Stewer: print desktop em cima, texto logo abaixo.
+2. AUTORIA: print desktop grande, texto sobreposto na parte de baixo dele, com sombra.
+3. Monte Vinhedo: print do celular quase em tela cheia, nome e links sobrepostos no canto de baixo.
+4. TORRA: print do celular grande no centro, texto embaixo.
+5. Cleane: texto em cima, print embaixo.
 
-**Atrás do frame:** o nome do projeto em Tanker gigante, só contorno de 1px na cor de acento, ocupando a largura toda, deslizando devagar na horizontal em sentido contrário ao scroll (ligado ao Lenis). Na troca, o nome sai por um lado e o próximo entra pelo outro.
+**Atrás do frame:**
+- Luz radial suave na cor de acento, opacidade baixa: acompanha o mouse devagar no desktop e fica fixa no frame principal no mobile. Troca de cor apagando e acendendo.
+- Nome do projeto em Tanker gigante, só contorno de 1px na cor de acento, ocupando a largura toda, **deslizando sozinho, contínuo e lento**, mesmo sem scroll, e acelerando com a velocidade do scroll e a cada troca. Na troca, o nome sai por um lado e o próximo entra pelo outro. A altura dele muda por projeto pra não cruzar o texto.
 
-**Troca de cor de fundo:** varredura diagonal ligada ao scroll; a cor do próximo projeto cobre a anterior. No fim, uma última varredura volta pro preto do site.
+**Troca de cor de fundo:** varredura diagonal. Uma camada só com a cor do próximo cobre a tela vindo do lado do gesto; no fim ela vira o fundo e some. Nunca fica pela metade.
 
-**Texto:** o do projeto atual sai pra cima e o do próximo entra de baixo, com stagger. A placa não tem física além dos links magnéticos.
+**Texto:** o do projeto atual sai pra cima e o do próximo entra de baixo, com stagger.
 
-**Física só nos frames:** viajam com mola, inclinam 2 a 3 graus seguindo o mouse, skew leve pela velocidade do scroll. Tilt e skew ficam em wrappers com `will-change: transform`, nunca no `<video>`.
+**Botões que parecem botões:** `ver no ar` é preenchido na cor de acento do projeto, texto escuro, com seta; `ficha técnica` tem borda de 1px na cor de acento. Os dois com no mínimo 44px de altura e magnéticos.
 
-**Vídeos (não negociável):** arquivos em `videos-projetos/`, copiados pra `public/videos/` (`<projeto>-desktop/mobile.webm/.mp4` e posters `.jpg`).
-- `preload="none"` e poster sempre; o `src` só entra quando o projeto está a uma tela de distância (IntersectionObserver com rootMargin) e é removido quando se afasta.
-- Só um vídeo toca por vez; os outros pausam. Em cada projeto só um frame tem vídeo (o protagonista: o desktop, ou o celular na TORRA); o outro mostra o poster.
-- WebM primeiro, MP4 de fallback (se o WebM falhar, cai pro MP4).
-- No mobile os vídeos desktop não carregam (poster no lugar).
-- Com economia de dados, conexão 2g/3g ou reduced-motion: só poster, com o botão `ver em movimento` na placa.
+**Física e vida só nos frames:** viajam com mola, flutuam de leve em repouso (2 a 3px, ciclo de 6s), inclinam 2 a 3 graus seguindo o mouse, skew leve pela velocidade do scroll, e um brilho fino atravessa a borda a cada 8s. Tilt, skew e flutuação ficam em wrappers com `will-change: transform`, nunca no `<video>`. Nada além disso.
+
+**Vídeos (quando `media: "video"`):** arquivos em `videos-projetos/`, copiados pra `public/videos/`.
+- `preload="none"` e poster sempre; o `src` só entra quando o palco está a uma tela de distância e só pro projeto atual e os vizinhos; sai quando se afasta.
+- Só um vídeo toca por vez. Em cada projeto só um frame tem vídeo (o desktop, ou o celular na TORRA); o outro mostra o poster.
+- WebM primeiro, MP4 de fallback. No mobile os vídeos desktop não carregam.
+- Com economia de dados, conexão 2g/3g ou reduced-motion: só poster, com o botão `ver em movimento`.
 - Meta: Lighthouse mobile acima de 85 com a seção completa.
 
-**O que conecta os cinco:** um trilho vertical fixo na lateral esquerda, em mono, visível só dentro da seção de projetos, com `01 / 05`... e uma linha fina que se preenche em lima. O número troca com glitch curto. **Sem quebra em blocos.**
+**O que conecta os cinco:** um trilho vertical fixo na lateral esquerda, em mono, visível enquanto o palco está preso, com `01 / 05`... e uma linha fina que se preenche em lima até `05 / 05`. O número troca com glitch curto. **Sem quebra em blocos.**
 
 A placa: nome, ano, tipo (cliente ou conceito próprio), uma linha do que é, stack em mono, `ver no ar` e `ficha técnica`. Nada de texto de conceito.
 
-`ficha técnica` abre um painel lateral (portal no body, mesma mecânica do menu) com arquitetura em duas ou três linhas, três decisões técnicas, link do repositório (com o aviso "código privado, projeto de cliente" quando for o caso) e link do site.
+`ficha técnica` abre um painel lateral (portal no body, mesma mecânica do menu) com arquitetura em duas ou três linhas, três decisões técnicas, link do repositório (com o aviso "código privado, projeto de cliente" quando for o caso) e link do site. No mobile ocupa a tela e fecha no botão `fechar` ou com Esc.
 
 Ordem e cores:
 
-1. **Stewer Gabriel** (2025, cliente) · stewergabriel.com · Visagista e consultor de imagem. Fundo preto, acento dourado apagado `#8A7A45`. Stack: React, TypeScript, Tailwind, Vite, Cloudflare. Código privado.
+1. **Stewer Gabriel** (2025, cliente) · stewergabriel.com · Visagista e consultor de imagem. Fundo preto-dourado `#14110A`, acento dourado apagado `#8A7A45`. Stack: React, TypeScript, Tailwind, Vite, Cloudflare. Código privado.
 2. **AUTORIA.** (2026, conceito próprio) · autoria-6kz.pages.dev · Concessionária de carros com fotos tratadas em pipeline próprio. Fundo preto, acento âmbar-ouro `#C9A24A`. Stack: React, TypeScript, Playwright + rembg.
 3. **Monte Vinhedo** (2026, conceito próprio) · monte-vinhedo.pages.dev · Vinícola boutique de vinhos de altitude. Fundo vinho `#3A0F1E`, acento rosé `#C46A7A`. Stack: React, GSAP.
 4. **TORRA** (2026, conceito próprio) · torra-cafe.pages.dev · Cafeteria de torra própria. Fundo marrom-café `#2A1B12`, acento laranja queimado `#D8843A`. Stack: React, TypeScript, Tailwind.
@@ -191,7 +205,7 @@ Ferramentas: GSAP (ScrollTrigger, Draggable, InertiaPlugin, Physics2DPlugin, tod
 - Cartões de foto no hero com inclinação 3D, drag com inércia e quique, e espalhamento no scroll.
 - Cursor customizado: ponto lima pequeno com um anel fino que atrasa; cresce em links. Sem texto dentro do cursor.
 - Glitch curto na entrada de textos (seções 02 e 05) e no hover da lista (04).
-- Projetos num palco único preso: cada um parado ~120vh com o site rodando em vídeo; frames viajando com mola entre as composições, nome em contorno deslizando atrás, varredura diagonal de cor, texto saindo pra cima e entrando de baixo, trilho lateral acompanhando. Sem blocos.
+- Projetos em passos: palco preso, um gesto por projeto, cada troca uma timeline completa (frames viajando com mola entre as composições, varredura diagonal de cor, nome em contorno trocando, texto saindo pra cima e entrando de baixo); luz na cor de acento atrás do frame, nome deslizando sozinho, frame flutuando com brilho na borda; trilho lateral acompanhando. Sem blocos.
 - Skew por velocidade de scroll em títulos e nos frames dos projetos; botões magnéticos.
 - HUD fixo com hora real e seção atual.
 - Título do contato montando em blocos.

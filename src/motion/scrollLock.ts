@@ -5,6 +5,31 @@ let locks = 0
 let savedY = 0
 let frozen: HTMLElement[] = []
 let paused: ScrollTrigger[] = []
+let holds = 0
+const lockListeners = new Set<(locked: boolean) => void>()
+
+/** Avisa quando uma camada (menu, ficha) trava ou destrava o scroll. */
+export function onLockChange(cb: (locked: boolean) => void): () => void {
+  lockListeners.add(cb)
+  return () => {
+    lockListeners.delete(cb)
+  }
+}
+
+/**
+ * Segura o Lenis parado sem mexer no body (palco de projetos preso). Menu e ficha
+ * podem abrir e fechar por cima que o Lenis continua parado até soltar.
+ */
+export function holdScroll(): void {
+  holds += 1
+  getLenis()?.stop()
+}
+
+export function releaseScroll(): void {
+  if (holds === 0) return
+  holds -= 1
+  if (holds === 0 && locks === 0) getLenis()?.start()
+}
 
 /**
  * Com o body fixo nada rola, e um palco sticky volta pro lugar natural (some da tela).
@@ -52,6 +77,7 @@ export function lockScroll(): void {
   s.left = '0'
   s.right = '0'
   s.width = '100%'
+  lockListeners.forEach((cb) => cb(true))
 }
 
 export function unlockScroll(): void {
@@ -70,9 +96,10 @@ export function unlockScroll(): void {
   if (lenis) {
     // Com o body fixo a página tinha a altura da tela; sem medir de novo o Lenis corta o scroll em 0.
     lenis.resize()
-    lenis.start()
+    if (holds === 0) lenis.start()
     lenis.scrollTo(savedY, { immediate: true, force: true })
   }
   paused.forEach((st) => st.enable(false))
   paused = []
+  lockListeners.forEach((cb) => cb(false))
 }

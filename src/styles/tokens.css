@@ -9,6 +9,7 @@
   --c-border: #1c221d;
 
   /* ambientes dos projetos (seção 03) */
+  --c-stewer-bg: #14110a;
   --c-stewer: #8a7a45;
   --c-autoria: #c9a24a;
   --c-vinhedo-bg: #3a0f1e;
@@ -32,7 +33,12 @@
   /* frame dos projetos: borda de 1px na cor do ambiente e sombra suave */
   --frame-edge: color-mix(in srgb, var(--accent) 55%, transparent);
   --shadow-text: 0 2px 18px rgb(0 0 0 / 0.65), 0 1px 3px rgb(0 0 0 / 0.5);
+  --glint: linear-gradient(90deg, transparent, color-mix(in srgb, var(--c-bone) 85%, transparent), transparent);
   --shadow-frame: 0 30px 70px -30px rgb(0 0 0 / 0.55), 0 8px 20px -10px rgb(0 0 0 / 0.35);
+
+  /* botões */
+  --button-ghost: color-mix(in srgb, var(--c-bg) 82%, transparent);
+  --hud-edge: color-mix(in srgb, var(--c-bone) 35%, transparent);
 
   /* menu */
   --overlay: color-mix(in srgb, var(--c-bg) 97%, transparent);

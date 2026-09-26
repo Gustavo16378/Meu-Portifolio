@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
-import { LenisProvider, getLenis } from './motion/useLenis'
+import { LenisProvider } from './motion/useLenis'
+import { navigateTo } from './motion/navigate'
 import { useOverlayState } from './components/useDialog'
 import type { SectionId } from './data/sections'
 import { Hud } from './components/Hud'
@@ -22,11 +23,10 @@ export default function App() {
   const navigate = useCallback(
     (id: SectionId) => {
       closeMenu()
-      const target = document.getElementById(id)
-      if (!target) return
-      const lenis = getLenis()
-      if (lenis) lenis.scrollTo(target, { duration: 1.6 })
-      else target.scrollIntoView()
+      // Em projetos o destino é o palco (onde ele prende), não a faixa de cor antes dele.
+      const target =
+        id === 'projetos' ? document.querySelector<HTMLElement>('[data-projects-stage]') : document.getElementById(id)
+      if (target) navigateTo(target)
     },
     [closeMenu],
   )
