@@ -5,6 +5,9 @@ import { watchVisibility } from '../motion/spring'
 import { POSES, poseSrc, type Pose } from '../data/personagem'
 
 /** Altura: sm 80 / 120, md 110 / 170, lg 140 / 220 (mobile / desktop). */
+/** Altura em px de cada tamanho: [mobile, desktop], pro sizes do srcset. */
+const HEIGHTS = { sm: [80, 120], md: [110, 170], lg: [140, 220] } as const
+
 const SIZES = {
   sm: 'h-[80px] md:h-[120px]',
   md: 'h-[110px] md:h-[170px]',
@@ -135,6 +138,7 @@ export function Personagem({
   }, [displayed])
 
   const [w, h] = POSES[displayed]
+  const shown = sizes?.[displayed] ?? size
   const src = poseSrc(displayed)
 
   return (
@@ -143,7 +147,11 @@ export function Personagem({
         <div ref={floatRef} className="will-change-transform">
           <div ref={imgRef} style={flip ? { scale: '-1 1' } : undefined}>
             <picture>
-              <source srcSet={src.webp} type="image/webp" />
+              <source
+                srcSet={`${src.webpSmall} ${Math.round((w * 220) / h)}w, ${src.webp} ${w}w`}
+                sizes={`(min-width: 768px) ${Math.round((HEIGHTS[shown][1] * w) / h)}px, ${Math.round((HEIGHTS[shown][0] * w) / h)}px`}
+                type="image/webp"
+              />
               <img
                 src={src.png}
                 alt=""
@@ -152,7 +160,7 @@ export function Personagem({
                 loading="lazy"
                 decoding="async"
                 draggable={false}
-                className={`block w-auto max-w-none ${SIZES[sizes?.[displayed] ?? size]}`}
+                className={`block w-auto max-w-none ${SIZES[shown]}`}
               />
             </picture>
           </div>

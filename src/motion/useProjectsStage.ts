@@ -404,6 +404,15 @@ export function useProjectsStage(
     const onScroll = () => {
       if (engaged || isNavigating() || isScrollLocked()) return
       const top = stageTop()
+      // Salto (âncora, tecla End, busca na página) que passou do palco inteiro num evento só: não prende.
+      if (top < -vh) {
+        side = 'below'
+        return
+      }
+      if (top > vh) {
+        side = 'above'
+        return
+      }
       // Perto o bastante da fronteira já prende: o scroll suave desacelera e pode parar a 1px sem cruzar.
       if (side === 'above' && top <= EDGE) engage(0)
       else if (side === 'below' && top >= -EDGE) engage(n - 1)

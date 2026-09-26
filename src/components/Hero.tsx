@@ -11,6 +11,7 @@ import { Personagem } from './Personagem'
 const photos: Photo[] = [
   {
     webp: '/foto/gustavo-sem-fundo.webp',
+    webpSmall: '/foto/gustavo-sem-fundo-420.webp',
     png: '/foto/gustavo-sem-fundo.png',
     width: 760,
     height: 779,
@@ -19,6 +20,7 @@ const photos: Photo[] = [
   },
   {
     webp: '/foto/foto2.webp',
+    webpSmall: '/foto/foto2-420.webp',
     png: '/foto/foto2.png',
     width: 760,
     height: 739,

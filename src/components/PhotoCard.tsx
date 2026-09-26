@@ -4,6 +4,8 @@ import type { PhotoCardEls } from '../motion/usePhotoCards'
 
 export interface Photo {
   webp: string
+  /** 420px de largura, pro srcset. */
+  webpSmall: string
   png: string
   width: number
   height: number
@@ -61,7 +63,11 @@ export function PhotoCard({ photo, className, style, zIndex, register, attached 
             style={{ border: '1px solid var(--card-edge)', boxShadow: 'var(--shadow-card)' }}
           >
             <picture>
-              <source srcSet={photo.webp} type="image/webp" />
+              <source
+                srcSet={`${photo.webpSmall} 420w, ${photo.webp} ${photo.width}w`}
+                sizes="(min-width: 768px) clamp(220px, 22vw, 340px), 50vw"
+                type="image/webp"
+              />
               <img
                 src={photo.png}
                 alt={photo.alt}
@@ -71,7 +77,10 @@ export function PhotoCard({ photo, className, style, zIndex, register, attached 
                 className="block aspect-[4/5] w-full object-cover object-[50%_30%]"
               />
             </picture>
-            <div className="flex justify-between pt-[6px] pb-[1px] font-mono text-[9px] leading-none text-muted md:text-[10px]">
+            <div
+              className="flex justify-between pt-[6px] pb-[1px] font-mono text-[9px] leading-none md:text-[10px]"
+              style={{ color: 'var(--c-muted-hi)' }}
+            >
               <span>{photo.caption}</span>
               <span>palmas, to</span>
             </div>

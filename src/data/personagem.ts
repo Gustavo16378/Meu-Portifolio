@@ -23,6 +23,8 @@ export const POSES = {
 export type Pose = keyof typeof POSES
 
 export const poseSrc = (pose: Pose) => ({
+  /** 220px de altura, pro srcset. */
+  webpSmall: `/personagem/gustavo-${pose}-220.webp`,
   webp: `/personagem/gustavo-${pose}.webp`,
   png: `/personagem/gustavo-${pose}.png`,
 })

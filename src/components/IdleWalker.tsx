@@ -74,7 +74,11 @@ export function IdleWalker() {
     >
       <div ref={bobRef} className="will-change-transform">
         <picture>
-          <source srcSet={src.webp} type="image/webp" />
+          <source
+            srcSet={`${src.webpSmall} ${Math.round((w * 220) / h)}w, ${src.webp} ${w}w`}
+            sizes={`(min-width: 768px) ${Math.round((130 * w) / h)}px, ${Math.round((84 * w) / h)}px`}
+            type="image/webp"
+          />
           <img src={src.png} alt="" width={w} height={h} loading="lazy" decoding="async" className="block h-[84px] w-auto md:h-[130px]" />
         </picture>
       </div>

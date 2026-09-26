@@ -29,13 +29,12 @@ interface LayerProps {
   project: Project
   kind: 'desktop' | 'mobile'
   playable: boolean
-  eager: boolean
   layerRef: (el: HTMLDivElement | null) => void
   videoRef: (el: HTMLVideoElement | null) => void
 }
 
 /** Uma camada do frame: o print, ou o vídeo quando a mídia do projeto é vídeo e este frame é o que toca. */
-function Layer({ project, kind, playable, eager, layerRef, videoRef }: LayerProps) {
+function Layer({ project, kind, playable, layerRef, videoRef }: LayerProps) {
   const label = `${project.name} no ${kind === 'desktop' ? 'desktop' : 'celular'}`
   const print = project.prints[kind]
   const video = project.videos[kind]
@@ -66,13 +65,17 @@ function Layer({ project, kind, playable, eager, layerRef, videoRef }: LayerProp
         />
       ) : (
         <picture>
-          <source srcSet={print.webp} type="image/webp" />
+          <source
+            srcSet={`${print.webpSmall} ${print.smallWidth}w, ${print.webp} ${print.width}w`}
+            sizes={kind === 'desktop' ? '(min-width: 768px) 68vw, 96vw' : '(min-width: 768px) 20vw, 60vw'}
+            type="image/webp"
+          />
           <img
             src={print.png}
             alt={label}
             width={print.width}
             height={print.height}
-            loading={eager ? 'eager' : 'lazy'}
+            loading="lazy"
             decoding="async"
             className="block size-full object-cover object-top"
           />
@@ -213,7 +216,6 @@ export function Projects() {
                     project={p}
                     kind={kind}
                     playable={plays(p, kind)}
-                    eager={i === 0}
                     layerRef={setAt(desk ? 'deskLayers' : 'mobLayers', i)}
                     videoRef={setVideo(p, i, kind)}
                   />

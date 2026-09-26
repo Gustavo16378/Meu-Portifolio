@@ -47,6 +47,8 @@ export function Manifesto() {
             Array.from(text.children).forEach((p) => {
               SplitText.create(p, {
                 type: 'lines',
+                // As linhas continuam texto normal pra leitor de tela; sem aria-label no parágrafo.
+                aria: 'none',
                 linesClass: 'block will-change-transform',
                 autoSplit: true,
                 onSplit: (self) => {

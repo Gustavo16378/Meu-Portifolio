@@ -11,6 +11,9 @@ export interface SiteVideo {
 
 export interface Print {
   webp: string
+  /** Mesma imagem em largura menor, pro srcset. */
+  webpSmall: string
+  smallWidth: number
   png: string
   width: number
   height: number
@@ -69,8 +72,22 @@ const videos = (id: string): Project['videos'] => ({
 })
 
 const prints = (id: string): Project['prints'] => ({
-  desktop: { webp: `/prints/${id}-desktop.webp`, png: `/prints/${id}-desktop.png`, width: 1600, height: 1000 },
-  mobile: { webp: `/prints/${id}-mobile.webp`, png: `/prints/${id}-mobile.png`, width: 480, height: 1039 },
+  desktop: {
+    webp: `/prints/${id}-desktop.webp`,
+    webpSmall: `/prints/${id}-desktop-800.webp`,
+    smallWidth: 800,
+    png: `/prints/${id}-desktop.png`,
+    width: 1600,
+    height: 1000,
+  },
+  mobile: {
+    webp: `/prints/${id}-mobile.webp`,
+    webpSmall: `/prints/${id}-mobile-240.webp`,
+    smallWidth: 240,
+    png: `/prints/${id}-mobile.png`,
+    width: 480,
+    height: 1039,
+  },
 })
 
 const github = { label: 'github', url: 'https://github.com/Gustavo16378' }
