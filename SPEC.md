@@ -82,7 +82,14 @@ Duas colunas. Esquerda, título Tanker: `NÃO É SÓ A TELA`. Direita, texto em 
 
 Os cinco projetos passam num **palco da altura da tela**, entre duas faixas de degradê (preto para a cor do primeiro, cor do último para preto). Nunca em carrossel.
 
-**Scroll em passos.** Quando o topo do palco chega no topo da tela, o scroll trava e a seção passa a andar por gesto (GSAP Observer): um gesto de wheel, um swipe ou uma tecla (seta, page up/down, espaço) leva pro projeto seguinte ou anterior. Cada troca roda completa como uma timeline única (viagem do frame, varredura de cor, troca do nome em contorno, troca do texto), e enquanto ela roda qualquer outro gesto é ignorado. No primeiro projeto, gesto pra cima solta o scroll pra seção anterior; no último, gesto pra baixo solta pra seção seguinte. Chegando de cima, o palco prende no primeiro; chegando de baixo, no último. Vale no desktop e no mobile. A navegação pelo menu atravessa o palco sem prender (ou prende nele, se o destino for projetos). Com menu ou ficha abertos, os gestos não são lidos.
+**Scroll em passos.** A seção não tem altura de scroll interna: é uma tela (100svh) presa, e dentro dela o GSAP Observer é o único controle.
+- Entrada: chegando por cima, ao encostar no topo do palco (tolerância de 12px, pra o scroll suave que desacelera não parar a 1px sem prender) o scroll nativo trava (Lenis `stop()`) e entra o primeiro projeto. Chegando por baixo, subindo a página, entra direto o último.
+- Um gesto vale um passo, qualquer que seja a força. Gesto = uma rajada contínua de wheel (termina com 200ms sem eventos; a inércia do trackpad faz parte do mesmo gesto), um swipe (tolerância de 40px) ou uma tecla (setas, PageDown/PageUp, espaço; segurar a tecla não repete).
+- Gestos durante a troca são descartados inteiros, e depois dela há um intervalo mínimo antes de aceitar o próximo: 250ms no desktop, 350ms no mobile.
+- Saída: no primeiro projeto, gesto pra cima solta o scroll (Lenis `start()`) e a página sobe normal; no último, gesto pra baixo solta e a página continua.
+- Suavidade: a troca dura 1,1s, com `power3.inOut` no movimento do frame e na varredura, e `power2.out` no texto. Todas as trocas vivem numa timeline única com uma etiqueta por projeto; ida e volta são a mesma animação, pra frente ou invertida com `tweenTo`, então ficam simétricas.
+- Menu, ficha técnica e painel do recrutador abrem por cima com o scroll travado; enquanto estão abertos os gestos não são lidos, e ao fechar a seção continua presa no mesmo projeto.
+- A navegação pelo menu atravessa o palco sem prender (ou prende nele, se o destino for projetos).
 
 **Mídia.** Uma flag em `data/projects.ts` (`media: "print" | "video"`, padrão `print`) decide o que aparece nos frames. Hoje: os prints de `public/prints/` (desktop e mobile de cada projeto). A infraestrutura de vídeo fica pronta pra ligar depois (ver abaixo). Com print, não existe o botão `ver em movimento`.
 

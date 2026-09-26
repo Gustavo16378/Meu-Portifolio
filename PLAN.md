@@ -34,6 +34,10 @@ Conferir: viagem dos frames, troca de vídeo, só um tocando, Lighthouse mobile 
 Mídia por flag (`media: "print" | "video"`, padrão print) com a infraestrutura de vídeo pronta. Seção em passos com GSAP Observer: um gesto por projeto, cada troca uma timeline completa, gestos ignorados durante a troca, solta o scroll nas pontas; varredura de cor numa camada só (sem ficar pela metade). Composição própria no mobile. Luz radial na cor de acento atrás do frame, Stewer com fundo preto-dourado. Botões `ver no ar` preenchido e `ficha técnica` com borda, 44px, magnéticos; `menu` e `recrutador?` com borda no HUD. Nome em contorno deslizando sozinho, frame flutuando e brilho na borda a cada 8s.
 Conferir: um gesto, um projeto; solta nas pontas; menu e ficha por cima; mobile com toque de verdade.
 
+## Etapa 4.1d · Passos firmes
+Um gesto vale um passo (rajada de wheel, swipe de 40px ou tecla), gestos durante a troca descartados, intervalo de 250ms (desktop) e 350ms (mobile). Troca de 1,1s numa timeline única, ida e volta simétricas com tweenTo. Entrada e saída da seção pela fronteira do palco, com tolerância de 12px.
+Conferir: flick forte no trackpad anda um projeto só; ida e volta iguais; entra direto no último subindo a página.
+
 ## Etapa 4.2 · Personagem (Bloco B)
 Componente Personagem com as poses de `personagem-gustavo-poses/` (copiadas pra `public/personagem/`), sempre pequeno, nos pontos definidos na SPEC: preloader, hero espiando, seção 02, Como funciona, História, Contato (dorme depois de 20s), ocioso atravessando o rodapé depois de 30s, e 404. Sem personagem dentro dos projetos. Em Como funciona, História e Contato ele entra já no lugar previsto; o conteúdo dessas seções vem na Etapa 5.
 Conferir: tamanho discreto, entrada com mola, some no primeiro arrasto do hero, dorme no contato, walker some ao mexer.

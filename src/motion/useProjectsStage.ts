@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { gsap, Observer, ScrollTrigger } from './gsap'
+import { gsap, Observer } from './gsap'
 import { getLenis } from './useLenis'
 import { prefersReducedMotion } from './reducedMotion'
 import { holdScroll, isScrollLocked, onLockChange, releaseScroll } from './scrollLock'
@@ -13,7 +13,7 @@ export interface StageEls {
   stage: HTMLElement
   /** Tudo que troca de projeto, menos o fundo (em reduced-motion some e volta inteiro). */
   content: HTMLElement
-  /** Varredura diagonal: um preenchimento só, reiniciado a cada troca. */
+  /** Varredura diagonal: uma camada só com a cor do próximo. */
   wipe: HTMLElement
   glow: HTMLElement
   deskTravel: HTMLElement
@@ -38,16 +38,19 @@ interface Options {
   onEngaged: (engaged: boolean) => void
 }
 
-const TRAVEL = 1.15
-const COOLDOWN = 280 // ms depois de uma troca, pra inércia do trackpad não pular dois projetos
+const STEP = 1.1 // duração de uma troca, em segundos
+const GAP = 200 // ms sem wheel que separam um gesto do outro
+const EDGE = 12 // px da fronteira do palco em que ele já prende
 const NAME_OPACITY = 0.55
 const DRIFT = 26 // px/s do nome em contorno, parado
+const label = (i: number) => `p${i}`
 
 /**
- * Palco da seção de projetos. Quando o topo do palco chega no topo da tela, o scroll trava e
- * cada gesto (wheel, toque, seta, page up/down, espaço) leva pro projeto seguinte ou anterior numa
- * timeline completa; gestos durante a troca são ignorados. No primeiro, gesto pra cima solta pra seção
- * anterior; no último, gesto pra baixo solta pra seguinte.
+ * Palco da seção de projetos, uma tela de altura. Chegando por cima, ao encostar no topo, o scroll
+ * trava (Lenis stop) e entra o primeiro projeto; chegando por baixo, entra o último. Dentro, o Observer é o
+ * único controle: um gesto (wheel, swipe, tecla) vale um passo, qualquer que seja a força; gestos durante a
+ * troca e no intervalo depois dela são descartados. Nas pontas, o gesto solta o scroll (Lenis start).
+ * Todas as trocas vivem numa timeline só: a ida e a volta são a mesma animação, pra frente ou invertida.
  */
 export function useProjectsStage(
   getEls: () => StageEls | null,
@@ -59,18 +62,20 @@ export function useProjectsStage(
   cb.current = { onCurrent, onEngaged }
 
   useEffect(() => {
-    const els = getEls()
-    if (!els) return
+    const found = getEls()
+    if (!found) return
+    const els: StageEls = found
     const n = projects.length
     const reduced = prefersReducedMotion()
+    const cooldown = desktop ? 250 : 350
 
     let vw = 0
     let vh = 0
     let comps: Composition[] = []
     let current = 0
     let engaged = false
-    let releasing = false
-    let busy: gsap.core.Timeline | null = null
+    let master: gsap.core.Timeline | null = null
+    let moving: gsap.core.Animation | null = null
     let cooldownUntil = 0
     let stageVisible = false
     let stageNear = false
@@ -108,14 +113,91 @@ export function useProjectsStage(
         f.travel.style.setProperty('--ring', `${1 / s}px`)
       }
     }
-
     const kids = (i: number) => Array.from(els.texts[i].children)
-    const setInteractive = () =>
+
+    /**
+     * A timeline mestra: estado do projeto 0 no começo, e uma troca de STEP segundos entre cada par.
+     * Etiqueta p0..p4 no fim de cada troca. Ir pra frente ou pra trás é só andar nela.
+     */
+    const build = () => {
+      master?.kill()
+      const tl = gsap.timeline({ paused: true, onUpdate: syncRing })
+      const c0 = comps[0]
+      tl.set(els.deskTravel, frameVars(frames[0], c0.desk, c0.deskOn), 0)
+      tl.set(els.mobTravel, frameVars(frames[1], c0.mob, c0.mobOn), 0)
+      for (let j = 0; j < n; j++) {
+        tl.set([els.deskLayers[j], els.mobLayers[j]], { opacity: j === 0 ? 1 : 0 }, 0)
+        tl.set(els.names[j], { x: 0, opacity: j === 0 ? NAME_OPACITY : 0 }, 0)
+        tl.set(kids(j), { y: 0, opacity: j === 0 ? 1 : 0 }, 0)
+      }
+      tl.set(els.stage, { backgroundColor: projects[0].background }, 0)
+      tl.set(els.wipe, { xPercent: -100, backgroundColor: projects[0].background }, 0)
+      tl.set(els.glow, { '--glow': projects[0].accent }, 0)
+      tl.addLabel(label(0), 0)
+
+      const move = { duration: STEP, ease: 'power3.inOut', immediateRender: false }
+      for (let i = 0; i < n - 1; i++) {
+        const t = i * STEP
+        const a = comps[i]
+        const b = comps[i + 1]
+        // Frames viajam até a nova composição.
+        tl.fromTo(els.deskTravel, frameVars(frames[0], a.desk, a.deskOn), { ...frameVars(frames[0], b.desk, b.deskOn), ...move }, t)
+        tl.fromTo(els.mobTravel, frameVars(frames[1], a.mob, a.mobOn), { ...frameVars(frames[1], b.mob, b.mobOn), ...move }, t)
+        // Imagem troca no meio da viagem.
+        tl.fromTo([els.deskLayers[i], els.mobLayers[i]], { opacity: 1 }, { opacity: 0, duration: 0.3, ease: 'none', immediateRender: false }, t + 0.35)
+        tl.fromTo([els.deskLayers[i + 1], els.mobLayers[i + 1]], { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'none', immediateRender: false }, t + 0.35)
+        // Varredura diagonal: a cor do próximo cobre a tela; no fim vira o fundo e a camada volta pro lugar.
+        tl.fromTo(
+          els.wipe,
+          { xPercent: -100, backgroundColor: projects[i + 1].background },
+          { xPercent: 0, ...move },
+          t,
+        )
+        tl.set(els.stage, { backgroundColor: projects[i + 1].background }, t + STEP)
+        tl.set(els.wipe, { xPercent: -100 }, t + STEP)
+        // Luz troca de cor apagando e acendendo.
+        tl.fromTo(els.glow, { opacity: 1 }, { opacity: 0, duration: 0.35, ease: 'power1.in', immediateRender: false }, t)
+        tl.set(els.glow, { '--glow': projects[i + 1].accent }, t + 0.35)
+        tl.fromTo(els.glow, { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power1.out', immediateRender: false }, t + 0.45)
+        // Nome em contorno: o atual sai por um lado, o próximo entra pelo outro.
+        tl.fromTo(els.names[i], { x: 0, opacity: NAME_OPACITY }, { x: -vw * 0.5, opacity: 0, ...move, duration: 0.7 }, t)
+        tl.fromTo(els.names[i + 1], { x: vw * 0.5, opacity: 0 }, { x: 0, opacity: NAME_OPACITY, ...move, duration: 0.8 }, t + 0.3)
+        // Texto: o atual sai pra cima, o próximo entra de baixo, em stagger.
+        tl.fromTo(
+          kids(i),
+          { y: 0, opacity: 1 },
+          { y: -40, opacity: 0, duration: 0.45, stagger: 0.04, ease: 'power2.out', immediateRender: false },
+          t,
+        )
+        tl.fromTo(
+          kids(i + 1),
+          { y: 40, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5, stagger: 0.05, ease: 'power2.out', immediateRender: false },
+          t + 0.5,
+        )
+        tl.addLabel(label(i + 1), t + STEP)
+      }
+      master = tl
+    }
+
+    const setCurrent = (i: number) => {
+      current = i
       els.texts.forEach((el, j) => {
-        el.style.pointerEvents = j === current ? 'auto' : 'none'
-        el.inert = j !== current
+        el.style.pointerEvents = j === i ? 'auto' : 'none'
+        el.inert = j !== i
       })
-    const setGlowColor = (i: number) => els.glow.style.setProperty('--glow', projects[i].accent)
+      cb.current.onCurrent(i)
+      syncVideos()
+    }
+
+    /** Coloca o projeto i no lugar, sem animação. */
+    const applyInstant = (i: number) => {
+      moving?.kill()
+      moving = null
+      master?.seek(label(i), false)
+      syncRing()
+      setCurrent(i)
+    }
 
     // --- Vídeos: só com mídia em vídeo; o atual e os vizinhos carregam, só o atual toca ---
     const loaded = new Array<boolean>(n).fill(false)
@@ -138,7 +220,7 @@ export function useProjectsStage(
       video.load()
       loaded[i] = false
     }
-    const syncVideos = () => {
+    function syncVideos() {
       for (let i = 0; i < n; i++) {
         const video = els.videos[i]
         if (!video) continue
@@ -171,137 +253,139 @@ export function useProjectsStage(
       syncVideos()
     }
 
-    /** Coloca o projeto i no lugar, sem animação. */
-    const applyInstant = (i: number) => {
-      busy?.progress(1)
-      current = i
-      const c = comps[i]
-      gsap.set(els.deskTravel, frameVars(frames[0], c.desk, c.deskOn))
-      gsap.set(els.mobTravel, frameVars(frames[1], c.mob, c.mobOn))
-      syncRing()
-      for (let j = 0; j < n; j++) {
-        gsap.set([els.deskLayers[j], els.mobLayers[j]], { opacity: j === i ? 1 : 0 })
-        gsap.set(els.names[j], { x: 0, opacity: j === i ? NAME_OPACITY : 0 })
-        gsap.set(kids(j), { y: 0, opacity: j === i ? 1 : 0 })
-      }
-      gsap.set(els.stage, { backgroundColor: projects[i].background })
-      gsap.set(els.wipe, { xPercent: -100 })
-      setGlowColor(i)
-      setInteractive()
-      cb.current.onCurrent(i)
-      syncVideos()
+    // --- Gestos: um gesto vale um passo ---
+    let gesture = 0 // aumenta a cada gesto novo
+    let spent = -1 // último gesto já usado (ou descartado)
+    let lastWheel = 0
+    const onRawWheel = () => {
+      const now = performance.now()
+      if (now - lastWheel > GAP) gesture++
+      lastWheel = now
     }
+    const onPress = () => {
+      gesture++
+    }
+    // Antes do Observer (captura), pra o gesto já estar contado quando ele avisar.
+    window.addEventListener('wheel', onRawWheel, { capture: true, passive: true })
+    window.addEventListener('touchstart', onPress, { capture: true, passive: true })
+    window.addEventListener('pointerdown', onPress, { capture: true, passive: true })
 
-    // --- Troca de projeto: uma timeline só ---
     let drift = 0
     let boost = 0
 
     const goto = (next: number, dir: 1 | -1) => {
-      const from = current
-      const b = comps[next]
-      current = next
-      setInteractive()
-      cb.current.onCurrent(next)
-      syncVideos()
-
-      const tl = gsap.timeline({
-        onComplete: () => {
-          busy = null
-          cooldownUntil = performance.now() + COOLDOWN
-          syncRing()
-        },
-      })
-      busy = tl
-
+      setCurrent(next)
+      boost = 700 * dir
+      if (!master) return
       if (reduced) {
+        const tl = gsap.timeline({ onComplete: done })
         tl.to(els.content, { opacity: 0, duration: 0.25 })
           .call(() => {
-            busy = null
-            applyInstant(next)
-            busy = tl
+            master?.seek(label(next), false)
+            syncRing()
           })
           .to(els.content, { opacity: 1, duration: 0.3 })
+        moving = tl
         return
       }
-
-      boost = 700 * dir
-      // Frames viajam com mola até a nova composição.
-      tl.to(els.deskTravel, { ...frameVars(frames[0], b.desk, b.deskOn), duration: TRAVEL, ease: 'back.out(1.25)', onUpdate: syncRing }, 0)
-      tl.to(els.mobTravel, { ...frameVars(frames[1], b.mob, b.mobOn), duration: TRAVEL, ease: 'back.out(1.25)' }, 0.06)
-      // Imagem troca no meio da viagem.
-      tl.to([els.deskLayers[from], els.mobLayers[from]], { opacity: 0, duration: 0.3, ease: 'none' }, 0.3)
-      tl.to([els.deskLayers[next], els.mobLayers[next]], { opacity: 1, duration: 0.3, ease: 'none' }, 0.3)
-      // Varredura diagonal: a cor do próximo cobre a tela vindo do lado do gesto; no fim vira o fundo e a varredura some.
-      tl.set(els.wipe, { backgroundColor: projects[next].background, xPercent: dir > 0 ? -100 : 100 }, 0)
-      tl.to(els.wipe, { xPercent: 0, duration: 0.85, ease: 'power3.inOut' }, 0)
-      tl.set(els.stage, { backgroundColor: projects[next].background }, 0.85)
-      tl.set(els.wipe, { xPercent: -100 }, 0.85)
-      // Luz troca de cor apagando e acendendo.
-      tl.to(els.glow, { opacity: 0, duration: 0.3 }, 0)
-      tl.call(() => setGlowColor(next), undefined, 0.3)
-      tl.to(els.glow, { opacity: 1, duration: 0.6 }, 0.4)
-      // Nome em contorno: o atual sai por um lado, o próximo entra pelo outro.
-      tl.to(els.names[from], { x: -dir * vw * 0.5, opacity: 0, duration: 0.6, ease: 'power2.in' }, 0)
-      tl.fromTo(els.names[next], { x: dir * vw * 0.5, opacity: 0 }, { x: 0, opacity: NAME_OPACITY, duration: 0.8, ease: 'power3.out' }, 0.35)
-      // Texto: o atual sai pra cima, o próximo entra de baixo, em stagger.
-      tl.to(kids(from), { y: -40, opacity: 0, duration: 0.4, stagger: 0.05, ease: 'power2.in' }, 0)
-      tl.fromTo(kids(next), { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, stagger: 0.06, ease: 'power3.out' }, 0.5)
+      moving = master.tweenTo(label(next), { ease: 'none', onComplete: done })
+    }
+    function done() {
+      moving = null
+      cooldownUntil = performance.now() + cooldown
+      syncRing()
     }
 
-    // --- Prender e soltar ---
-    const stageY = () => els.stage.getBoundingClientRect().top + window.scrollY
-
     function step(dir: 1 | -1) {
-      if (!engaged || busy || performance.now() < cooldownUntil) return
+      if (!engaged) return
+      // Mesmo gesto que já andou (inércia do trackpad, swipe longo): nada.
+      if (gesture === spent) return
+      spent = gesture
+      // Gesto que chegou durante a troca ou no intervalo depois dela é descartado inteiro.
+      if (moving || performance.now() < cooldownUntil) return
       const next = current + dir
       if (next < 0 || next >= n) release(dir)
       else goto(next, dir)
     }
 
-    const observer = Observer.create({
+    const wheelObserver = Observer.create({
       target: window,
-      type: 'wheel,touch',
+      type: 'wheel',
       wheelSpeed: -1,
       tolerance: 10,
       preventDefault: true,
       onUp: () => step(1),
       onDown: () => step(-1),
     })
-    observer.disable()
+    const touchObserver = Observer.create({
+      target: window,
+      type: 'touch',
+      tolerance: 40,
+      preventDefault: true,
+      onUp: () => step(1),
+      onDown: () => step(-1),
+    })
+    const observers = [wheelObserver, touchObserver]
+    const listen = (on: boolean) => observers.forEach((o) => (on ? o.enable() : o.disable()))
+    listen(false)
+
+    // --- Prender e soltar ---
+    const stageTop = () => els.stage.getBoundingClientRect().top
+    // De que lado da fronteira a tela está: acima do palco, abaixo, ou acabou de soltar numa direção.
+    let side: 'above' | 'below' | 'released-up' | 'released-down' = stageTop() > 0 ? 'above' : 'below'
+
+    // Encosta o palco no topo. Scroll nativo primeiro: com o Lenis parado, a posição que ele guarda fica velha
+    // e um scrollTo pra "onde ele acha que está" não faz nada.
+    const snap = () => {
+      const y = Math.round(stageTop() + window.scrollY)
+      window.scrollTo(0, y)
+      getLenis()?.scrollTo(y, { immediate: true, force: true })
+    }
 
     const engage = (i: number) => {
-      if (engaged || releasing || isNavigating() || isScrollLocked()) return
+      if (engaged || isNavigating() || isScrollLocked()) return
       engaged = true
-      const y = stageY()
-      const lenis = getLenis()
-      if (lenis) lenis.scrollTo(y, { immediate: true, force: true })
-      else window.scrollTo(0, y)
+      snap()
       holdScroll()
       if (i !== current) applyInstant(i)
-      observer.enable()
-      cooldownUntil = performance.now() + COOLDOWN
+      spent = gesture // o gesto que trouxe até aqui não conta como passo
+      cooldownUntil = performance.now() + cooldown
+      listen(true)
+      els.stage.dataset.engaged = 'true'
       cb.current.onEngaged(true)
     }
 
     const disengage = () => {
       if (!engaged) return
       engaged = false
-      observer.disable()
+      listen(false)
       releaseScroll()
+      delete els.stage.dataset.engaged
       cb.current.onEngaged(false)
     }
 
+    // Solta o scroll e deixa a página seguir com o gesto do usuário.
     function release(dir: 1 | -1) {
       disengage()
-      releasing = true
-      const target = stageY() + dir * vh * 0.75
-      const lenis = getLenis()
-      if (lenis) lenis.scrollTo(target, { duration: 1, force: true })
-      else window.scrollTo({ top: target, behavior: 'smooth' })
-      gsap.delayedCall(1.1, () => {
-        releasing = false
-      })
+      side = dir > 0 ? 'released-down' : 'released-up'
     }
+
+    // A cada scroll: cruzou a fronteira do palco? Prende.
+    const onScroll = () => {
+      if (engaged || isNavigating() || isScrollLocked()) return
+      const top = stageTop()
+      // Perto o bastante da fronteira já prende: o scroll suave desacelera e pode parar a 1px sem cruzar.
+      if (side === 'above' && top <= EDGE) engage(0)
+      else if (side === 'below' && top >= -EDGE) engage(n - 1)
+      else if (side === 'released-up') {
+        if (top > EDGE * 2) side = 'above'
+        else if (top < -EDGE * 2) engage(0)
+      } else if (side === 'released-down') {
+        if (top < -EDGE * 2) side = 'below'
+        else if (top > EDGE * 2) engage(n - 1)
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
 
     const onKey = (e: KeyboardEvent) => {
       if (!engaged || e.defaultPrevented) return
@@ -311,36 +395,35 @@ export function useProjectsStage(
       const up = ['ArrowUp', 'PageUp'].includes(e.key)
       if (!down && !up) return
       e.preventDefault()
+      if (e.repeat) return
+      gesture++
       step(down ? 1 : -1)
     }
     window.addEventListener('keydown', onKey)
 
-    // Chegou de cima: primeiro projeto. Chegou de baixo: último.
-    const pin = ScrollTrigger.create({
-      trigger: els.stage,
-      start: 'top top',
-      onEnter: () => engage(0),
-      onLeaveBack: () => engage(n - 1),
-    })
-
     // Menu e ficha por cima: gestos param de ser lidos enquanto a camada está aberta.
     const offLock = onLockChange((locked) => {
-      if (!engaged) return
-      if (locked) observer.disable()
-      else observer.enable()
+      if (engaged) listen(!locked)
     })
 
     // Navegação pelo menu atravessa o palco sem prender; no fim, prende se parou nele.
     const offNav = onNavigate((phase) => {
       if (phase === 'start') {
-        busy?.progress(1)
+        if (moving) applyInstant(current)
         disengage()
         return
       }
-      const r = els.stage.getBoundingClientRect()
-      if (Math.abs(r.top) < 4) engage(0)
-      else if (r.top > 0) applyInstant(0)
-      else applyInstant(n - 1)
+      const top = stageTop()
+      if (Math.abs(top) < 4) {
+        side = 'above'
+        engage(0)
+      } else if (top > 0) {
+        side = 'above'
+        applyInstant(0)
+      } else {
+        side = 'below'
+        applyInstant(n - 1)
+      }
     })
 
     // --- Vida contínua: nome deslizando, luz atrás do frame, flutuação e brilho ---
@@ -402,28 +485,34 @@ export function useProjectsStage(
     })
 
     measure()
+    build()
     gx = comps[0].desk.cx
     gy = comps[0].desk.cy
     applyInstant(0)
 
     const onResize = () => {
       measure()
+      build()
       applyInstant(current)
-      if (engaged) getLenis()?.scrollTo(stageY(), { immediate: true, force: true })
+      if (engaged) snap()
     }
     window.addEventListener('resize', onResize)
 
     return () => {
-      busy?.kill()
-      pin.kill()
+      moving?.kill()
+      master?.kill()
       vis.kill()
-      observer.kill()
+      observers.forEach((o) => o.kill())
       offLock()
       offNav()
       disengage()
       nearIO.disconnect()
       loops.forEach((l) => l.kill())
       gsap.ticker.remove(tick)
+      window.removeEventListener('wheel', onRawWheel, { capture: true })
+      window.removeEventListener('touchstart', onPress, { capture: true })
+      window.removeEventListener('pointerdown', onPress, { capture: true })
+      window.removeEventListener('scroll', onScroll)
       window.removeEventListener('keydown', onKey)
       window.removeEventListener('pointermove', onPointer)
       window.removeEventListener('resize', onResize)
