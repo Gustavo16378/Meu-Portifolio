@@ -3,6 +3,7 @@ import { gsap } from '../motion/gsap'
 import { prefersReducedMotion } from '../motion/reducedMotion'
 import { lockScroll, unlockScroll } from '../motion/scrollLock'
 import { finishIntro, markPreloaderSeen, shouldShowPreloader } from '../motion/intro'
+import { Personagem } from './Personagem'
 
 const FIRST = 'Gustavo '
 const WRONG = 'Lima'
@@ -130,6 +131,15 @@ export function Preloader() {
       className="fixed inset-0 flex items-center justify-center bg-bg will-change-transform"
       style={{ zIndex: 'var(--z-preloader)' }}
     >
+      {/* Ele digitando no canto, junto com o nome; sai com a cortina. */}
+      <Personagem
+        pose="digitando"
+        size="sm"
+        show
+        delay={0.05}
+        className="absolute"
+        style={{ left: 'calc(env(safe-area-inset-left) + 16px)', bottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
+      />
       {/* Caixa com a largura da frase mais longa: o texto cresce da esquerda sem ficar recentrando. */}
       <div className="relative font-display text-[min(15vw,26svh)] leading-none whitespace-pre uppercase">
         <span className="invisible">

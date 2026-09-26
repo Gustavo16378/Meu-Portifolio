@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { gsap, SplitText } from '../motion/gsap'
 import { addGlitchIn } from '../motion/glitch'
 import { useScrollSkew } from '../motion/useScrollSkew'
+import { Personagem } from './Personagem'
 
 const paragraphs = [
   'Eu desenho e construo cada site do zero. Não uso template: layout, animação e código saem pensados pra aquele projeto.',
@@ -72,13 +73,17 @@ export function Manifesto() {
   return (
     <section id="faco" data-section ref={sectionRef} className="relative px-4 py-28 md:px-12 md:py-44">
       <div className="grid gap-12 md:grid-cols-[1fr_1fr] md:gap-16">
-        <h2
-          ref={titleRef}
-          className="origin-left font-display text-[19vw] leading-[0.84] uppercase will-change-transform md:text-[8.5vw]"
-        >
-          Não é só
-          <br />a tela
-        </h2>
+        <div className="flex flex-col gap-6 md:gap-10">
+          <h2
+            ref={titleRef}
+            className="origin-left font-display text-[19vw] leading-[0.84] uppercase will-change-transform md:text-[8.5vw]"
+          >
+            Não é só
+            <br />a tela
+          </h2>
+          {/* Ele aponta pro texto do lado */}
+          <Personagem pose="apontando" size="md" className="self-start md:self-end md:mr-[8%]" />
+        </div>
         <div ref={textRef} className="flex max-w-[34rem] flex-col gap-6 md:gap-8 md:pt-4">
           {paragraphs.map((p) => (
             <p key={p} className="text-lg leading-snug text-bone md:text-[clamp(1.125rem,1.4vw,1.5rem)]">

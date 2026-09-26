@@ -14,6 +14,7 @@ import { Others } from './components/Others'
 import { Process } from './components/Process'
 import { Story } from './components/Story'
 import { Contact } from './components/Contact'
+import { IdleWalker } from './components/IdleWalker'
 
 export default function App() {
   const { open: menuOpen, show: openMenu, hide: closeMenu } = useOverlayState()
@@ -45,6 +46,7 @@ export default function App() {
         <Contact />
       </main>
       <Hud menuOpen={menuOpen} onMenu={openMenu} onRecruiter={openRecruiter} />
+      <IdleWalker />
       <Grain />
       <Menu open={menuOpen} onClose={closeMenu} onNavigate={navigate} onRecruiter={openRecruiter} />
       <Preloader />

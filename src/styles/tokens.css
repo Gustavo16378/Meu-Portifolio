@@ -39,6 +39,7 @@
   --overlay-soft: color-mix(in srgb, var(--c-bg) 60%, transparent);
 
   /* camadas */
+  --z-walker: 45;
   --z-hud: 50;
   --z-grain: 60;
   --z-overlay: 9998;

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type CSSProperties } from 'react'
+import { useLayoutEffect, useRef, type CSSProperties, type ReactNode } from 'react'
 import { useTilt } from '../motion/useTilt'
 import type { PhotoCardEls } from '../motion/usePhotoCards'
 
@@ -18,10 +18,12 @@ interface PhotoCardProps {
   style?: CSSProperties
   zIndex: number
   register: (els: PhotoCardEls | null) => void
+  /** Preso ao cartão, por trás dele (acompanha arrasto, voo e espalhamento). */
+  attached?: ReactNode
 }
 
 /** Cartão fotográfico: moldura fina, sombra, legenda em mono. A física fica em usePhotoCards. */
-export function PhotoCard({ photo, className, style, zIndex, register }: PhotoCardProps) {
+export function PhotoCard({ photo, className, style, zIndex, register, attached }: PhotoCardProps) {
   const scatter = useRef<HTMLDivElement>(null)
   const body = useRef<HTMLDivElement>(null)
   const float = useRef<HTMLDivElement>(null)
@@ -51,7 +53,8 @@ export function PhotoCard({ photo, className, style, zIndex, register }: PhotoCa
           className="absolute inset-0 opacity-0"
           style={{ boxShadow: 'var(--shadow-lift)' }}
         />
-        <div ref={float} className="will-change-transform">
+        <div ref={float} className="relative will-change-transform">
+          {attached}
           <div
             ref={tilt}
             className="relative overflow-hidden bg-surface p-[5px] will-change-transform md:p-[7px]"

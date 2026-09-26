@@ -1,4 +1,4 @@
-import { useEffect, type RefObject } from 'react'
+import { useEffect, useRef, type RefObject } from 'react'
 import { gsap, Draggable, InertiaPlugin } from './gsap'
 import { prefersReducedMotion } from './reducedMotion'
 import { onIntroDone } from './intro'
@@ -91,7 +91,12 @@ export function usePhotoCards(
   titleRef: RefObject<HTMLElement | null>,
   cardsRef: RefObject<(PhotoCardEls | null)[]>,
   configs: PhotoCardConfig[],
+  /** Chamado quando o usuário pega um cartão (toda vez). */
+  onGrab?: () => void,
 ): void {
+  const grab = useRef(onGrab)
+  grab.current = onGrab
+
   useEffect(() => {
     const hero = heroRef.current
     const list = cardsRef.current
@@ -349,6 +354,7 @@ export function usePhotoCards(
               },
             },
             onPress: () => {
+              grab.current?.()
               b.homeCall?.kill()
               b.homeCall = undefined
               gsap.killTweensOf(b.els.body, 'x,y,rotation,opacity')

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { gsap } from '../motion/gsap'
 import { prefersReducedMotion } from '../motion/reducedMotion'
 import { onIntroDone } from '../motion/intro'
@@ -6,6 +6,7 @@ import { useScrollSkew } from '../motion/useScrollSkew'
 import { usePhotoCards, type PhotoCardConfig, type PhotoCardEls } from '../motion/usePhotoCards'
 import { GridBackdrop } from './GridBackdrop'
 import { PhotoCard, type Photo } from './PhotoCard'
+import { Personagem } from './Personagem'
 
 const photos: Photo[] = [
   {
@@ -56,7 +57,17 @@ export function Hero() {
     }),
   )
 
-  usePhotoCards(heroRef, titleRef, cardsRef, cardConfigs)
+  // Ele espia de trás do primeiro cartão depois que os cartões assentam, e some na primeira vez que alguém arrasta um.
+  const [peek, setPeek] = useState(false)
+  const grabbed = useRef(false)
+  useEffect(() => onIntroDone(() => setPeek(true)), [])
+  const onGrab = useCallback(() => {
+    if (grabbed.current) return
+    grabbed.current = true
+    setPeek(false)
+  }, [])
+
+  usePhotoCards(heroRef, titleRef, cardsRef, cardConfigs, onGrab)
 
   // Entrada do título e do texto (depois do preloader), e o indicador sumindo quando a página rola.
   useEffect(() => {
@@ -136,6 +147,18 @@ export function Hero() {
               className={`w-[50vw] md:w-[clamp(220px,22vw,340px)] ${cardPlacement[i]}`}
               zIndex={i + 1}
               register={registers.current[i]}
+              attached={
+                i === 0 ? (
+                  // A faixa escura da imagem é a parede: encosta na borda direita do cartão.
+                  <Personagem
+                    pose="espiando"
+                    size="sm"
+                    show={peek}
+                    delay={1.7}
+                    className="absolute top-[4%] left-full -ml-px"
+                  />
+                ) : undefined
+              }
             />
           ))}
         </div>

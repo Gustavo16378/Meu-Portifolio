@@ -149,6 +149,24 @@ Título Tanker gigante, uma palavra por linha: `VAMOS` / `CONVERSAR`. A última 
 
 Footer autoral, uma faixa em mono: GitHub (github.com/Gustavo16378), LinkedIn (linkedin.com/in/gustavo-barbosa-lima-341886278), Instagram (@ogustavo_dev), e a stack completa: react · typescript · javascript · tailwind · node.js · java · spring boot · quarkus · postgresql · docker · cloudflare · react native/expo. Assinatura: `gustavodev.dev · palmas, to · feito do zero`.
 
+## Personagem
+
+Uma versão ilustrada do Gustavo, em 18 poses com fundo transparente (`personagem-gustavo-poses/gustavo-*.png`, servidas de `public/personagem/` em WebP com PNG de fallback; as três folhas originais não vão pro site). Componente `Personagem` recebe pose e tamanho.
+
+Regras: sempre pequeno (120 a 220px de altura no desktop, 80 a 140px no mobile), nunca compete com o conteúdo, nunca intercepta clique. Entra com mola, flutua de leve em repouso (pausa fora da tela), troca de pose com um tranco curto. Em reduced-motion aparece parado, só com fade. **Nunca dentro da seção de projetos.**
+
+Onde aparece:
+- Preloader: `digitando`, no canto inferior esquerdo; sai junto com a cortina.
+- Hero: `espiando`, saindo de trás da borda direita do primeiro cartão de foto (a faixa escura da imagem é a parede e se confunde com a borda do cartão). Aparece depois que os cartões assentam e some com fade na primeira vez que o usuário arrasta um cartão.
+- 02 O que eu faço: `apontando`, embaixo do título, apontando pro texto.
+- 05 Como funciona: uma pose por passo (`pensando`, `desenhando`, `digitando`, `comemorando`), cada uma entrando com fade e quique leve.
+- 06 História: `cafe`, ao lado da linha do tempo.
+- 07 Contato: `acenando` perto do botão do WhatsApp, com balanço lento; depois de 20 segundos sem interação, troca pra `dormindo`; qualquer interação acorda.
+- Ocioso: depois de 30 segundos sem interação, ele atravessa o rodapé da tela com `andando-direita` e volta com `andando-esquerda`, e some assim que o usuário mexe (mouse, toque, teclado ou scroll). Não passa na seção de projetos nem no contato (lá ele já dorme).
+- 404: `ombros` centralizado, com "não achei essa página" em Tanker e um link pra voltar. Qualquer caminho que não seja a home mostra essa página, com `noindex`.
+
+As outras poses (`bracos-cruzados`, `frente`, `lado`, `olhando-cima`, `pulando`, `sentado`) ficam disponíveis no componente.
+
 ## Atalho do recrutador
 
 Botão `recrutador?` em mono no menu e no HUD superior direito (ao lado da hora). O texto é só esse, sem complemento. Abre um painel lateral sobre a página: uma linha de resumo, stack agrupada (front, back, mobile, infra) em mono, experiência em três linhas, links GitHub e LinkedIn, botão `baixar CV em PDF`. Esc ou clique fora fecha.
@@ -177,4 +195,5 @@ Ferramentas: GSAP (ScrollTrigger, Draggable, InertiaPlugin, Physics2DPlugin, tod
 - Skew por velocidade de scroll em títulos e nos frames dos projetos; botões magnéticos.
 - HUD fixo com hora real e seção atual.
 - Título do contato montando em blocos.
+- Personagem pequeno nos pontos definidos, com mola na entrada e flutuação leve; atravessa o rodapé quando o usuário fica parado.
 - Tudo com GSAP (ScrollTrigger, Draggable, Inertia, Physics2D) + Lenis.

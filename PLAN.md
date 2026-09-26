@@ -31,7 +31,8 @@ Palco único preso na seção de projetos. Cada projeto com composição própri
 Conferir: viagem dos frames, troca de vídeo, só um tocando, Lighthouse mobile acima de 85.
 
 ## Etapa 4.2 · Personagem (Bloco B)
-Componente Personagem com as poses de `personagem-gustavo-poses/` (copiadas pra `public/personagem/`), sempre pequeno, nos pontos definidos na SPEC. Sem personagem dentro dos projetos.
+Componente Personagem com as poses de `personagem-gustavo-poses/` (copiadas pra `public/personagem/`), sempre pequeno, nos pontos definidos na SPEC: preloader, hero espiando, seção 02, Como funciona, História, Contato (dorme depois de 20s), ocioso atravessando o rodapé depois de 30s, e 404. Sem personagem dentro dos projetos. Em Como funciona, História e Contato ele entra já no lugar previsto; o conteúdo dessas seções vem na Etapa 5.
+Conferir: tamanho discreto, entrada com mola, some no primeiro arrasto do hero, dorme no contato, walker some ao mexer.
 
 ## Etapa 4.3 · Testes (Bloco C)
 Passar seção por seção no Chrome headless em 1440x900 e 390x844 e reportar preloader, hero, seção 02, projetos (vídeo, pin, cor, trilho), menu e ficha, HUD, personagem, reduced-motion, console e tempo de carregamento da seção de projetos.
