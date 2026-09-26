@@ -22,6 +22,10 @@ Conferir: é o molde dos outros quatro. Aprovar só quando estiver certo.
 Replicar o molde com os ambientes da SPEC (Autoria, Monte Vinhedo, Torra, Cleane). Fronteiras físicas entre eles (sai empurrado, entra caindo com mola), trilho preenchendo, cor sangrando. Grãos com gravidade na Torra, líquido balançando no Monte Vinhedo, folhas oscilando na Cleane. Dados em `data/projects.ts`.
 Conferir: ritmo das cores, transição reversível, nada pesado.
 
+## Etapa 4.1 · Revisão dos projetos (Bloco A)
+Os objetos desenhados em linha saem dos cinco projetos. O print vira o foco (cerca de 60% da largura). Cada projeto fica preso enquanto a cena se monta (Stewer ~150vh no desktop, mais curto no mobile) e só solta com a cena pronta; a placa fica parada. Stewer refeito com lâmpadas de camarim em CSS em volta do print e fotos recortadas (navalha em pêndulo atrás do print, desfocada; pente deslizando embaixo). Os outros quatro com fundo, print grande e placa, prontos pra receber fotos em `objetos/<projeto>/` pelo campo `photos` em `data/projects.ts`. Mantém cores de ambiente, trilho, cor sangrando e a física das fronteiras.
+Conferir: o print manda na cena, a freada não cansa, a navalha e o pente parecem objetos de verdade, mobile com pin curto.
+
 ## Etapa 5 · Resto da página
 Outros projetos (lista com hover glitch), Como funciona (blocos com glitch), História (foto estática + linha do tempo), Contato (título montando em blocos, WhatsApp, footer). Painel do recrutador com CV em PDF (placeholder até o Gustavo mandar o PDF), aberto pelo botão `recrutador?` do HUD (já existe desde a Etapa 3) e pelo do menu.
 Conferir: seção atual no HUD acompanhando, todos os links.

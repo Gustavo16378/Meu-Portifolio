@@ -2,19 +2,18 @@ import { Fragment, useCallback, useMemo, useRef, useState, type ComponentType } 
 import { projects, projectById, type ProjectId } from '../data/projects'
 import { useOverlayState } from './useDialog'
 import { ProjectRail } from './ProjectRail'
-import { ProjectStewer, type ProjectSceneProps } from './ProjectStewer'
-import { ProjectAutoria } from './ProjectAutoria'
-import { ProjectVinhedo } from './ProjectVinhedo'
-import { ProjectTorra } from './ProjectTorra'
-import { ProjectCleane } from './ProjectCleane'
+import type { ProjectSceneProps } from './ProjectScene'
+import { ProjectStewer } from './ProjectStewer'
+import { ProjectPlain } from './ProjectPlain'
 import { TechSheet } from './TechSheet'
 
+// Stewer tem cena própria (lâmpadas, navalha, pente); os outros usam a cena padrão até as fotos chegarem.
 const scenes: Record<ProjectId, ComponentType<ProjectSceneProps>> = {
   stewer: ProjectStewer,
-  autoria: ProjectAutoria,
-  'monte-vinhedo': ProjectVinhedo,
-  torra: ProjectTorra,
-  cleane: ProjectCleane,
+  autoria: ProjectPlain,
+  'monte-vinhedo': ProjectPlain,
+  torra: ProjectPlain,
+  cleane: ProjectPlain,
 }
 
 /**

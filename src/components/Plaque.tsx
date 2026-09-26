@@ -49,13 +49,13 @@ export function Plaque({ project, onSheet, calm = false, className = '' }: Plaqu
       </p>
       <h3
         ref={titleRef}
-        className="mt-4 origin-left font-display text-[17vw] leading-[0.84] uppercase will-change-transform md:text-[min(6.4vw,13svh)]"
+        className="mt-3 origin-left font-display text-[13vw] leading-[0.84] uppercase will-change-transform md:mt-4 md:text-[min(5.4vw,11svh)]"
       >
         {project.name}
       </h3>
-      <p className="mt-5 max-w-[26rem] text-lg leading-snug text-bone md:text-xl">{project.line}</p>
+      <p className="mt-3 max-w-[26rem] text-base leading-snug text-bone md:mt-5 md:text-lg">{project.line}</p>
       <p className="mt-3 font-mono text-[11px] text-muted md:text-xs">{project.stack.join(' · ')}</p>
-      <div className="mt-8 flex items-center gap-8 font-mono text-xs md:text-sm">
+      <div className="mt-5 flex items-center gap-8 font-mono text-xs md:mt-8 md:text-sm">
         <a
           ref={liveRef}
           href={project.url}

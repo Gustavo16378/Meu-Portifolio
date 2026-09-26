@@ -18,7 +18,7 @@ Referência de impacto (não de cópia): portfólios técnicos e futuristas com 
 4. Tipografia exclusiva deste site. Proibido: Fraunces, Inter, Cormorant, Space Grotesk, JetBrains Mono, Satoshi, Manrope, Geist. Nenhuma serifa neste site.
 5. Sem seção de preço.
 6. Textos normais, diretos, sem frase de efeito, sem tom de trailer de filme. Escrever como quem explica pra um amigo o que faz. O Gustavo vai reescrever tudo depois nas palavras dele, então os textos são placeholders com a intenção certa, não peças de retórica.
-7. Mobile-first: seções pinadas no desktop viram scroll vertical no mobile, mantendo a troca de ambiente e o canvas de partículas mais leve (menos pontos).
+7. Mobile-first: no mobile os projetos continuam presos, com trecho de pin mais curto, mantendo a troca de ambiente; o resto da página é scroll vertical normal.
 8. Performance: nada que trave celular médio. Partículas no máximo ~12k pontos no desktop, ~4k no mobile. Respeitar prefers-reduced-motion.
 
 ## Paleta base
@@ -80,27 +80,31 @@ Duas colunas. Esquerda, título Tanker: `NÃO É SÓ A TELA`. Direita, texto em 
 
 ### 03 Projetos (cinco, com ambiente)
 
-Os cinco projetos ficam **um embaixo do outro**, cada um ocupando a tela inteira (min-height 100vh). Nunca um sobreposto ao outro, nunca em carrossel. O scroll é normal (Lenis suave), sem pin da seção inteira; o pin, se houver, é só de elementos internos de cada projeto (o print, o objeto central) enquanto o conteúdo passa.
+Os cinco projetos ficam **um embaixo do outro**. Nunca um sobreposto ao outro, nunca em carrossel. O scroll é Lenis suave, sem pin da seção inteira: cada projeto tem o próprio palco preso.
 
-**O que conecta os cinco:** um trilho vertical fixo na lateral esquerda, em mono, visível só dentro da seção de projetos. Ele mostra `01 / 05`, `02 / 05`... e uma linha fina que se preenche em lima conforme você desce pelos cinco. Ao trocar de projeto, o número troca com um glitch curto. Além do trilho, a cor de fundo de cada projeto **sangra** na fronteira com o próximo (faixa de ~30vh de degradê entre as duas cores, controlada pelo scroll).
+**O foco é o print.** O print desktop é grande, cerca de 60% da largura no desktop, com moldura discreta na cor do projeto e sombra funda; o print mobile fica menor, sobreposto num canto dele. Os objetos são cenário: **fotos reais recortadas** (PNG/WebP com fundo transparente) em `objetos/<projeto>/`, sempre menores que o print. Os que ficam atrás do print ficam embaixo dele e com blur leve; os da frente, nítidos. Nada de objeto desenhado em linha (wireframe).
 
-**Sem quebra em blocos, sem destruição e reconstrução aqui.** A transição entre projetos é **física**: os objetos em linha do projeto atual são empurrados pra fora da tela com velocidade proporcional ao scroll (ganham momento, giram um pouco, saem por cima), e os do próximo **caem** na cena com mola e quique leve (overshoot, `elastic`/`back` ease), parando nos lugares. O print desliza com skew proporcional à velocidade do scroll e endireita quando o scroll para. Tudo reversível: subir o scroll traz os objetos de volta pelo mesmo caminho.
+**Freada.** Cada projeto fica preso (sticky) por um trecho do scroll: cerca de 150vh no desktop, mais curto no mobile. Enquanto está preso, controlado pelo scroll e reversível: o print entra caindo com mola, a luz do ambiente sobe, os objetos caem com mola nos seus lugares, e o texto (a placa) fica parado ao lado. O palco só solta quando a cena está montada. Projeto que ainda não tem fotos fica preso por menos tempo (só o print entra).
 
-Dentro de cada projeto: o print do site (desktop grande, mobile menor ao lado ou sobreposto no canto) integrado ao ambiente, os objetos em linha (wireframe, stroke fino de 1 a 1,5px, sem preenchimento, sempre no mesmo estilo nos cinco) com parallax em camadas, e a placa. A placa é enxuta: nome, ano, tipo (cliente ou conceito próprio), uma linha do que é, stack em mono, `ver no ar` e `ficha técnica`. Nada de texto de conceito.
+**O que conecta os cinco:** um trilho vertical fixo na lateral esquerda, em mono, visível só dentro da seção de projetos. Ele mostra `01 / 05`, `02 / 05`... e uma linha fina que se preenche em lima conforme você desce pelos cinco. Ao trocar de projeto, o número troca com um glitch curto. Além do trilho, a cor de fundo de cada projeto **sangra** na do próximo (faixa de ~30vh de degradê entre as duas cores).
 
-`ficha técnica` abre um painel lateral (portal no body, mesma mecânica do menu) com: arquitetura em duas ou três linhas, três decisões técnicas, link do repositório, link do site. É a parte do recrutador.
+**Sem quebra em blocos, sem destruição e reconstrução aqui.** A fronteira entre projetos é **física**: quando o palco solta, o print e os objetos são empurrados pra fora por cima, ganhando velocidade e girando um pouco, enquanto a cor sangra e o próximo palco chega; no próximo, as coisas entram caindo com mola. O print também ganha skew proporcional à velocidade do scroll e endireita quando o scroll para. Tudo reversível: subir o scroll traz tudo de volta pelo mesmo caminho.
+
+A placa é enxuta: nome, ano, tipo (cliente ou conceito próprio), uma linha do que é, stack em mono, `ver no ar` e `ficha técnica`. Nada de texto de conceito.
+
+`ficha técnica` abre um painel lateral (portal no body, mesma mecânica do menu) com: arquitetura em duas ou três linhas, três decisões técnicas, link do repositório (com o aviso "código privado, projeto de cliente" quando for o caso), link do site. É a parte do recrutador.
 
 Ordem e ambientes:
 
-1. **Stewer Gabriel** (2025, cliente) · stewergabriel.com · Visagista e consultor de imagem. Ambiente: preto com dourado apagado `#8A7A45`. Objetos em linha: espelho retangular com lâmpadas ao redor acendendo uma a uma no scroll, navalha pendurada que balança como pêndulo e reage ao mouse passar perto, pente que desliza no balcão. O print aparece dentro do espelho. Stack: React, TypeScript, Tailwind, Vite, Cloudflare. Ficha: app de agendamento em desenvolvimento (Quarkus + PostgreSQL, React Native/Expo).
-2. **AUTORIA.** (2026, conceito próprio) · autoria-6kz.pages.dev · Concessionária de carros como galeria. Ambiente: preto com âmbar-ouro `#C9A24A`. Objetos em linha: silhueta de carro em wireframe vista de frente, um farol que acende e varre a tela em cone de luz seguindo o mouse com atraso, reflexo no piso, o carro afunda de leve na suspensão quando o scroll para. O print aparece na parede iluminada pelo farol. Stack: React, TypeScript, pipeline Playwright + rembg pra tratar fotos.
-3. **Monte Vinhedo** (2026, conceito próprio) · monte-vinhedo.pages.dev · Vinícola boutique de vinhos de altitude. Ambiente: vinho profundo `#3A0F1E` com rosé `#C46A7A`. Objetos em linha: garrafas em silhueta com parallax, taça em wireframe que enche conforme rola e cujo líquido balança quando o scroll muda de velocidade, linhas de contorno de montanha ao fundo. Stack: React, GSAP.
-4. **TORRA** (2026, conceito próprio) · torra-cafe.pages.dev · Cafeteria de torra própria. Ambiente: marrom-café `#2A1B12` com laranja queimado `#D8843A`. Objetos em linha: xícara em wireframe com vapor animado (três curvas subindo), grãos que caem com gravidade e quicam no pires (Physics2D), um círculo grande de luz lateral. Stack: React, TypeScript, Tailwind.
-5. **Cleane Barbosa** (2025, cliente, primeira cliente) · cleanebarbosa.com.br · Psicanalista e terapeuta EFT. Ambiente: verde-oliva escuro `#1E2A1F` com verde-sálvia `#9BB79A`. O mais calmo dos cinco: um círculo em linha que expande e contrai devagar (respiração), poltrona em wireframe, planta em linha cujas folhas oscilam como se tivesse vento leve. Tudo lento, é a única cena sem quique. Stack: React, TypeScript, Tailwind, Cloudflare.
+1. **Stewer Gabriel** (2025, cliente) · stewergabriel.com · Visagista e consultor de imagem. Ambiente: preto com dourado apagado `#8A7A45`. Lâmpadas de camarim em volta do print, feitas em CSS, com brilho quente, acendendo uma a uma no scroll. Objetos (fotos em `objetos/stewer/`): navalha pendurada por um fio numa lateral, atrás do print e desfocada, balançando como pêndulo e reagindo ao mouse passar perto; pente apoiado embaixo do print, na frente, deslizando com o scroll e freando no atrito. Stack: React, TypeScript, Tailwind, Vite, Cloudflare. Ficha: app de agendamento em desenvolvimento (Quarkus + PostgreSQL, React Native/Expo). Código privado.
+2. **AUTORIA.** (2026, conceito próprio) · autoria-6kz.pages.dev · Concessionária de carros com fotos tratadas em pipeline próprio. Ambiente: preto com âmbar-ouro `#C9A24A`. Por enquanto só fundo, print e placa. Ideias pra quando as fotos chegarem: farol que acende e varre a tela seguindo o mouse, carro afundando de leve na suspensão quando o scroll para. Stack: React, TypeScript, pipeline Playwright + rembg pra tratar fotos.
+3. **Monte Vinhedo** (2026, conceito próprio) · monte-vinhedo.pages.dev · Vinícola boutique de vinhos de altitude. Ambiente: vinho profundo `#3A0F1E` com rosé `#C46A7A`. Por enquanto só fundo, print e placa. Ideias pra quando as fotos chegarem: garrafas com parallax, taça que enche com o scroll e cujo líquido balança quando a velocidade muda. Stack: React, GSAP.
+4. **TORRA** (2026, conceito próprio) · torra-cafe.pages.dev · Cafeteria de torra própria. Ambiente: marrom-café `#2A1B12` com laranja queimado `#D8843A`. Por enquanto só fundo, print e placa. Ideias pra quando as fotos chegarem: xícara com vapor, grãos que caem com gravidade e quicam no pires (Physics2D). Stack: React, TypeScript, Tailwind.
+5. **Cleane Barbosa** (2025, cliente, primeira cliente) · cleanebarbosa.com.br · Psicanalista e terapeuta EFT. Ambiente: verde-oliva escuro `#1E2A1F` com verde-sálvia `#9BB79A`. O mais calmo dos cinco e a única cena sem quique: entrada, saída e skew sem passar do ponto. Por enquanto só fundo, print e placa. Ideias pra quando as fotos chegarem: algo que respira devagar, planta com folhas no vento. Stack: React, TypeScript, Tailwind, Cloudflare. Código privado.
 
 Ritmo: dourado, âmbar, vinho, laranja, verde. Cada fronteira é uma troca de cena com peso: sai empurrado, entra caindo.
 
-Prints em `assets/prints/<projeto>-desktop.png` e `<projeto>-mobile.png`.
+Prints em `assets/prints/<projeto>-desktop.png` e `<projeto>-mobile.png` (servidos em WebP). Fotos dos objetos em `objetos/<projeto>/`, copiadas pra `public/objetos/<projeto>/` e cadastradas em `photos` no `data/projects.ts`.
 
 ### 04 Outros projetos
 
@@ -137,7 +141,7 @@ Tudo que se move tem massa. Regras gerais:
 - O scroll tem velocidade e a página sente: títulos e prints ganham skew/rotate proporcionais à velocidade (via Lenis `velocity`) e voltam a zero com mola quando o scroll para.
 - Botões e links são magnéticos: o elemento se desloca alguns px em direção ao cursor quando ele chega perto, e volta com mola.
 - O cursor tem inércia: o anel atrasa em relação ao ponto.
-- Os objetos em linha dos projetos reagem ao mouse (empurrão, balanço) e à gravidade quando faz sentido.
+- Os objetos dos projetos (fotos recortadas) reagem ao mouse (empurrão, balanço) e à gravidade quando faz sentido.
 - Os cartões de foto do hero são arrastáveis com inércia e quique.
 - Listas e blocos entram com stagger, nunca todos de uma vez.
 - Em `prefers-reduced-motion`, tudo isso vira fade simples.
@@ -150,8 +154,9 @@ Ferramentas: GSAP (ScrollTrigger, Draggable, InertiaPlugin, Physics2DPlugin, tod
 - Cartões de foto no hero com inclinação 3D, drag com inércia e quique, e espalhamento no scroll.
 - Cursor customizado: ponto lima pequeno com um anel fino que atrasa; cresce em links. Sem texto dentro do cursor.
 - Glitch curto na entrada de textos (seções 02 e 05) e no hover da lista (04).
-- Transição física entre os cinco projetos (objetos empurrados pra fora, próximos caindo com mola), cor sangrando, trilho lateral acompanhando. Sem blocos.
-- Objetos em linha com parallax e reação ao mouse dentro de cada projeto.
+- Projetos presos enquanto a cena se monta (print entra, luz sobe, objetos caem), soltando só com a cena pronta.
+- Transição física entre os cinco projetos (print e objetos empurrados pra fora, próximos caindo com mola), cor sangrando, trilho lateral acompanhando. Sem blocos.
+- Objetos de cena em foto recortada, com parallax, blur nos de trás e reação ao mouse.
 - Skew por velocidade de scroll em títulos e prints; botões magnéticos.
 - HUD fixo com hora real e seção atual.
 - Título do contato montando em blocos.

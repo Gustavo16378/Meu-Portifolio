@@ -16,6 +16,27 @@ export interface ProjectSheet {
   repoNote?: string
 }
 
+/**
+ * Foto recortada (PNG/WebP com fundo transparente) usada como objeto de cena.
+ * Os arquivos ficam em public/objetos/<projeto>/.
+ */
+export interface ScenePhoto {
+  webp: string
+  png: string
+  width: number
+  height: number
+  /** Posição e tamanho no palco, em classes Tailwind (mobile primeiro). */
+  className: string
+  /** Atrás do print: fica embaixo dele e com blur leve, pra dar profundidade. */
+  behind?: boolean
+  /** Parallax: 0 parado, 1 primeiro plano. */
+  depth?: number
+  /** Quando cai na cena, de 0 a 1 dentro do trecho preso. */
+  enterAt?: number
+  fallRotation?: number
+  exit?: { x: number; rotation: number }
+}
+
 export interface Project {
   id: ProjectId
   name: string
@@ -31,6 +52,8 @@ export interface Project {
   background: string
   prints: { desktop: Print; mobile: Print }
   sheet: ProjectSheet
+  /** Objetos da cena. Vazio até as fotos recortadas chegarem. */
+  photos: ScenePhoto[]
 }
 
 const prints = (id: string): Project['prints'] => ({
@@ -64,6 +87,7 @@ export const projects: Project[] = [
       repo: github,
       repoNote: 'código privado, projeto de cliente',
     },
+    photos: [],
   },
   {
     id: 'autoria',
@@ -86,6 +110,7 @@ export const projects: Project[] = [
       ],
       repo: github,
     },
+    photos: [],
   },
   {
     id: 'monte-vinhedo',
@@ -108,6 +133,7 @@ export const projects: Project[] = [
       ],
       repo: github,
     },
+    photos: [],
   },
   {
     id: 'torra',
@@ -129,6 +155,7 @@ export const projects: Project[] = [
       ],
       repo: github,
     },
+    photos: [],
   },
   {
     id: 'cleane',
@@ -149,7 +176,9 @@ export const projects: Project[] = [
         'Site estático, rápido de abrir e sem servidor pra manter.',
       ],
       repo: github,
+      repoNote: 'código privado, projeto de cliente',
     },
+    photos: [],
   },
 ]
 

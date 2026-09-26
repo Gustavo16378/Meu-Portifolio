@@ -29,6 +29,11 @@
   --shadow-lift: 0 50px 80px -30px rgb(0 0 0 / 0.85), 0 12px 24px -8px rgb(0 0 0 / 0.5);
   --glare: linear-gradient(105deg, transparent 30%, color-mix(in srgb, var(--c-bone) 22%, transparent) 50%, transparent 70%);
 
+  /* prints e objetos dos projetos */
+  --shadow-print: 0 40px 90px -30px rgb(0 0 0 / 0.8), 0 12px 30px -12px rgb(0 0 0 / 0.6);
+  --shadow-object: drop-shadow(0 18px 22px rgb(0 0 0 / 0.55));
+  --print-edge: color-mix(in srgb, var(--accent) 35%, transparent);
+
   /* menu */
   --overlay: color-mix(in srgb, var(--c-bg) 97%, transparent);
   --overlay-soft: color-mix(in srgb, var(--c-bg) 60%, transparent);
