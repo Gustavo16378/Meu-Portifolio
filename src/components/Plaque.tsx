@@ -1,53 +1,54 @@
-import { useEffect, useRef } from 'react'
-import { gsap } from '../motion/gsap'
+import { useRef, type Ref } from 'react'
 import { useMagnetic } from '../motion/useMagnetic'
-import { prefersReducedMotion } from '../motion/reducedMotion'
 import type { Project } from '../data/projects'
 
 interface PlaqueProps {
   project: Project
   onSheet: () => void
+  /** full: tudo; overlay: só nome e links, sobre o vídeo (Monte Vinhedo). */
+  variant?: 'full' | 'overlay'
+  /** Centralizado (Torra). */
+  center?: boolean
+  /** Quando o aparelho só mostra poster: botão pra tocar o vídeo mesmo assim. */
+  onMotion?: () => void
+  blockRef?: Ref<HTMLDivElement>
   className?: string
 }
 
-/** Placa do projeto: nome, ano, tipo, uma linha, stack e os dois links. Parada: a física da cena fica só no frame. */
-export function Plaque({ project, onSheet, className = '' }: PlaqueProps) {
-  const rootRef = useRef<HTMLDivElement>(null)
+/**
+ * Texto do projeto. Cada filho direto entra e sai em stagger (controlado pelo palco da seção);
+ * a placa em si não tem física, só os links magnéticos.
+ */
+export function Plaque({ project, onSheet, variant = 'full', center = false, onMotion, blockRef, className = '' }: PlaqueProps) {
   const liveRef = useRef<HTMLAnchorElement>(null)
   const sheetRef = useRef<HTMLButtonElement>(null)
-
   useMagnetic(liveRef, { strength: 0.3 })
   useMagnetic(sheetRef, { strength: 0.3 })
 
-  // Linhas entram em sequência, com mola, quando a placa chega.
-  useEffect(() => {
-    const root = rootRef.current
-    if (!root) return
-    const reduced = prefersReducedMotion()
-    const ctx = gsap.context(() => {
-      gsap.from(root.children, {
-        y: reduced ? 0 : 16,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.07,
-        ease: 'power2.out',
-        scrollTrigger: { trigger: root, start: 'top 80%', toggleActions: 'play none none reverse' },
-      })
-    }, root)
-    return () => ctx.revert()
-  }, [])
+  const overlay = variant === 'overlay'
+  const shadow = overlay ? { textShadow: 'var(--shadow-text)' } : undefined
 
   return (
-    <div ref={rootRef} className={className}>
-      <p className="font-mono text-[11px] text-muted md:text-xs">
-        <span style={{ color: 'var(--accent)' }}>{project.year}</span> · {project.kind}
-      </p>
-      <h3 className="mt-3 font-display text-[12vw] leading-[0.84] uppercase md:mt-4 md:text-[min(4.8vw,10svh)]">
+    <div ref={blockRef} className={className} style={shadow}>
+      {!overlay && (
+        <p className="font-mono text-[11px] text-muted md:text-xs">
+          <span style={{ color: 'var(--accent)' }}>{project.year}</span> · {project.kind}
+        </p>
+      )}
+      <h3
+        className={`font-display leading-[0.84] uppercase ${
+          overlay ? 'text-[12vw] md:text-[min(5.2vw,11svh)]' : 'mt-3 text-[12vw] md:mt-4 md:text-[min(4.6vw,9.5svh)]'
+        }`}
+      >
         {project.name}
       </h3>
-      <p className="mt-3 max-w-[26rem] text-base leading-snug text-bone md:mt-5 md:text-lg">{project.line}</p>
-      <p className="mt-3 font-mono text-[11px] text-muted md:text-xs">{project.stack.join(' · ')}</p>
-      <div className="mt-5 flex items-center gap-8 font-mono text-xs md:mt-8 md:text-sm">
+      {!overlay && <p className="mt-3 text-base leading-snug text-bone md:mt-5 md:text-lg">{project.line}</p>}
+      {!overlay && <p className="mt-3 font-mono text-[11px] text-muted md:text-xs">{project.stack.join(' · ')}</p>}
+      <div
+        className={`mt-5 flex flex-wrap items-center gap-x-8 gap-y-2 font-mono text-xs md:mt-7 md:text-sm ${
+          center ? 'md:justify-center' : ''
+        }`}
+      >
         <a
           ref={liveRef}
           href={project.url}
@@ -61,6 +62,11 @@ export function Plaque({ project, onSheet, className = '' }: PlaqueProps) {
         <button ref={sheetRef} type="button" onClick={onSheet} className="-m-3 p-3 text-bone">
           ficha técnica
         </button>
+        {onMotion && (
+          <button type="button" onClick={onMotion} className="-m-3 p-3 text-muted">
+            ver em movimento
+          </button>
+        )}
       </div>
     </div>
   )

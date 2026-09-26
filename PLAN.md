@@ -26,6 +26,10 @@ Conferir: ritmo das cores, transição reversível, nada pesado.
 Saem todos os objetos de cena dos cinco projetos (desenhos em linha, fotos de navalha e pente, lâmpadas, círculos de luz, montanhas); a pasta `objetos/` não é mais usada. Cada projeto vira o site vivo: frame grande (~65% da largura) sem chrome de navegador, borda de 1px na cor de ambiente e sombra suave, com vídeo do site rodando (`public/videos/`, muted, loop, playsinline, preload none, poster, play ao entrar na tela e pause ao sair). Mobile menor em vídeo no canto inferior direito. Placa à esquerda, parada. Física só no frame (mola na entrada, inclinação de 2 a 3 graus com o mouse, skew leve pelo scroll). Pin de ~120vh; no mobile pin curto e vídeos empilhados. Mantém cor de fundo por projeto, cor sangrando e trilho. Grain neutro, no máximo 3%, desligado nos projetos.
 Conferir: dá tempo de ver o site rodando, vídeo toca e pausa na hora certa, nada além do site na cena.
 
+## Etapa 4.1b · Composições e palco único
+Palco único preso na seção de projetos. Cada projeto com composição própria (Stewer, AUTORIA, Monte Vinhedo, TORRA, Cleane, ver SPEC); os frames viajam entre elas com mola enquanto o vídeo troca. Nome em contorno deslizando atrás, varredura diagonal de cor, texto saindo pra cima e entrando de baixo em stagger. Vídeos: src só a uma tela de distância, um tocando por vez, descarregam ao sair, WebM com fallback MP4, no mobile só o vídeo do celular, só poster com botão "ver em movimento" em saveData, 2g/3g e reduced-motion.
+Conferir: viagem dos frames, troca de vídeo, só um tocando, Lighthouse mobile acima de 85.
+
 ## Etapa 4.2 · Personagem (Bloco B)
 Componente Personagem com as poses de `personagem-gustavo-poses/` (copiadas pra `public/personagem/`), sempre pequeno, nos pontos definidos na SPEC. Sem personagem dentro dos projetos.
 
