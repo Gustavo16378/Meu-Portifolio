@@ -5,6 +5,7 @@ import { useScrollSkew } from '../motion/useScrollSkew'
 import { useTilt } from '../motion/useTilt'
 import { timeline } from '../data/timeline'
 import { Personagem } from './Personagem'
+import { SectionChrome } from './SectionChrome'
 
 const paragraphs = [
   'Sou de Palmas, no Tocantins, e programo desde os 16 anos. Comecei montando sites por curiosidade e fui descendo pro back-end, pra API e pro banco de dados.',
@@ -48,7 +49,8 @@ export function Story() {
   }, [])
 
   return (
-    <section id="historia" data-section className="relative px-4 py-24 pl-6 md:px-12 md:py-36">
+    <section id="historia" data-section className="relative isolate overflow-x-clip px-4 py-24 pl-6 md:px-12 md:py-36">
+      <SectionChrome id="historia" />
       <h2
         ref={titleRef}
         className="origin-left font-display text-[17vw] leading-[0.84] uppercase will-change-transform md:text-[8vw]"

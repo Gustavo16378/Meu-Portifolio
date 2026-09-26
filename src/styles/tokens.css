@@ -1,13 +1,13 @@
 /* Único lugar do projeto com cores literais. Componentes usam só as vars. */
 :root {
   /* base */
-  --c-bg: #070907;
+  --c-bg: #0b0f0c;
   --c-acid: #c6f24e;
-  --c-bone: #e8e6de;
-  --c-muted: #6f756a;
-  --c-muted-hi: #8d9387;
+  --c-bone: #f2f0e8;
+  --c-muted: #a9afa3;
+  --c-muted-hi: var(--c-muted);
   --c-surface: #0e120f;
-  --c-border: #1c221d;
+  --c-border: #2a312b;
 
   /* ambientes dos projetos (seção 03) */
   --c-stewer-bg: #14110a;
@@ -21,8 +21,10 @@
   --c-cleane: #9bb79a;
 
   /* grade e grain */
-  --grid-line: color-mix(in srgb, var(--c-acid) 6%, transparent);
+  --grid-line: color-mix(in srgb, var(--c-acid) 5%, transparent);
   --grid-size: 48px;
+  /* número gigante das seções, só contorno, apagado */
+  --mark-stroke: color-mix(in srgb, var(--c-muted) 34%, transparent);
   --grain-opacity: 0.03;
 
   /* cartões de foto */
@@ -37,6 +39,9 @@
   --glint: linear-gradient(90deg, transparent, color-mix(in srgb, var(--c-bone) 85%, transparent), transparent);
   --shadow-frame: 0 30px 70px -30px rgb(0 0 0 / 0.55), 0 8px 20px -10px rgb(0 0 0 / 0.35);
 
+  /* diagrama da seção 02 */
+  --pulse-glow: 0 0 14px 3px color-mix(in srgb, var(--c-acid) 55%, transparent);
+
   /* listas */
   --row-hover: color-mix(in srgb, var(--c-acid) 6%, transparent);
 
@@ -49,7 +54,8 @@
   --overlay-soft: color-mix(in srgb, var(--c-bg) 60%, transparent);
 
   /* camadas */
-  --z-walker: 45;
+  --hud-band: color-mix(in srgb, var(--c-bg) 88%, transparent);
+  --z-walker: 55;
   --z-hud: 50;
   --z-grain: 60;
   --z-overlay: 9998;

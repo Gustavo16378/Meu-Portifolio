@@ -57,6 +57,9 @@ export function Personagem({
   const [inView, setInView] = useState(false)
   const [displayed, setDisplayed] = useState(pose)
   const visible = show ?? inView
+  // Já apareceu alguma vez? Enquanto não, esconder e reaparecer não precisam de animação (nem de ler estilo).
+  const hasShown = useRef(false)
+  const poseMounted = useRef(false)
 
   // Sem controle de fora: aparece a primeira vez que entra na tela.
   useEffect(() => {
@@ -75,20 +78,26 @@ export function Personagem({
     const el = enterRef.current
     if (!el) return
     const reduced = prefersReducedMotion()
-    gsap.killTweensOf(el)
     if (!visible) {
-      gsap.to(el, { autoAlpha: 0, y: reduced ? 0 : 10, duration: 0.35, ease: 'power2.in' })
+      // Nasce escondido pelo CSS: só anima a saída se já tinha aparecido.
+      if (hasShown.current) {
+        gsap.killTweensOf(el)
+        gsap.to(el, { autoAlpha: 0, y: reduced ? 0 : 10, duration: 0.35, ease: 'power2.in' })
+      }
       return
     }
+    hasShown.current = true
+    gsap.killTweensOf(el)
+    // Já nasce escondido pelo CSS: sem render imediato, o GSAP lê e escreve no ticker, sem forçar layout no commit.
     if (reduced) {
-      gsap.fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5, delay })
+      gsap.fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5, delay, immediateRender: false })
     } else if (enter === 'hop') {
-      gsap.fromTo(el, { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.7, delay, ease: 'back.out(3)' })
+      gsap.fromTo(el, { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.7, delay, ease: 'back.out(3)', immediateRender: false })
     } else {
       gsap.fromTo(
         el,
         { autoAlpha: 0, y: 40, scale: 0.6, rotation: -6 },
-        { autoAlpha: 1, y: 0, scale: 1, rotation: 0, duration: 1, delay, ease: 'back.out(2)' },
+        { autoAlpha: 1, y: 0, scale: 1, rotation: 0, duration: 1, delay, ease: 'back.out(2)', immediateRender: false },
       )
     }
   }, [visible, delay, enter])
@@ -97,9 +106,11 @@ export function Personagem({
   useEffect(() => {
     const el = floatRef.current
     if (!el || prefersReducedMotion()) return
-    gsap.set(el, { transformOrigin: '50% 100%' })
+    // Origem do giro fica no CSS (origin-bottom): ler e escrever transform na montagem força layout da página.
     const tl = gsap.timeline({ repeat: -1, yoyo: true, paused: true })
-    if (sway) tl.fromTo(el, { rotation: -3, y: 0 }, { rotation: 4, y: -3, duration: 1.6, ease: 'sine.inOut' })
+    if (sway) {
+      tl.fromTo(el, { rotation: -3, y: 0 }, { rotation: 4, y: -3, duration: 1.6, ease: 'sine.inOut', immediateRender: false })
+    }
     else tl.to(el, { y: -4, rotation: 0.8, duration: 1.8, ease: 'sine.inOut' })
     const trigger = watchVisibility(el, (v) => (v ? tl.play() : tl.pause()))
     return () => {
@@ -131,6 +142,11 @@ export function Personagem({
 
   useLayoutEffect(() => {
     const el = imgRef.current
+    // Na montagem a imagem já está visível: nada a fazer (e nada a ler).
+    if (!poseMounted.current) {
+      poseMounted.current = true
+      return
+    }
     if (!el || prefersReducedMotion()) return
     if (gsap.getProperty(el, 'opacity') !== 1) {
       gsap.to(el, { scale: 1, autoAlpha: 1, duration: 0.55, ease: 'back.out(2.4)' })
@@ -144,7 +160,7 @@ export function Personagem({
   return (
     <div ref={rootRef} aria-hidden className={`pointer-events-none select-none ${className}`} style={style}>
       <div ref={enterRef} className="invisible will-change-transform" style={{ opacity: 0 }}>
-        <div ref={floatRef} className="will-change-transform">
+        <div ref={floatRef} className="origin-bottom will-change-transform">
           <div ref={imgRef} style={flip ? { scale: '-1 1' } : undefined}>
             <picture>
               <source

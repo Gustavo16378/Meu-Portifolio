@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap, ScrollTrigger } from '../motion/gsap'
 import { useMagnetic } from '../motion/useMagnetic'
+import { navigateTo } from '../motion/navigate'
 import { pad2, sections } from '../data/sections'
 
 const clockFormat = new Intl.DateTimeFormat('pt-BR', {
@@ -19,12 +20,14 @@ const edge = {
 }
 
 interface HudProps {
+  /** As seções abaixo do hero montam depois: refaz os triggers de seção atual quando chegam. */
+  sectionsReady: boolean
   menuOpen: boolean
   onMenu: () => void
   onRecruiter: () => void
 }
 
-export function Hud({ menuOpen, onMenu, onRecruiter }: HudProps) {
+export function Hud({ menuOpen, onMenu, onRecruiter, sectionsReady }: HudProps) {
   const clockRef = useRef<HTMLSpanElement>(null)
   const menuRef = useRef<HTMLButtonElement>(null)
   const recruiterRef = useRef<HTMLButtonElement>(null)
@@ -64,7 +67,7 @@ export function Hud({ menuOpen, onMenu, onRecruiter }: HudProps) {
       })
     })
     return () => ctx.revert()
-  }, [])
+  }, [sectionsReady])
 
   const current = sections[active]
 
@@ -73,10 +76,24 @@ export function Hud({ menuOpen, onMenu, onRecruiter }: HudProps) {
       className="pointer-events-none fixed inset-0 font-mono text-[10px] leading-[1.5] tracking-[0.04em] text-muted select-none md:text-[11px]"
       style={{ zIndex: 'var(--z-hud)' }}
     >
-      <div className="absolute" style={{ top: edge.top, left: edge.left }}>
-        <p className="text-bone">GUSTAVO BARBOSA LIMA</p>
-        <p>full-stack · palmas, to</p>
-      </div>
+      {/* Faixas atrás dos cantos: o conteúdo que passa por baixo desfoca e escurece, e o HUD continua legível. */}
+      <div aria-hidden className="hud-band absolute inset-x-0 top-0 h-[76px] md:h-[84px]" />
+      <div aria-hidden className="hud-band hud-band-bottom absolute inset-x-0 bottom-0 h-[56px] md:h-[64px]" />
+
+      {/* Nome: volta pro topo. */}
+      <button
+        type="button"
+        onClick={() => {
+          const top = document.getElementById('abertura')
+          if (top) navigateTo(top)
+        }}
+        className="pointer-events-auto absolute -m-2 p-2 text-left"
+        style={{ top: edge.top, left: edge.left }}
+      >
+        <span className="block text-bone">GUSTAVO BARBOSA LIMA</span>
+        <span className="block">full-stack · palmas, to</span>
+        <span className="sr-only">, voltar pro topo</span>
+      </button>
 
       <div className="absolute flex items-center gap-6" style={{ top: edge.top, right: edge.right }}>
         <button

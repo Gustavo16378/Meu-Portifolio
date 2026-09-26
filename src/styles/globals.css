@@ -65,6 +65,20 @@ html.has-cursor * {
   color: var(--c-bg);
 }
 
+/* Faixas do HUD: fundo em degradê pro transparente e desfoque que some junto (máscara). */
+.hud-band {
+  background-image: linear-gradient(to bottom, var(--hud-band) 0%, transparent 100%);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  -webkit-mask-image: linear-gradient(to bottom, black 45%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 45%, transparent 100%);
+}
+.hud-band-bottom {
+  background-image: linear-gradient(to top, var(--hud-band) 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, black 45%, transparent 100%);
+  mask-image: linear-gradient(to top, black 45%, transparent 100%);
+}
+
 /* Ponto do status: pisca devagar, só opacity. */
 @keyframes hud-blink {
   0%,

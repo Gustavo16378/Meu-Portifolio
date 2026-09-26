@@ -6,6 +6,7 @@ import { contact, social } from '../data/contact'
 import { fullStack } from '../data/stack'
 import { GridBackdrop } from './GridBackdrop'
 import { ContactBuddy } from './ContactBuddy'
+import { SectionChrome } from './SectionChrome'
 
 const FIRST = 'Vamos'
 const SECOND = 'conversar?'
@@ -95,8 +96,9 @@ export function Contact() {
   }, [])
 
   return (
-    <section id="contato" data-section className="relative flex min-h-svh flex-col">
-      <GridBackdrop />
+    <section id="contato" data-section className="relative isolate flex min-h-svh flex-col overflow-x-clip">
+      <GridBackdrop className="-z-10" />
+      <SectionChrome id="contato" grid={false} side="left" />
 
       <div className="relative flex flex-1 flex-col justify-center px-4 pt-28 pb-16 pl-6 md:px-12 md:pt-32">
         {/* Espaço reservado com o texto invisível: nada pula enquanto digita. */}

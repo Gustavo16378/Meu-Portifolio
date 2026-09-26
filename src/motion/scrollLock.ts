@@ -67,7 +67,8 @@ export function lockScroll(): void {
   if (locks > 1) return
   savedY = window.scrollY
   // Com o body fixo o scrollY vira 0; sem isso toda animação com scrub voltaria ao começo por trás do painel.
-  paused = ScrollTrigger.getAll()
+  // No topo (preloader) nada muda de lugar: religar trigger por trigger depois força um layout pra cada um.
+  paused = savedY > 0 ? ScrollTrigger.getAll() : []
   paused.forEach((st) => st.disable(false))
   freezeSticky()
   getLenis()?.stop()
@@ -99,7 +100,9 @@ export function unlockScroll(): void {
     if (holds === 0) lenis.start()
     lenis.scrollTo(savedY, { immediate: true, force: true })
   }
-  paused.forEach((st) => st.enable(false))
+  if (paused.length) paused.forEach((st) => st.enable(false))
+  // Os triggers criados com o body fixo mediram uma página da altura da tela: um refresh em lote corrige.
+  else ScrollTrigger.refresh()
   paused = []
   lockListeners.forEach((cb) => cb(false))
 }

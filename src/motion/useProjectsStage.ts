@@ -75,13 +75,16 @@ export function useProjectsStage(
     let vw = 0
     let vh = 0
     let comps: Composition[] = []
-    let current = 0
+    let current = Math.min(memory.current.current, n - 1)
     let engaged = false
     let master: gsap.core.Timeline | null = null
     let moving: gsap.core.Animation | null = null
     let cooldownUntil = 0
     let stageVisible = false
     let stageNear = false
+    let stopped = false
+    let ready = false
+    let textHeights = ''
 
     // --- Frames: tamanho base (o maior que assumem), e daí só transform ---
     const frames = [
@@ -93,7 +96,25 @@ export function useProjectsStage(
     const measure = () => {
       vw = els.stage.clientWidth
       vh = els.stage.clientHeight
-      comps = projects.map((p) => compose(p.id, vw, vh, desktop))
+      // Onde o texto de cada projeto ficou: algumas composições se ajustam a ele.
+      // Em lote, pra não forçar layout a cada texto: tira o top aplicado antes (escrita), mede todos
+      // na posição do CSS (leitura), e só então aplica os tops novos (escrita).
+      els.texts.forEach((el) => {
+        el.style.top = ''
+        el.style.bottom = ''
+      })
+      const stageTop = els.stage.getBoundingClientRect().top
+      const boxes = els.texts.map((el) => {
+        const r = el.getBoundingClientRect()
+        return { top: r.top - stageTop, bottom: r.bottom - stageTop }
+      })
+      textHeights = boxes.map((b) => Math.round(b.bottom - b.top)).join(',')
+      comps = projects.map((p, i) => compose(p.id, vw, vh, desktop, boxes[i]))
+      comps.forEach((c, i) => {
+        if (c.textTop === undefined) return
+        els.texts[i].style.top = `${Math.round(c.textTop)}px`
+        els.texts[i].style.bottom = 'auto'
+      })
       for (const f of frames) {
         f.baseW = Math.max(...comps.map((c) => c[f.key].w))
         f.baseH = f.baseW * f.ratio
@@ -249,6 +270,7 @@ export function useProjectsStage(
     const nearIO = new IntersectionObserver(
       ([e]) => {
         stageNear = e.isIntersecting
+        if (stageNear && !ready) setup()
         syncVideos()
       },
       { rootMargin: '100% 0px 100% 0px' },
@@ -372,6 +394,7 @@ export function useProjectsStage(
 
     const engage = (i: number) => {
       if (engaged || isNavigating() || isScrollLocked()) return
+      if (!ready) setup(false)
       engaged = true
       snap()
       holdScroll()
@@ -402,8 +425,16 @@ export function useProjectsStage(
 
     // A cada scroll: cruzou a fronteira do palco? Prende.
     const onScroll = () => {
-      if (engaged || isNavigating() || isScrollLocked()) return
+      if (isNavigating() || isScrollLocked()) return
       const top = stageTop()
+      // Preso, mas a página saiu dali (busca na página, tecla Home, salto de âncora): solta.
+      if (engaged) {
+        if (Math.abs(top) > EDGE * 2) {
+          disengage()
+          side = top > 0 ? 'above' : 'below'
+        }
+        return
+      }
       // Salto (âncora, tecla End, busca na página) que passou do palco inteiro num evento só: não prende.
       if (top < -vh) {
         side = 'below'
@@ -477,6 +508,7 @@ export function useProjectsStage(
     let gy = 0
 
     const tick = (_t: number, deltaMs: number) => {
+      if (!ready) return
       const dt = tickerDt(deltaMs)
       const velocity = Math.abs(getLenis()?.velocity ?? 0)
       drift += (DRIFT + velocity * 40 + boost) * dt
@@ -522,16 +554,33 @@ export function useProjectsStage(
       syncVideos()
     })
 
-    measure()
-    build()
-    const start = Math.min(memory.current.current, n - 1)
-    gx = comps[start].desk.cx
-    gy = comps[start].desk.cy
-    applyInstant(start)
-    // Estava preso antes de remontar: continua preso no mesmo projeto.
-    if (memory.current.engaged && Math.abs(stageTop()) <= EDGE) engage(start)
+    /**
+     * Monta o palco (medidas, timeline mestra, estado do projeto atual). Pesado, então só roda quando o palco
+     * chega a uma tela de distância, fora do carregamento da página. Até lá o conteúdo fica invisível.
+     */
+    function setup(reengage = true) {
+      if (ready || stopped) return
+      ready = true
+      measure()
+      build()
+      const start = current
+      gx = comps[start].desk.cx
+      gy = comps[start].desk.cy
+      applyInstant(start)
+      els.content.style.visibility = ''
+      // Estava preso antes de remontar: continua preso no mesmo projeto.
+      if (reengage && memory.current.engaged && Math.abs(stageTop()) <= EDGE) engage(start)
+      // As fontes mudam a altura do texto: se mudou mesmo, mede de novo.
+      document.fonts.ready.then(() => {
+        if (stopped) return
+        const before = textHeights
+        const now = els.texts.map((el) => Math.round(el.getBoundingClientRect().height)).join(',')
+        if (now !== before) onResize()
+      })
+    }
 
     const onResize = () => {
+      if (!ready) return
       measure()
       build()
       applyInstant(current)
@@ -540,6 +589,7 @@ export function useProjectsStage(
     window.addEventListener('resize', onResize)
 
     return () => {
+      stopped = true
       memory.current = { current, engaged }
       moving?.kill()
       master?.kill()

@@ -8,6 +8,7 @@ import { useMagnetic } from '../motion/useMagnetic'
 import { getLenis } from '../motion/useLenis'
 import { isScrollLocked } from '../motion/scrollLock'
 import { otherProjects, type OtherPrint, type OtherProject } from '../data/projects'
+import { SectionChrome } from './SectionChrome'
 
 const initials = (name: string) =>
   name
@@ -197,7 +198,8 @@ export function Others() {
   }
 
   return (
-    <section id="outros" data-section className="relative px-4 py-24 pl-6 md:px-12 md:py-36">
+    <section id="outros" data-section className="relative isolate overflow-x-clip px-4 py-24 pl-6 md:px-12 md:py-36">
+      <SectionChrome id="outros" />
       <h2
         ref={titleRef}
         className="origin-left font-display text-[17vw] leading-[0.84] uppercase will-change-transform md:text-[8vw]"
@@ -249,7 +251,7 @@ export function Others() {
                   >
                     {p.name}
                   </button>
-                  <p className="mt-1 text-sm leading-snug text-bone md:mt-0 md:text-base">{p.line}</p>
+                  <p className="mt-1 text-base leading-snug text-bone md:mt-0 md:text-[17px]">{p.line}</p>
                   <p className="mt-1 font-mono text-[11px] text-muted md:mt-0 md:text-xs">
                     {[p.kind, p.year, ...p.stack].join(' · ')}
                   </p>
@@ -261,6 +263,7 @@ export function Others() {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
+                      aria-label={`${p.name}: ver no ar`}
                       className="-m-2 p-2 transition-[color] duration-200 hover:text-acid"
                     >
                       <span className="hidden md:inline">{p.url.replace('https://', '')} </span>

@@ -41,6 +41,9 @@ export interface Project {
   name: string
   year: number
   kind: 'cliente' | 'conceito próprio'
+  /** Linha de contexto: cidade e quando foi entregue. */
+  city: string
+  delivered: string
   url: string
   /** Uma linha do que é. */
   line: string
@@ -99,6 +102,8 @@ export const projects: Project[] = [
     name: 'Stewer Gabriel',
     year: 2025,
     kind: 'cliente',
+    city: 'Palmas, TO',
+    delivered: 'entregue em 2025',
     url: 'https://stewergabriel.com',
     line: 'Site de visagista e consultor de imagem em Palmas.',
     stack: ['react', 'typescript', 'tailwind', 'vite', 'cloudflare'],
@@ -124,6 +129,8 @@ export const projects: Project[] = [
     name: 'AUTORIA.',
     year: 2026,
     kind: 'conceito próprio',
+    city: 'Palmas, TO',
+    delivered: 'feito em 2026',
     url: 'https://autoria-6kz.pages.dev',
     line: 'Concessionária de carros com fotos tratadas em pipeline próprio.',
     stack: ['react', 'typescript', 'playwright', 'rembg'],
@@ -148,6 +155,8 @@ export const projects: Project[] = [
     name: 'Monte Vinhedo',
     year: 2026,
     kind: 'conceito próprio',
+    city: 'Palmas, TO',
+    delivered: 'feito em 2026',
     url: 'https://monte-vinhedo.pages.dev',
     line: 'Vinícola boutique de vinhos de altitude.',
     stack: ['react', 'gsap'],
@@ -172,6 +181,8 @@ export const projects: Project[] = [
     name: 'TORRA',
     year: 2026,
     kind: 'conceito próprio',
+    city: 'Palmas, TO',
+    delivered: 'feito em 2026',
     url: 'https://torra-cafe.pages.dev',
     line: 'Cafeteria de torra própria.',
     stack: ['react', 'typescript', 'tailwind'],
@@ -195,6 +206,8 @@ export const projects: Project[] = [
     name: 'Cleane Barbosa',
     year: 2025,
     kind: 'cliente',
+    city: 'Palmas, TO',
+    delivered: 'entregue em 2025',
     url: 'https://cleanebarbosa.com.br',
     line: 'Site de psicanalista e terapeuta EFT.',
     stack: ['react', 'typescript', 'tailwind', 'cloudflare'],

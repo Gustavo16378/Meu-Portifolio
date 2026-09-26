@@ -9,6 +9,8 @@ import { useVideoPolicy } from './useVideoPolicy'
 import { ProjectRail } from './ProjectRail'
 import { Plaque } from './Plaque'
 import { TechSheet } from './TechSheet'
+import { SectionChrome } from './SectionChrome'
+import { GridBackdrop } from './GridBackdrop'
 
 type AccentStyle = CSSProperties & Record<'--accent', string>
 
@@ -236,7 +238,8 @@ export function Projects() {
   }
 
   return (
-    <section id="projetos" data-section className="relative">
+    <section id="projetos" data-section className="relative isolate overflow-x-clip">
+      <SectionChrome id="projetos" side="left" />
       <ProjectRail current={current} total={projects.length} visible={engaged} />
 
       {/* Faixa de cor entrando no primeiro projeto */}
@@ -251,7 +254,9 @@ export function Projects() {
           <div ref={wipeRef} className="size-full will-change-transform" />
         </div>
 
-        <div ref={contentRef} className="absolute inset-0">
+        {/* Invisível até o palco ser montado (quando chega a uma tela de distância). */}
+        <div ref={contentRef} className="absolute inset-0" style={{ visibility: 'hidden' }}>
+          <GridBackdrop />
           {/* Luz na cor de acento atrás do frame */}
           <div
             ref={glowRef}

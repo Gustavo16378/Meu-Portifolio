@@ -33,7 +33,7 @@ export function Plaque({ project, onSheet, overlay = false, shadow = false, cent
     <div ref={blockRef} className={className}>
       {!overlay && (
         <p className="font-mono text-[11px] text-muted md:text-xs" style={textShadow}>
-          <span style={{ color: 'var(--accent)' }}>{project.year}</span> · {project.kind}
+          <span style={{ color: 'var(--accent)' }}>{project.kind}</span> · {project.city} · {project.delivered}
         </p>
       )}
       <h3

@@ -8,6 +8,7 @@ import { navigateTo } from '../motion/navigate'
 import { PROCESS_POSES } from '../data/personagem'
 import { pad2 } from '../data/sections'
 import { Personagem } from './Personagem'
+import { SectionChrome } from './SectionChrome'
 
 const steps = [
   {
@@ -60,7 +61,8 @@ export function Process() {
   }
 
   return (
-    <section id="processo" data-section className="relative px-4 py-24 pl-6 md:px-12 md:py-36">
+    <section id="processo" data-section className="relative isolate overflow-x-clip px-4 py-24 pl-6 md:px-12 md:py-36">
+      <SectionChrome id="processo" side="left" />
       <h2
         ref={titleRef}
         className="origin-left font-display text-[17vw] leading-[0.84] uppercase will-change-transform md:text-[8vw]"
@@ -75,7 +77,7 @@ export function Process() {
             <div data-step-text className="will-change-transform" style={{ borderTop: '1px solid var(--c-border)' }}>
               <p className="pt-4 font-mono text-[11px] text-acid md:text-xs">{pad2(i + 1)}</p>
               <h3 className="mt-2 font-display text-3xl leading-[0.9] uppercase md:text-4xl">{s.title}</h3>
-              <p className="mt-3 max-w-[22rem] text-base leading-snug text-bone">{s.text}</p>
+              <p className="mt-3 max-w-[22rem] text-base leading-snug text-bone md:text-[17px]">{s.text}</p>
             </div>
           </li>
         ))}

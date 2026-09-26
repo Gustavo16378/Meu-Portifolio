@@ -23,15 +23,23 @@ Referência de impacto (não de cópia): portfólios técnicos e futuristas com 
 
 ## Paleta base
 
-- Fundo: preto quase puro `#070907`.
-- Acento: verde-lima ácido `#C6F24E`. Ele é a cor do site: título de destaque, cursor, HUD, links ativos, linhas de grade, partículas da foto.
-- Texto: osso `#E8E6DE`. Nunca branco puro.
-- Apagado: cinza-verde `#6F756A` para HUD secundário, metadados e mono.
-- Superfície: `#0E120F`, borda `#1C221D`.
+- Fundo: preto esverdeado `#0B0F0C`.
+- Acento: verde-lima ácido `#C6F24E`. Ele é a cor do site: título de destaque, cursor, HUD, links ativos, linhas de grade.
+- Texto principal: osso `#F2F0E8`. Nunca branco puro.
+- Texto secundário e mono: cinza-verde `#A9AFA3` (HUD secundário, metadados, legendas).
+- Superfície: `#0E120F`, borda `#2A312B`.
+
+Legibilidade: todo texto secundário com contraste mínimo de 4.5:1 sobre o fundo em que está (inclusive as cores dos projetos). Texto corrido com no mínimo 17px no desktop e 16px no mobile.
 
 Na seção de projetos, cada projeto traz a própria cor de fundo (ver abaixo). Fora dela, o site é preto e lima.
 
-Grain fino e neutro (só tons de cinza, sem tingir com a cor do ambiente), no máximo 3% de opacidade, desligado dentro da seção de projetos. Uma grade de linhas 1px a 6% de opacidade no fundo do hero e do contato, lembrando papel milimetrado técnico.
+Grain fino e neutro (só tons de cinza, sem tingir com a cor do ambiente), no máximo 3% de opacidade, desligado dentro da seção de projetos. Uma grade de linhas 1px a 5% de opacidade no fundo de todas as seções, lembrando papel milimetrado técnico.
+
+**Camadas de cada seção** (menos minimalista, mais camada):
+- número da seção em Tanker gigante, só contorno de 1px, apagado, no canto (01, 02...);
+- a grade de fundo;
+- uma linha divisória de 1px no topo, com o número e o nome da seção em mono no meio (não vai na primeira);
+- metadados em mono no rodapé da seção, acima da faixa do HUD (ex.: `02 / 07 · o que eu faço · react · java · postgresql · cloudflare`), definidos em `data/sections.ts`.
 
 ## Tipografia
 
@@ -42,12 +50,12 @@ Grain fino e neutro (só tons de cinza, sem tingir com a cor do ambiente), no m�
 ## HUD (elemento de identidade, presente em toda a página)
 
 Nos quatro cantos, em mono pequeno e cinza-verde, informação que dá sensação de sistema ativo:
-- canto superior esquerdo: `GUSTAVO BARBOSA LIMA` e abaixo `full-stack · palmas, to`
+- canto superior esquerdo: `GUSTAVO BARBOSA LIMA` e abaixo `full-stack · palmas, to`. É um botão: rola pro topo com Lenis (o cursor mostra que é clicável).
 - canto superior direito: o atalho `recrutador?` em mono lima com borda de 1px lima, ao lado a hora local em tempo real e as coordenadas de Palmas (`10°10'S 48°20'W`), e o botão `menu` na ponta, com borda de 1px e padding. Os dois têm que parecer clicáveis pra qualquer pessoa.
 - canto inferior esquerdo: seção atual (`01 / 07 · abertura`) que atualiza no scroll
 - canto inferior direito: `status: disponível para projetos` com um ponto lima piscando devagar
 
-O HUD fica fixo; o conteúdo rola por baixo. No mobile, só o canto superior esquerdo e o inferior esquerdo.
+O HUD fica fixo; o conteúdo rola por baixo. Pra não misturar com o conteúdo, os cantos ficam sobre duas faixas (topo e pé da tela) com `backdrop-filter: blur(12px)` e degradê do fundo pro transparente. Nada do conteúdo começa por baixo dessas faixas: as seções têm padding-top suficiente e as composições dos projetos respeitam a margem do HUD. No mobile, só o canto superior esquerdo, o inferior esquerdo e o botão `menu`.
 
 Navegação: sem menu tradicional. Um botão `menu` em mono no topo direito que abre um overlay preto com os itens em Tanker gigante (projetos, como trabalho, história, contato) e o atalho `recrutador?`. Fechar com Esc ou clique fora. No mobile o botão `menu` continua visível (é a navegação) e o atalho `recrutador?` fica só dentro do menu.
 
@@ -76,7 +84,9 @@ Sem botão de "contratar" no hero. Um indicador `scroll` em mono no rodapé da s
 
 ### 02 O que eu faço
 
-Duas colunas. Esquerda, título Tanker: `NÃO É SÓ A TELA`. Direita, texto em Synonym, três parágrafos curtos, normais: que ele desenha e constrói do zero, sem template; que back, API e banco fazem parte do trabalho dele, não só o front; que cada projeto tem identidade própria. Sem frases de impacto. Ao rolar, as linhas do texto entram com um efeito de glitch curto (deslocamento horizontal de 2 a 3 frames) e estabilizam.
+Duas colunas. Esquerda: título Tanker `NÃO É SÓ A TELA`, o personagem apontando pro diagrama, e abaixo três parágrafos curtos e normais, bem espaçados: design e front feitos do zero, sem template; back-end, API e banco; deploy (domínio, hospedagem, SEO, acompanhamento). As linhas entram com glitch curto (deslocamento horizontal de 2 a 3 frames) e estabilizam.
+
+Direita (preso enquanto os parágrafos passam): um diagrama em mono com quatro blocos, `tela`, `API`, `banco` e `deploy`, cada um com a stack embaixo, ligados por linhas de 1px. Um pulso lima percorre tela, API, banco e deploy em loop de 3s, como uma requisição. Quando cada parágrafo entra no scroll, acende o bloco do que ele fala (design e front acende tela; back, API e banco acende API e banco; deploy acende deploy) e apaga ao voltar. Os blocos flutuam de leve em repouso. No celular o diagrama vem logo depois do título. Em reduced-motion o diagrama fica estático, com todos os blocos acesos.
 
 ### 03 Projetos (cinco, em passos)
 
@@ -108,12 +118,12 @@ Desktop:
 4. TORRA: o celular é o protagonista, grande no centro; o desktop atrás, menor e inclinado 6 graus; texto centralizado embaixo.
 5. Cleane: metade e metade, frame à esquerda, texto à direita.
 
-Mobile (versão simplificada de cada uma, um frame só):
+Mobile (versão simplificada de cada uma, um frame só). Regra pros cinco: a composição inteira cabe em 100svh, print e texto juntos, sem espaço morto e sem entrar nas faixas do HUD. O texto é medido na página e o bloco (print, espaço e texto) é centralizado na área livre, reduzindo o print quando precisa:
 1. Stewer: print desktop em cima, texto logo abaixo.
 2. AUTORIA: print desktop grande, texto sobreposto na parte de baixo dele, com sombra.
 3. Monte Vinhedo: print do celular quase em tela cheia, nome e links sobrepostos no canto de baixo.
 4. TORRA: print do celular grande no centro, texto embaixo.
-5. Cleane: texto em cima, print embaixo.
+5. Cleane: texto em cima, print logo abaixo dos botões, tudo dentro da tela.
 
 **Atrás do frame:**
 - Luz radial suave na cor de acento, opacidade baixa: acompanha o mouse devagar no desktop e fica fixa no frame principal no mobile. Troca de cor apagando e acendendo.
@@ -136,7 +146,7 @@ Mobile (versão simplificada de cada uma, um frame só):
 
 **O que conecta os cinco:** um trilho vertical fixo na lateral esquerda, em mono, visível enquanto o palco está preso, com `01 / 05`... e uma linha fina que se preenche em lima até `05 / 05`. O número troca com glitch curto. **Sem quebra em blocos.**
 
-A placa: nome, ano, tipo (cliente ou conceito próprio), uma linha do que é, stack em mono, `ver no ar` e `ficha técnica`. Nada de texto de conceito.
+A placa: linha de contexto (cliente ou conceito próprio, cidade, ano de entrega, ex.: `cliente · Palmas, TO · entregue em 2025`), nome, uma linha do que é, stack em mono, `ver no ar` e `ficha técnica`. Nada de texto de conceito.
 
 `ficha técnica` abre um painel lateral (portal no body, mesma mecânica do menu) com arquitetura em duas ou três linhas, três decisões técnicas, link do repositório (com o aviso "código privado, projeto de cliente" quando for o caso) e link do site. No mobile ocupa a tela e fecha no botão `fechar` ou com Esc.
 

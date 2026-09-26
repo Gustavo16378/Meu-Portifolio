@@ -115,7 +115,7 @@ export function TechSheet({ project, open, onClose }: TechSheetProps) {
                 <h3 className="font-mono text-[11px] text-muted md:text-xs">decisões</h3>
                 <ol className="mt-3 flex flex-col gap-4">
                   {sheet.decisions.map((d, i) => (
-                    <li key={d} className="flex gap-4 leading-snug text-bone">
+                    <li key={d} className="flex gap-4 text-base leading-snug text-bone md:text-[17px]">
                       <span className="pt-[0.2em] font-mono text-[11px] md:text-xs" style={{ color: 'var(--accent)' }}>
                         {pad2(i + 1)}
                       </span>

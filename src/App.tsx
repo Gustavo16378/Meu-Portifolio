@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { startTransition, useCallback, useEffect, useState } from 'react'
 import { LenisProvider } from './motion/useLenis'
 import { navigateTo } from './motion/navigate'
 import { useOverlayState } from './components/useDialog'
@@ -40,20 +40,31 @@ export default function App() {
     showRecruiter()
   }, [closeMenu, showRecruiter])
 
+  // O hero monta primeiro; o resto entra numa transição, que o React renderiza em fatias curtas
+  // (sem travar a página por quase um segundo no celular). O preloader cobre esse tempo.
+  const [sectionsReady, setSectionsReady] = useState(false)
+  useEffect(() => {
+    startTransition(() => setSectionsReady(true))
+  }, [])
+
   return (
     <LenisProvider>
       <main>
         <Hero />
-        <Manifesto />
-        <Projects />
-        <Others />
-        <Process />
-        <Story />
-        <Contact />
+        {sectionsReady && (
+          <>
+            <Manifesto />
+            <Projects />
+            <Others />
+            <Process />
+            <Story />
+            <Contact />
+          </>
+        )}
       </main>
-      <Hud menuOpen={menuOpen} onMenu={openMenu} onRecruiter={openRecruiter} />
+      <Hud menuOpen={menuOpen} onMenu={openMenu} onRecruiter={openRecruiter} sectionsReady={sectionsReady} />
       <IdleWalker />
-      <Grain />
+      <Grain sectionsReady={sectionsReady} />
       <Menu open={menuOpen} onClose={closeMenu} onNavigate={navigate} onRecruiter={openRecruiter} />
       <RecruiterPanel open={recruiter.open} onClose={recruiter.hide} />
       <Preloader />

@@ -7,6 +7,7 @@ import { usePhotoCards, type PhotoCardConfig, type PhotoCardEls } from '../motio
 import { GridBackdrop } from './GridBackdrop'
 import { PhotoCard, type Photo } from './PhotoCard'
 import { Personagem } from './Personagem'
+import { SectionChrome } from './SectionChrome'
 
 const photos: Photo[] = [
   {
@@ -117,9 +118,10 @@ export function Hero() {
       id="abertura"
       data-section
       ref={heroRef}
-      className="relative min-h-svh overflow-x-clip"
+      className="relative isolate min-h-svh overflow-x-clip"
     >
       <GridBackdrop />
+      <SectionChrome id="abertura" grid={false} divider={false} />
 
       <div className="relative grid min-h-svh grid-cols-1 content-center gap-8 px-4 pt-24 pb-20 md:grid-cols-[1.05fr_1fr] md:items-center md:gap-6 md:px-12 md:pt-28 md:pb-20">
         <div className="relative">

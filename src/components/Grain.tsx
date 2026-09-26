@@ -8,7 +8,8 @@ const TILE = 160
  * Neutro (só tons de cinza, blend normal, opacidade baixa) pra não tingir a cor do ambiente,
  * e desligado dentro da seção de projetos, onde só o site aparece.
  */
-export function Grain() {
+/** `sectionsReady`: as seções abaixo do hero montam depois; aí o trigger de projetos é criado. */
+export function Grain({ sectionsReady = true }: { sectionsReady?: boolean }) {
   const rootRef = useRef<HTMLDivElement>(null)
   const layerRef = useRef<HTMLDivElement>(null)
 
@@ -42,7 +43,7 @@ export function Grain() {
       onToggle: (self) => gsap.to(root, { autoAlpha: self.isActive ? 0 : 1, duration: 0.4, overwrite: true }),
     })
     return () => trigger.kill()
-  }, [])
+  }, [sectionsReady])
 
   return (
     <div ref={rootRef} aria-hidden className="pointer-events-none fixed inset-0" style={{ zIndex: 'var(--z-grain)' }}>
