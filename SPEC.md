@@ -84,8 +84,12 @@ Os cinco projetos passam num **palco da altura da tela**, entre duas faixas de d
 
 **Scroll em passos.** A seção não tem altura de scroll interna: é uma tela (100svh) presa, e dentro dela o GSAP Observer é o único controle.
 - Entrada: chegando por cima, ao encostar no topo do palco (tolerância de 12px, pra o scroll suave que desacelera não parar a 1px sem prender) o scroll nativo trava (Lenis `stop()`) e entra o primeiro projeto. Chegando por baixo, subindo a página, entra direto o último.
-- Um gesto vale um passo, qualquer que seja a força. Gesto = uma rajada contínua de wheel (termina com 200ms sem eventos; a inércia do trackpad faz parte do mesmo gesto), um swipe (tolerância de 40px) ou uma tecla (setas, PageDown/PageUp, espaço; segurar a tecla não repete).
-- Gestos durante a troca são descartados inteiros, e depois dela há um intervalo mínimo antes de aceitar o próximo: 250ms no desktop, 350ms no mobile.
+- Um gesto vale um passo, qualquer que seja a força. O wheel tem detecção própria (não depende do mouse se mover; a escuta fica ligada sempre que a seção está ativa):
+  - um gesto termina quando passam 120ms sem evento, quando a força volta a crescer depois de estar caindo (dedo empurrou de novo enquanto a inércia ainda chegava) ou quando o sentido inverte;
+  - o passo sai no primeiro evento em que o gesto acumula 30px; o resto do gesto é descartado;
+  - delta em linhas (Firefox) ou páginas é convertido pra pixels.
+- Toque: um toque vale no máximo um passo, com tolerância de 40px. Teclado: setas, PageDown/PageUp e espaço; segurar a tecla não repete.
+- Gestos que começam durante a troca, no intervalo depois dela (250ms no desktop, 350ms no mobile) ou na chegada à seção são descartados inteiros, até o fim de verdade do gesto: a cauda da inércia do trackpad nunca conta como gesto novo.
 - Saída: no primeiro projeto, gesto pra cima solta o scroll (Lenis `start()`) e a página sobe normal; no último, gesto pra baixo solta e a página continua.
 - Suavidade: a troca dura 1,1s, com `power3.inOut` no movimento do frame e na varredura, e `power2.out` no texto. Todas as trocas vivem numa timeline única com uma etiqueta por projeto; ida e volta são a mesma animação, pra frente ou invertida com `tweenTo`, então ficam simétricas.
 - Menu, ficha técnica e painel do recrutador abrem por cima com o scroll travado; enquanto estão abertos os gestos não são lidos, e ao fechar a seção continua presa no mesmo projeto.
@@ -197,7 +201,7 @@ Botão `recrutador?` em mono no menu e no HUD superior direito (ao lado da hora)
 Tudo que se move tem massa. Regras gerais:
 - Nada chega no lugar em linha reta: entradas com mola (`back.out`, `elastic.out` leve) e overshoot pequeno.
 - O scroll tem velocidade e a página sente: títulos e prints ganham skew/rotate proporcionais à velocidade (via Lenis `velocity`) e voltam a zero com mola quando o scroll para.
-- Botões e links são magnéticos: o elemento se desloca alguns px em direção ao cursor quando ele chega perto, e volta com mola.
+- Botões e links são magnéticos, de leve: dentro de 80px em volta do botão ele segue o cursor (gsap.quickTo, 0.6s, power3) até no máximo 6px em cada eixo, e ao sair volta ao centro com elastic.out(1, 0.5) em 0.8s. Com o cursor em cima, scale de no máximo 1.02. O transform desses elementos é só do GSAP; mudança de cor ou borda no hover fica em transição CSS de cor, nunca de transform. Vale pra placa dos projetos, menu, recrutador? e links do menu.
 - O cursor tem inércia: o anel atrasa em relação ao ponto.
 - Nos projetos, a física fica só no frame do site: entra com mola, inclina 2 a 3 graus com o mouse, skew leve pelo scroll.
 - Os cartões de foto do hero são arrastáveis com inércia e quique.

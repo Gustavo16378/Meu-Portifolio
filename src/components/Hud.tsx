@@ -28,8 +28,8 @@ export function Hud({ menuOpen, onMenu, onRecruiter }: HudProps) {
   const clockRef = useRef<HTMLSpanElement>(null)
   const menuRef = useRef<HTMLButtonElement>(null)
   const recruiterRef = useRef<HTMLButtonElement>(null)
-  useMagnetic(menuRef, { strength: 0.35 })
-  useMagnetic(recruiterRef, { strength: 0.3 })
+  useMagnetic(menuRef)
+  useMagnetic(recruiterRef)
   const [active, setActive] = useState(0)
 
   // Hora de Palmas: escreve direto no DOM quando o segundo muda, dentro do ticker do GSAP.

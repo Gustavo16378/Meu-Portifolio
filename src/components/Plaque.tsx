@@ -24,8 +24,8 @@ interface PlaqueProps {
 export function Plaque({ project, onSheet, overlay = false, shadow = false, center = false, onMotion, blockRef, className = '' }: PlaqueProps) {
   const liveRef = useRef<HTMLAnchorElement>(null)
   const sheetRef = useRef<HTMLButtonElement>(null)
-  useMagnetic(liveRef, { strength: 0.3 })
-  useMagnetic(sheetRef, { strength: 0.3 })
+  useMagnetic(liveRef)
+  useMagnetic(sheetRef)
 
   const textShadow = shadow ? { textShadow: 'var(--shadow-text)' } : undefined
 

@@ -39,7 +39,8 @@ interface Options {
 }
 
 const STEP = 1.1 // duração de uma troca, em segundos
-const GAP = 200 // ms sem wheel que separam um gesto do outro
+const WHEEL_GAP = 120 // ms sem wheel que encerram um gesto
+const WHEEL_STEP = 30 // px acumulados num gesto pra dar um passo
 const EDGE = 12 // px da fronteira do palco em que ele já prende
 const NAME_OPACITY = 0.55
 const DRIFT = 26 // px/s do nome em contorno, parado
@@ -258,22 +259,59 @@ export function useProjectsStage(
       syncVideos()
     }
 
-    // --- Gestos: um gesto vale um passo ---
-    let gesture = 0 // aumenta a cada gesto novo
-    let spent = -1 // último gesto já usado (ou descartado)
-    let lastWheel = 0
-    const onRawWheel = () => {
+    // --- Gestos ---
+    // Wheel: detector próprio. Um gesto começa no primeiro evento e termina quando (a) passam WHEEL_GAP ms sem
+    // evento, (b) a força volta a crescer depois de estar caindo (dedo empurrou de novo enquanto a inércia ainda
+    // chegava) ou (c) o sentido inverte. O passo sai quando o gesto acumula WHEEL_STEP px; o resto dele é descartado.
+    // Gesto que começa durante a troca, no intervalo depois dela ou na chegada à seção é descartado inteiro,
+    // então a cauda da inércia nunca conta como gesto novo.
+    const wheel = { active: false, last: 0, prevAbs: 0, falling: false, sign: 0, acc: 0, done: false }
+    const lineHeight = 16
+    const normalize = (e: WheelEvent) =>
+      e.deltaMode === 1 ? e.deltaY * lineHeight : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY
+    const blockedNow = () => !!moving || performance.now() < cooldownUntil
+
+    const onWheel = (e: WheelEvent) => {
+      const listening = engaged && !isScrollLocked()
+      if (listening) e.preventDefault()
+      const d = normalize(e)
+      if (d === 0) return
       const now = performance.now()
-      if (now - lastWheel > GAP) gesture++
-      lastWheel = now
+      const abs = Math.abs(d)
+      const sign = Math.sign(d)
+      const reaccel = wheel.falling && abs > Math.max(wheel.prevAbs * 1.5, wheel.prevAbs + 4)
+      if (!wheel.active || now - wheel.last > WHEEL_GAP || sign !== wheel.sign || reaccel) {
+        wheel.active = true
+        wheel.sign = sign
+        wheel.acc = 0
+        wheel.falling = false
+        // Começou no meio da troca ou no intervalo: o gesto inteiro não conta.
+        wheel.done = blockedNow()
+      } else if (abs < wheel.prevAbs) {
+        wheel.falling = true
+      }
+      wheel.last = now
+      wheel.prevAbs = abs
+      if (!listening || wheel.done) return
+      wheel.acc += abs
+      if (wheel.acc >= WHEEL_STEP) {
+        wheel.done = true
+        step(sign > 0 ? 1 : -1)
+      }
     }
-    const onPress = () => {
-      gesture++
+    window.addEventListener('wheel', onWheel, { passive: false })
+
+    // Toque: um toque vale no máximo um passo; o Observer só diz pra que lado o dedo foi (40px de tolerância).
+    let touchUsed = false
+    const onTouchStart = () => {
+      touchUsed = blockedNow()
     }
-    // Antes do Observer (captura), pra o gesto já estar contado quando ele avisar.
-    window.addEventListener('wheel', onRawWheel, { capture: true, passive: true })
-    window.addEventListener('touchstart', onPress, { capture: true, passive: true })
-    window.addEventListener('pointerdown', onPress, { capture: true, passive: true })
+    window.addEventListener('touchstart', onTouchStart, { capture: true, passive: true })
+    const onSwipe = (dir: 1 | -1) => {
+      if (touchUsed) return
+      touchUsed = true
+      step(dir)
+    }
 
     let drift = 0
     let boost = 0
@@ -302,37 +340,22 @@ export function useProjectsStage(
     }
 
     function step(dir: 1 | -1) {
-      if (!engaged) return
-      // Mesmo gesto que já andou (inércia do trackpad, swipe longo): nada.
-      if (gesture === spent) return
-      spent = gesture
-      // Gesto que chegou durante a troca ou no intervalo depois dela é descartado inteiro.
-      if (moving || performance.now() < cooldownUntil) return
+      if (!engaged || blockedNow()) return
       const next = current + dir
       if (next < 0 || next >= n) release(dir)
       else goto(next, dir)
     }
 
-    const wheelObserver = Observer.create({
-      target: window,
-      type: 'wheel',
-      wheelSpeed: -1,
-      tolerance: 10,
-      preventDefault: true,
-      onUp: () => step(1),
-      onDown: () => step(-1),
-    })
     const touchObserver = Observer.create({
       target: window,
       type: 'touch',
       tolerance: 40,
       preventDefault: true,
-      onUp: () => step(1),
-      onDown: () => step(-1),
+      onUp: () => onSwipe(1),
+      onDown: () => onSwipe(-1),
     })
-    const observers = [wheelObserver, touchObserver]
-    const listen = (on: boolean) => observers.forEach((o) => (on ? o.enable() : o.disable()))
-    listen(false)
+    touchObserver.disable()
+    const listen = (on: boolean) => (on ? touchObserver.enable() : touchObserver.disable())
 
     // --- Prender e soltar ---
     const stageTop = () => els.stage.getBoundingClientRect().top
@@ -353,7 +376,9 @@ export function useProjectsStage(
       snap()
       holdScroll()
       if (i !== current) applyInstant(i)
-      spent = gesture // o gesto que trouxe até aqui não conta como passo
+      // O gesto que trouxe até aqui (e a inércia dele) não conta como passo.
+      wheel.done = true
+      touchUsed = true
       cooldownUntil = performance.now() + cooldown
       listen(true)
       els.stage.dataset.engaged = 'true'
@@ -401,7 +426,6 @@ export function useProjectsStage(
       if (!down && !up) return
       e.preventDefault()
       if (e.repeat) return
-      gesture++
       step(down ? 1 : -1)
     }
     window.addEventListener('keydown', onKey)
@@ -511,16 +535,15 @@ export function useProjectsStage(
       moving?.kill()
       master?.kill()
       vis.kill()
-      observers.forEach((o) => o.kill())
+      touchObserver.kill()
       offLock()
       offNav()
       disengage()
       nearIO.disconnect()
       loops.forEach((l) => l.kill())
       gsap.ticker.remove(tick)
-      window.removeEventListener('wheel', onRawWheel, { capture: true })
-      window.removeEventListener('touchstart', onPress, { capture: true })
-      window.removeEventListener('pointerdown', onPress, { capture: true })
+      window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('touchstart', onTouchStart, { capture: true })
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('keydown', onKey)
       window.removeEventListener('pointermove', onPointer)

@@ -6,7 +6,7 @@ import { Personagem } from './Personagem'
 /** Página que não existe: ele dá de ombros, no centro, e um link de volta. */
 export function NotFound() {
   const backRef = useRef<HTMLAnchorElement>(null)
-  useMagnetic(backRef, { strength: 0.3 })
+  useMagnetic(backRef)
 
   // Não indexar: o servidor devolve o app pra qualquer caminho.
   useEffect(() => {

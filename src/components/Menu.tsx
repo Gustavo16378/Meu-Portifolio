@@ -27,7 +27,7 @@ interface MenuProps {
 
 function MenuItem({ item, open, onNavigate }: { item: MenuItemData; open: boolean; onNavigate: (id: SectionId) => void }) {
   const ref = useRef<HTMLAnchorElement>(null)
-  useMagnetic(ref, { strength: 0.12, radius: 30, enabled: open })
+  useMagnetic(ref, { enabled: open })
 
   return (
     <a
@@ -40,7 +40,7 @@ function MenuItem({ item, open, onNavigate }: { item: MenuItemData; open: boolea
       className="group flex items-start gap-3 md:gap-5"
     >
       <span className="pt-[0.9em] font-mono text-[11px] text-muted md:text-xs">{pad2(sectionIndex(item.id) + 1)}</span>
-      <span className="relative block font-display text-[min(14vw,12svh)] leading-[0.95] uppercase transition-[translate] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:translate-x-3 group-focus-visible:translate-x-3 md:text-[min(10vw,15svh)] md:group-hover:translate-x-6">
+      <span className="relative block font-display text-[min(14vw,12svh)] leading-[0.95] uppercase md:text-[min(10vw,15svh)]">
         <span className="block text-bone transition-[opacity] duration-200 group-hover:opacity-0 group-focus-visible:opacity-0">
           {item.label}
         </span>
@@ -63,7 +63,7 @@ export function Menu({ open, onClose, onNavigate, onRecruiter }: MenuProps) {
   const recruiterRef = useRef<HTMLButtonElement>(null)
 
   useMagnetic(closeRef, { enabled: open })
-  useMagnetic(recruiterRef, { strength: 0.25, enabled: open })
+  useMagnetic(recruiterRef, { enabled: open })
 
   useDialog(open, onClose, panelRef, closeRef)
 

@@ -1,73 +1,73 @@
 import { useEffect, type RefObject } from 'react'
 import { gsap } from './gsap'
 import { prefersReducedMotion } from './reducedMotion'
-import { createSpring, springAtRest, stepSpring, tickerDt } from './spring'
 
 interface MagneticOptions {
-  /** Fração da distância ao cursor que o elemento percorre. */
-  strength?: number
-  /** Alcance em px além da borda do elemento. */
-  radius?: number
   /** Desliga sem desmontar (ex.: menu fechado). */
   enabled?: boolean
 }
 
-const SPRING = { stiffness: 170, damping: 11 }
+const MAX = 6 // px de deslocamento, em cada eixo
+const RADIUS = 80 // px em volta do botão em que ele começa a seguir o cursor
+const PULL = 0.3 // fração da distância ao centro
+const HOVER_SCALE = 1.02
 
-/** O elemento se desloca na direção do cursor quando ele chega perto, e volta com mola. */
-export function useMagnetic(ref: RefObject<HTMLElement | null>, options: MagneticOptions = {}): void {
-  const { strength = 0.3, radius = 60, enabled = true } = options
-
+/**
+ * Botão magnético contido: dentro de 80px em volta dele, anda até 6px na direção do cursor
+ * (quickTo, 0.6s, power3); ao sair, volta ao centro com elastic. Em cima dele, scale 1.02.
+ * O transform do elemento é só do GSAP: nada de transição CSS de transform nele.
+ */
+export function useMagnetic(ref: RefObject<HTMLElement | null>, { enabled = true }: MagneticOptions = {}): void {
   useEffect(() => {
     const el = ref.current
     if (!el || !enabled || prefersReducedMotion()) return
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
 
-    const setX = gsap.quickSetter(el, 'x', 'px')
-    const setY = gsap.quickSetter(el, 'y', 'px')
-    const sx = createSpring()
-    const sy = createSpring()
-    let running = false
-
-    const tick = (_time: number, deltaMs: number) => {
-      const dt = tickerDt(deltaMs)
-      stepSpring(sx, dt, SPRING)
-      stepSpring(sy, dt, SPRING)
-      setX(sx.value)
-      setY(sy.value)
-      if (springAtRest(sx, 0.01) && springAtRest(sy, 0.01)) {
-        gsap.ticker.remove(tick)
-        running = false
-      }
-    }
-    const wake = () => {
-      if (running) return
-      running = true
-      gsap.ticker.add(tick)
-    }
+    let follow: { x: gsap.QuickToFunc; y: gsap.QuickToFunc } | null = null
+    let hovered = false
 
     const onMove = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return
+      // Caixa sem o deslocamento atual, pra o centro não fugir junto com o botão.
       const r = el.getBoundingClientRect()
-      // Centro sem o deslocamento atual, pra não correr atrás do próprio rabo.
-      const cx = r.left + r.width / 2 - sx.value
-      const cy = r.top + r.height / 2 - sy.value
-      const dx = e.clientX - cx
-      const dy = e.clientY - cy
-      const reach = Math.max(r.width, r.height) / 2 + radius
-      const inside = Math.hypot(dx, dy) < reach
-      const tx = inside ? dx * strength : 0
-      const ty = inside ? dy * strength : 0
-      if (tx === sx.target && ty === sy.target) return
-      sx.target = tx
-      sy.target = ty
-      wake()
+      const ox = Number(gsap.getProperty(el, 'x')) || 0
+      const oy = Number(gsap.getProperty(el, 'y')) || 0
+      const left = r.left - ox
+      const top = r.top - oy
+      const near =
+        e.clientX > left - RADIUS && e.clientX < left + r.width + RADIUS && e.clientY > top - RADIUS && e.clientY < top + r.height + RADIUS
+
+      if (near) {
+        if (!follow) {
+          gsap.killTweensOf(el, 'x,y')
+          follow = {
+            x: gsap.quickTo(el, 'x', { duration: 0.6, ease: 'power3' }),
+            y: gsap.quickTo(el, 'y', { duration: 0.6, ease: 'power3' }),
+          }
+        }
+        const cx = left + r.width / 2
+        const cy = top + r.height / 2
+        follow.x(gsap.utils.clamp(-MAX, MAX, (e.clientX - cx) * PULL))
+        follow.y(gsap.utils.clamp(-MAX, MAX, (e.clientY - cy) * PULL))
+      } else if (follow) {
+        follow = null
+        gsap.killTweensOf(el, 'x,y')
+        gsap.to(el, { x: 0, y: 0, duration: 0.8, ease: 'elastic.out(1, 0.5)' })
+      }
+
+      // Scale leve só com o cursor em cima do botão.
+      const over = e.clientX >= left && e.clientX <= left + r.width && e.clientY >= top && e.clientY <= top + r.height
+      if (over !== hovered) {
+        hovered = over
+        gsap.to(el, { scale: over ? HOVER_SCALE : 1, duration: 0.3, ease: 'power2.out', overwrite: 'auto' })
+      }
     }
 
     window.addEventListener('pointermove', onMove, { passive: true })
     return () => {
       window.removeEventListener('pointermove', onMove)
-      gsap.ticker.remove(tick)
-      gsap.set(el, { x: 0, y: 0 })
+      gsap.killTweensOf(el, 'x,y,scale')
+      gsap.set(el, { x: 0, y: 0, scale: 1 })
     }
-  }, [ref, strength, radius, enabled])
+  }, [ref, enabled])
 }
