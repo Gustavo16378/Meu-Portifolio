@@ -136,11 +136,11 @@ function mobile(id: ProjectId, vw: number, vh: number, text?: TextBox): Composit
       return { desk: hidden(vw * 0.5), mob, deskOn: false, mobOn: true, hero: 'mobile', textTop: y + h + GAP * 1.5 }
     }
     case 'cleane': {
-      // Texto em cima, print logo abaixo dos botões.
-      const w = Math.min(vw * 0.92, (free - textH - GAP * 1.5) * DESK_RATIO)
-      const y = top + Math.max(0, free - (textH + GAP * 1.5 + deskH(w)))
+      // Texto em cima, print logo abaixo dos botões; o bloco inteiro centralizado na área livre, dentro da tela.
+      const w = Math.min(vw * 0.84, (free - textH - GAP * 1.5) * DESK_RATIO)
+      const y = start(textH + GAP * 1.5 + deskH(w))
       const printTop = y + textH + GAP * 1.5
-      const desk = { cx: vw * 0.04 + w / 2, cy: printTop + deskH(w) / 2, w, rot: 0 }
+      const desk = { cx: vw * 0.08 + w / 2, cy: printTop + deskH(w) / 2, w, rot: 0 }
       return { desk, mob: hidden(vw * 0.3), deskOn: true, mobOn: false, hero: 'desktop', textTop: y }
     }
   }

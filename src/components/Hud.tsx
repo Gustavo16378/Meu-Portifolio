@@ -95,8 +95,7 @@ export function Hud({ menuOpen, onMenu, onRecruiter, sectionsReady }: HudProps) 
         <span className="sr-only">, voltar pro topo</span>
       </button>
 
-      {/* No celular o menu fica embaixo, à direita, onde o polegar alcança; no desktop, no canto de cima com a hora. */}
-      <div className="absolute right-[calc(env(safe-area-inset-right)+16px)] bottom-[calc(env(safe-area-inset-bottom)+16px)] flex items-center gap-6 md:top-[calc(env(safe-area-inset-top)+16px)] md:bottom-auto">
+      <div className="absolute flex items-center gap-6" style={{ top: edge.top, right: edge.right }}>
         <button
           ref={recruiterRef}
           type="button"
