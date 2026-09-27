@@ -144,7 +144,7 @@ export function Menu({ open, onClose, onNavigate, onRecruiter }: MenuProps) {
             ref={closeRef}
             type="button"
             onClick={onClose}
-            className="-m-3 p-3 text-bone"
+            className="-my-3 -mr-3 inline-flex min-h-11 items-center px-3 text-bone"
             style={{ pointerEvents: open ? 'auto' : 'none' }}
           >
             fechar
@@ -169,12 +169,26 @@ export function Menu({ open, onClose, onNavigate, onRecruiter }: MenuProps) {
             ref={recruiterRef}
             type="button"
             onClick={onRecruiter}
-            className="-m-3 p-3 font-mono text-xs text-acid md:text-sm"
+            className="-m-3 inline-flex min-h-11 items-center p-3 font-mono text-xs text-acid md:text-sm"
             style={{ pointerEvents: open ? 'auto' : 'none' }}
           >
             recrutador?
           </button>
         </div>
+
+        {/* No celular, fechar também embaixo, onde o polegar chega. */}
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute -m-3 inline-flex min-h-11 items-center p-3 font-mono text-xs text-bone md:hidden"
+          style={{
+            right: 'calc(env(safe-area-inset-right) + 16px)',
+            bottom: 'calc(env(safe-area-inset-bottom) + 16px)',
+            pointerEvents: open ? 'auto' : 'none',
+          }}
+        >
+          fechar
+        </button>
       </div>
     </>,
     document.body,

@@ -49,7 +49,7 @@ export function Story() {
   }, [])
 
   return (
-    <section id="historia" data-section className="relative isolate overflow-x-clip px-4 py-24 pl-6 md:px-12 md:py-36">
+    <section id="historia" data-section className="relative isolate overflow-x-clip px-4 pt-24 pb-32 pl-6 md:px-12 md:py-36">
       <SectionChrome id="historia" />
       <h2
         ref={titleRef}
@@ -82,7 +82,7 @@ export function Story() {
               />
             </picture>
             <div
-              className="flex justify-between pt-2 pb-px font-mono text-[10px] leading-none"
+              className="flex justify-between pt-2 pb-px font-mono text-[11px] leading-none"
               style={{ color: 'var(--c-muted-hi)' }}
             >
               <span>desde os 16</span>

@@ -32,7 +32,7 @@ export function TechSheet({ project, open, onClose }: TechSheetProps) {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         body.children,
-        { x: reduced ? 0 : 60, opacity: 0 },
+        { x: reduced ? 0 : 24, opacity: 0 },
         {
           x: 0,
           opacity: 1,
@@ -91,7 +91,7 @@ export function TechSheet({ project, open, onClose }: TechSheetProps) {
       >
         <div className="flex items-center justify-between px-5 pt-5 font-mono text-[10px] text-muted md:px-8 md:pt-7 md:text-[11px]">
           <span>ficha técnica</span>
-          <button ref={closeRef} type="button" onClick={onClose} className="-m-3 p-3 text-bone">
+          <button ref={closeRef} type="button" onClick={onClose} className="-my-3 -mr-3 inline-flex min-h-11 items-center px-3 text-bone">
             fechar
           </button>
         </div>
@@ -128,20 +128,28 @@ export function TechSheet({ project, open, onClose }: TechSheetProps) {
 
             <section>
               <h3 className="font-mono text-[11px] text-muted md:text-xs">links</h3>
-              <div className="mt-3 flex flex-col gap-2 font-mono text-xs md:text-sm">
+              <div className="mt-1 flex flex-col font-mono text-xs md:text-sm">
                 {sheet && (
-                  <p>
-                    <a href={sheet.repo.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>
-                      {sheet.repo.label} ↗
+                  <p className="flex min-h-11 flex-wrap items-center gap-x-1">
+                    <a href={sheet.repo.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-1" style={{ color: 'var(--accent)' }}>
+                      {sheet.repo.label} <span aria-hidden>↗</span>
                     </a>
                     {sheet.repoNote && <span className="text-muted"> · {sheet.repoNote}</span>}
                   </p>
                 )}
-                <a href={project.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>
-                  {project.url.replace('https://', '')} ↗
+                <a href={project.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 w-fit items-center gap-1" style={{ color: 'var(--accent)' }}>
+                  {project.url.replace('https://', '')} <span aria-hidden>↗</span>
                 </a>
               </div>
             </section>
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-[3px] font-mono text-xs text-bone md:hidden"
+              style={{ border: '1px solid var(--c-border)' }}
+            >
+              fechar
+            </button>
           </div>
         )}
       </aside>

@@ -34,7 +34,7 @@ export function RecruiterPanel({ open, onClose }: RecruiterPanelProps) {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         body.children,
-        { x: reduced ? 0 : 60, opacity: 0 },
+        { x: reduced ? 0 : 24, opacity: 0 },
         { x: 0, opacity: 1, duration: reduced ? 0.4 : 0.9, stagger: 0.06, delay: 0.12, ease: reduced ? 'power1.out' : 'back.out(1.5)' },
       )
     }, body)
@@ -82,7 +82,7 @@ export function RecruiterPanel({ open, onClose }: RecruiterPanelProps) {
       >
         <div className="flex items-center justify-between px-5 pt-5 font-mono text-[10px] text-muted md:px-8 md:pt-7 md:text-[11px]">
           <span>recrutador</span>
-          <button ref={closeRef} type="button" onClick={onClose} className="-m-3 p-3 text-bone">
+          <button ref={closeRef} type="button" onClick={onClose} className="-my-3 -mr-3 inline-flex min-h-11 items-center px-3 text-bone">
             fechar
           </button>
         </div>
@@ -121,13 +121,16 @@ export function RecruiterPanel({ open, onClose }: RecruiterPanelProps) {
 
           <section>
             <h3 className="font-mono text-[11px] text-muted md:text-xs">contato</h3>
-            <div className="mt-3 flex flex-col gap-2 font-mono text-xs md:text-sm">
+            <div className="mt-1 flex flex-col font-mono text-xs md:text-sm">
               {links.map((l) => (
-                <a key={l.label} href={l.url} target="_blank" rel="noopener noreferrer" className="w-fit text-acid">
-                  {l.label} ↗
+                <a key={l.label} href={l.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 w-fit items-center gap-1 text-acid">
+                  {l.label} <span aria-hidden>↗</span>
                 </a>
               ))}
-              <a href={`mailto:${contact.email}`} className="w-fit text-bone">
+              <a href={contact.whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 w-fit items-center gap-1 text-bone">
+                {contact.whatsappDisplay} <span aria-hidden>↗</span>
+              </a>
+              <a href={`mailto:${contact.email}`} className="inline-flex min-h-11 w-fit items-center text-bone">
                 {contact.email}
               </a>
             </div>
@@ -141,6 +144,14 @@ export function RecruiterPanel({ open, onClose }: RecruiterPanelProps) {
           >
             baixar CV em PDF <span aria-hidden>↓</span>
           </a>
+        <button
+          type="button"
+          onClick={onClose}
+          className="inline-flex min-h-11 w-full items-center justify-center rounded-[3px] font-mono text-xs text-bone md:hidden"
+          style={{ border: '1px solid var(--c-border)' }}
+        >
+          fechar
+        </button>
         </div>
       </aside>
     </>,

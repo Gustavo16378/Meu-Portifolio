@@ -78,7 +78,7 @@ export function Hud({ menuOpen, onMenu, onRecruiter, sectionsReady }: HudProps) 
     >
       {/* Faixas atrás dos cantos: o conteúdo que passa por baixo desfoca e escurece, e o HUD continua legível. */}
       <div aria-hidden className="hud-band absolute inset-x-0 top-0 h-[76px] md:h-[84px]" />
-      <div aria-hidden className="hud-band hud-band-bottom absolute inset-x-0 bottom-0 h-[56px] md:h-[64px]" />
+      <div aria-hidden className="hud-band hud-band-bottom absolute inset-x-0 bottom-0 h-[64px]" />
 
       {/* Nome: volta pro topo. */}
       <button
@@ -95,12 +95,13 @@ export function Hud({ menuOpen, onMenu, onRecruiter, sectionsReady }: HudProps) 
         <span className="sr-only">, voltar pro topo</span>
       </button>
 
-      <div className="absolute flex items-center gap-6" style={{ top: edge.top, right: edge.right }}>
+      {/* No celular o menu fica embaixo, à direita, onde o polegar alcança; no desktop, no canto de cima com a hora. */}
+      <div className="absolute right-[calc(env(safe-area-inset-right)+16px)] bottom-[calc(env(safe-area-inset-bottom)+16px)] flex items-center gap-6 md:top-[calc(env(safe-area-inset-top)+16px)] md:bottom-auto">
         <button
           ref={recruiterRef}
           type="button"
           onClick={onRecruiter}
-          className="pointer-events-auto -my-2 hidden rounded-[3px] px-3 py-2 text-acid md:block"
+          className="pointer-events-auto -my-[7px] hidden min-h-11 rounded-[3px] px-3 text-acid md:block"
           style={{ border: '1px solid var(--c-acid)' }}
         >
           recrutador?
@@ -117,7 +118,7 @@ export function Hud({ menuOpen, onMenu, onRecruiter, sectionsReady }: HudProps) 
           onClick={onMenu}
           aria-expanded={menuOpen}
           aria-haspopup="dialog"
-          className="pointer-events-auto -my-2 flex items-center gap-2 rounded-[3px] px-3 py-2 text-bone"
+          className="pointer-events-auto -my-[7px] flex min-h-11 items-center gap-2 rounded-[3px] px-3 text-bone"
           style={{ border: '1px solid var(--hud-edge)' }}
         >
           <span aria-hidden className="inline-block size-1.5 bg-acid" />

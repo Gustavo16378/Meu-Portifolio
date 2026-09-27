@@ -49,6 +49,7 @@ export default function App() {
 
   return (
     <LenisProvider>
+      <Hud menuOpen={menuOpen} onMenu={openMenu} onRecruiter={openRecruiter} sectionsReady={sectionsReady} />
       <main>
         <Hero />
         {sectionsReady && (
@@ -62,7 +63,6 @@ export default function App() {
           </>
         )}
       </main>
-      <Hud menuOpen={menuOpen} onMenu={openMenu} onRecruiter={openRecruiter} sectionsReady={sectionsReady} />
       <IdleWalker />
       <Grain sectionsReady={sectionsReady} />
       <Menu open={menuOpen} onClose={closeMenu} onNavigate={navigate} onRecruiter={openRecruiter} />

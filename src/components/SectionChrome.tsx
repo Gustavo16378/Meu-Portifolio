@@ -33,7 +33,7 @@ export function SectionChrome({ id, grid = true, divider = true, side = 'right' 
         {n}
       </span>
       {divider && (
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 flex items-center gap-4 px-4 md:px-12">
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 flex items-center gap-4 px-6 md:px-12">
           <span className="h-px flex-1 bg-border" />
           <span className="font-mono text-[11px] text-muted md:text-xs">
             {n} · {info.label}
@@ -41,11 +41,13 @@ export function SectionChrome({ id, grid = true, divider = true, side = 'right' 
           <span className="h-px flex-1 bg-border" />
         </div>
       )}
+      {/* No celular só número e nome, numa linha (o resto não cabe e invadia o conteúdo); os metadados entram no desktop. */}
       <p
         aria-hidden
-        className="pointer-events-none absolute right-4 bottom-[72px] left-4 text-right font-mono text-[11px] text-muted md:right-12 md:bottom-[84px] md:left-auto md:text-xs"
+        className="pointer-events-none absolute right-4 bottom-[72px] left-6 text-right font-mono text-[11px] text-muted md:right-12 md:bottom-[84px] md:left-auto md:text-xs"
       >
-        {[`${n} / ${pad2(sections.length)}`, info.label, ...info.meta].join(' · ')}
+        {`${n} / ${pad2(sections.length)} · ${info.label}`}
+        {info.meta.length > 0 && <span className="hidden md:inline">{` · ${info.meta.join(' · ')}`}</span>}
       </p>
     </>
   )

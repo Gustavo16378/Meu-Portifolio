@@ -30,7 +30,8 @@ export function ContactBuddy({ className = '' }: { className?: string }) {
   )
 
   return (
-    <div ref={ref} className={className}>
+    // Caixa com a altura da pose acordada: a pose dormindo (mais baixa e mais larga) cabe dentro sem mexer no layout.
+    <div ref={ref} className={`flex h-[110px] w-[100px] shrink-0 items-end md:h-[170px] md:w-[230px] ${className}`}>
       <Personagem pose={asleep ? 'dormindo' : 'acenando'} size="md" sizes={{ dormindo: 'sm' }} sway={!asleep} />
     </div>
   )

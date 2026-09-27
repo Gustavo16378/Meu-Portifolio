@@ -165,6 +165,7 @@ export function ProjectsStage() {
 
   return (
     <section id="projetos" data-section className="relative isolate overflow-x-clip">
+      <h2 className="sr-only">Projetos</h2>
       <SectionChrome id="projetos" side="left" />
       <ProjectRail current={current} total={projects.length} visible={engaged} />
 

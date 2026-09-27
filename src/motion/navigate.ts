@@ -25,6 +25,9 @@ export function navigateTo(el: HTMLElement): void {
     finished = true
     fallback.kill()
     navigating = false
+    // Quem navega por teclado continua dali.
+    if (!el.hasAttribute('tabindex')) el.tabIndex = -1
+    el.focus({ preventScroll: true })
     listeners.forEach((cb) => cb('end', el))
   }
   // Se o usuário interromper a rolagem, o onComplete não vem: encerra mesmo assim.

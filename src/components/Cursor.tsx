@@ -32,10 +32,13 @@ export function Cursor() {
     gsap.set([dot, ring], { xPercent: -50, yPercent: -50, opacity: 0 })
     const dotX = gsap.quickSetter(dot, 'x', 'px')
     const dotY = gsap.quickSetter(dot, 'y', 'px')
-    const dotS = gsap.quickSetter(dot, 'scale')
+    // Um setter por eixo: 'scale' vira 'scaleX,scaleY' no quickSetter e não entra no transform.
+    const dotSX = gsap.quickSetter(dot, 'scaleX')
+    const dotSY = gsap.quickSetter(dot, 'scaleY')
     const ringX = gsap.quickSetter(ring, 'x', 'px')
     const ringY = gsap.quickSetter(ring, 'y', 'px')
-    const ringS = gsap.quickSetter(ring, 'scale')
+    const ringSX = gsap.quickSetter(ring, 'scaleX')
+    const ringSY = gsap.quickSetter(ring, 'scaleY')
 
     const rx = createSpring()
     const ry = createSpring()
@@ -66,8 +69,11 @@ export function Cursor() {
       }
       ringX(rx.value)
       ringY(ry.value)
-      ringS(rs.value)
-      dotS(Math.max(0, ds.value))
+      ringSX(rs.value)
+      ringSY(rs.value)
+      const d = Math.max(0, ds.value)
+      dotSX(d)
+      dotSY(d)
       if (springAtRest(rx, 0.05) && springAtRest(ry, 0.05) && springAtRest(rs) && springAtRest(ds)) {
         gsap.ticker.remove(tick)
         running = false

@@ -138,6 +138,6 @@ html.has-cursor * {
     animation: none;
   }
   .hud-dot {
-    animation-duration: 4s;
+    animation: none;
   }
 }

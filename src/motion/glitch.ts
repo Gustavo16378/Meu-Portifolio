@@ -19,8 +19,10 @@ export function addGlitchIn(
   at = 0,
   { amp = 12, stagger = 0.08 }: GlitchOptions = {},
 ): gsap.core.Timeline {
+  // Estado de partida gravado em `at`: um reset (volta ao tempo zero) cai nele, e não no primeiro frame do glitch.
+  tl.set(targets, { opacity: 0, x: 0, skewX: 0 }, at)
   targets.forEach((el, i) => {
-    const t = at + i * stagger
+    const t = at + FRAME + i * stagger
     const a = amp * (Math.random() < 0.5 ? -1 : 1) * gsap.utils.random(0.6, 1)
     tl.set(el, { opacity: 0.85, x: a, skewX: a * 0.35 }, t)
       .set(el, { opacity: 0.55, x: -a * 0.5, skewX: 0 }, t + FRAME)

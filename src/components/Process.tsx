@@ -61,7 +61,7 @@ export function Process() {
   }
 
   return (
-    <section id="processo" data-section className="relative isolate overflow-x-clip px-4 py-24 pl-6 md:px-12 md:py-36">
+    <section id="processo" data-section className="relative isolate overflow-x-clip px-4 pt-24 pb-32 pl-6 md:px-12 md:py-36">
       <SectionChrome id="processo" side="left" />
       <h2
         ref={titleRef}

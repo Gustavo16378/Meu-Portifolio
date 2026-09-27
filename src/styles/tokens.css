@@ -11,7 +11,7 @@
 
   /* ambientes dos projetos (seção 03) */
   --c-stewer-bg: #14110a;
-  --c-stewer: #8a7a45;
+  --c-stewer: #8f7f49;
   --c-autoria: #c9a24a;
   --c-vinhedo-bg: #3a0f1e;
   --c-vinhedo: #c46a7a;
@@ -55,7 +55,7 @@
 
   /* camadas */
   --hud-band: color-mix(in srgb, var(--c-bg) 88%, transparent);
-  --z-walker: 55;
+  --z-walker: 45;
   --z-hud: 50;
   --z-grain: 60;
   --z-overlay: 9998;

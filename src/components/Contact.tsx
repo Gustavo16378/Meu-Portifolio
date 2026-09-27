@@ -127,7 +127,7 @@ export function Contact() {
         <div ref={bodyRef} className="mt-10 flex flex-col gap-6 md:mt-14">
           <a
             href={`mailto:${contact.email}`}
-            className="w-fit font-sans text-[7vw] leading-none text-bone transition-[color] duration-200 hover:text-acid md:text-[3.2vw]"
+            className="w-fit py-2.5 font-sans text-[7vw] leading-none text-bone transition-[color] duration-200 hover:text-acid md:text-[3.2vw]"
           >
             {contact.email}
           </a>
@@ -135,17 +135,17 @@ export function Contact() {
             href={contact.whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-fit font-sans text-[7vw] leading-none text-bone transition-[color] duration-200 hover:text-acid md:text-[3.2vw]"
+            className="w-fit py-2.5 font-sans text-[7vw] leading-none text-bone transition-[color] duration-200 hover:text-acid md:text-[3.2vw]"
           >
             {contact.whatsappDisplay}
           </a>
-          <div className="mt-4 flex items-end gap-6">
+          <div className="mt-4 flex items-end gap-4 md:gap-6">
             <a
               ref={buttonRef}
               href={contact.whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-12 items-center gap-2 rounded-[3px] bg-acid px-6 font-mono text-sm font-bold text-bg md:min-h-14 md:px-8 md:text-base"
+              className="inline-flex min-h-12 shrink-0 items-center gap-2 rounded-[3px] bg-acid px-6 font-mono text-sm font-bold whitespace-nowrap text-bg md:min-h-14 md:px-8 md:text-base"
             >
               chamar no WhatsApp <span aria-hidden>↗</span>
             </a>
@@ -155,7 +155,7 @@ export function Contact() {
       </div>
 
       <footer
-        className="relative flex flex-col gap-4 px-4 pt-8 pb-24 pl-6 font-mono text-[11px] text-muted md:gap-3 md:px-12 md:pb-20 md:text-xs"
+        className="relative flex flex-col gap-4 px-4 pt-8 pb-32 pl-6 font-mono text-[11px] text-muted md:gap-3 md:px-12 md:pb-28 md:text-xs"
         style={{ borderTop: '1px solid var(--c-border)' }}
       >
         <ul className="flex flex-wrap gap-x-6 gap-y-2">
@@ -165,16 +165,16 @@ export function Contact() {
                 href={s.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="-m-2 inline-block p-2 text-bone transition-[color] duration-200 hover:text-acid"
+                className="-my-2 inline-flex min-h-11 items-center px-2 text-bone transition-[color] duration-200 hover:text-acid"
               >
-                {s.label} ↗
+                {s.label} <span aria-hidden>↗</span>
               </a>
             </li>
           ))}
           <li>
             <a
               href={`mailto:${contact.email}`}
-              className="-m-2 inline-block p-2 text-bone transition-[color] duration-200 hover:text-acid"
+              className="-my-2 inline-flex min-h-11 items-center px-2 text-bone transition-[color] duration-200 hover:text-acid"
             >
               {contact.email}
             </a>

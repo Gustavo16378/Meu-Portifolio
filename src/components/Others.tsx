@@ -62,7 +62,7 @@ function Details({ project, id }: { project: OtherProject; id: string }) {
           </>
         ) : (
           <div
-            className="flex aspect-[16/10] w-full items-center justify-center rounded-[4px] bg-surface font-display text-[18vw] text-muted md:text-[8vw]"
+            className="flex aspect-[16/10] w-full max-w-[280px] items-center justify-center rounded-[4px] bg-surface font-display text-[16vw] text-muted md:text-6xl"
             style={frame}
           >
             {initials(project.name)}
@@ -168,7 +168,7 @@ export function Others() {
         }
         // A linha aberta fica à vista, mesmo que as de cima tenham fechado.
         const top = rows[next].getBoundingClientRect().top
-        if (top < 60) getLenis()?.scrollTo(rows[next], { offset: -80, duration: 0.8 })
+        if (top < 100) getLenis()?.scrollTo(rows[next], { offset: -100, duration: 0.8 })
       }
       // A página mudou de altura: recalcula o scroll suave e os gatilhos das seções de baixo.
       getLenis()?.resize()
@@ -186,7 +186,13 @@ export function Others() {
   useEffect(() => {
     if (open === null) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isScrollLocked()) toggleRef.current(null)
+      if (e.key !== 'Escape' || isScrollLocked()) return
+      // Só com a lista na tela (ou o foco nela): fechar de longe encolhia a página por baixo do usuário.
+      const list = listRef.current
+      if (!list) return
+      const r = list.getBoundingClientRect()
+      const onScreen = r.bottom > 0 && r.top < window.innerHeight
+      if (onScreen || list.contains(document.activeElement)) toggleRef.current(null)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -198,7 +204,7 @@ export function Others() {
   }
 
   return (
-    <section id="outros" data-section className="relative isolate overflow-x-clip px-4 py-24 pl-6 md:px-12 md:py-36">
+    <section id="outros" data-section className="relative isolate overflow-x-clip px-4 pt-24 pb-32 pl-6 md:px-12 md:py-36">
       <SectionChrome id="outros" />
       <h2
         ref={titleRef}
@@ -229,7 +235,7 @@ export function Others() {
                   className="flex aspect-[16/10] w-24 shrink-0 items-center justify-center overflow-hidden rounded-[3px] border border-border bg-surface font-mono text-xs text-muted transition-[border-color,color] duration-200 group-hover:border-acid group-hover:text-acid md:w-40 md:text-sm"
                 >
                   {p.prints ? (
-                    <div className="size-full transition-[transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]">
+                    <div className="size-full transition-[scale] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]">
                       <PrintImage print={p.prints.desktop} alt="" sizes="(min-width: 768px) 160px, 96px" />
                     </div>
                   ) : (
@@ -264,7 +270,7 @@ export function Others() {
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
                       aria-label={`${p.name}: ver no ar`}
-                      className="-m-2 p-2 transition-[color] duration-200 hover:text-acid"
+                      className="-my-2 inline-flex min-h-11 min-w-11 items-center justify-center px-2 transition-[color] duration-200 hover:text-acid md:min-w-0"
                     >
                       <span className="hidden md:inline">{p.url.replace('https://', '')} </span>
                       <span aria-hidden>↗</span>

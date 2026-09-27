@@ -44,7 +44,7 @@ const parked = (vw: number, vh: number, w: number): FrameRect => ({ cx: vw / 2, 
 
 /** Faixa do HUD no topo e no pé da tela: nenhum frame começa por baixo dela. */
 const HUD_TOP = { desktop: 96, mobile: 84 }
-const HUD_BOTTOM = { desktop: 64, mobile: 56 }
+const HUD_BOTTOM = { desktop: 64, mobile: 64 }
 const GAP = 16
 
 /** Onde o texto do projeto ficou, medido na página (px a partir do topo do palco). */
@@ -64,13 +64,13 @@ function desktop(id: ProjectId, vw: number, vh: number, text?: TextBox): Composi
     }
     case 'autoria': {
       // Frame à esquerda, mais largo; texto à direita.
-      const w = fit(0.68, 0.72)
+      const w = fit(0.64, 0.72)
       const desk = { cx: vw * 0.05 + w / 2, cy: vh * 0.5, w, rot: 0 }
       return { desk, mob: cornerOutside(desk, 0.15), deskOn: true, mobOn: true, hero: 'desktop' }
     }
     case 'monte-vinhedo': {
       // Frame gigante no centro, quase a tela toda (sem entrar na faixa do HUD).
-      const w = fit(0.9, 0.8)
+      const w = fit(0.9, 0.74)
       const desk = { cx: vw * 0.5, cy: vh * 0.5, w, rot: 0 }
       return { desk, mob: cornerInside(desk), deskOn: true, mobOn: true, hero: 'desktop' }
     }
@@ -110,18 +110,17 @@ function mobile(id: ProjectId, vw: number, vh: number, text?: TextBox): Composit
   switch (id) {
     case 'stewer': {
       // Print desktop em cima, texto logo abaixo.
-      const w = Math.min(vw * 0.84, (free - textH - GAP * 1.5) * DESK_RATIO)
+      const w = Math.min(vw * 0.92, (free - textH - GAP * 1.5) * DESK_RATIO)
       const y = start(deskH(w) + GAP * 1.5 + textH)
-      const desk = { cx: vw * 0.08 + w / 2, cy: y + deskH(w) / 2, w, rot: 0 }
+      const desk = { cx: vw * 0.04 + w / 2, cy: y + deskH(w) / 2, w, rot: 0 }
       return { desk, mob: hidden(vw * 0.3), deskOn: true, mobOn: false, hero: 'desktop', textTop: y + deskH(w) + GAP * 1.5 }
     }
     case 'autoria': {
-      // Print desktop grande, texto sobreposto na parte de baixo dele.
-      const w = vw * 0.96
-      const overlap = Math.min(56, deskH(w) * 0.25)
-      const y = start(deskH(w) - overlap + textH)
+      // Print desktop grande, texto logo abaixo.
+      const w = vw * 0.88
+      const y = start(deskH(w) + GAP + textH)
       const desk = { cx: vw / 2, cy: y + deskH(w) / 2, w, rot: 0 }
-      return { desk, mob: hidden(vw * 0.3), deskOn: true, mobOn: false, hero: 'desktop', textTop: y + deskH(w) - overlap }
+      return { desk, mob: hidden(vw * 0.3), deskOn: true, mobOn: false, hero: 'desktop', textTop: y + deskH(w) + GAP }
     }
     case 'monte-vinhedo': {
       // Print do celular (proporção da tela) ocupando a área livre, nome e links sobrepostos embaixo.
@@ -138,10 +137,10 @@ function mobile(id: ProjectId, vw: number, vh: number, text?: TextBox): Composit
     }
     case 'cleane': {
       // Texto em cima, print logo abaixo dos botões.
-      const w = Math.min(vw * 0.84, (free - textH - GAP * 1.5) * DESK_RATIO)
-      const y = start(textH + GAP * 1.5 + deskH(w))
+      const w = Math.min(vw * 0.92, (free - textH - GAP * 1.5) * DESK_RATIO)
+      const y = top + Math.max(0, free - (textH + GAP * 1.5 + deskH(w)))
       const printTop = y + textH + GAP * 1.5
-      const desk = { cx: vw * 0.08 + w / 2, cy: printTop + deskH(w) / 2, w, rot: 0 }
+      const desk = { cx: vw * 0.04 + w / 2, cy: printTop + deskH(w) / 2, w, rot: 0 }
       return { desk, mob: hidden(vw * 0.3), deskOn: true, mobOn: false, hero: 'desktop', textTop: y }
     }
   }
@@ -177,15 +176,15 @@ export const TEXT_LAYOUT: Record<ProjectId, TextLayout> = {
     className:
       // Mobile: logo abaixo do print (topo 14svh + altura 84vw/1,6).
       'inset-x-0 top-[calc(14svh+52.5vw+5svh)] px-4 pl-12 md:top-1/2 md:bottom-auto md:left-0 md:w-[30vw] md:-translate-y-1/2 md:pl-24',
-    name: 'top-[28%] md:top-[84%]',
+    name: 'top-[28%] md:top-[76%]',
   },
   autoria: {
     overlay: { mobile: false, desktop: false },
-    shadow: { mobile: true, desktop: false },
+    shadow: { mobile: false, desktop: false },
     center: false,
     className:
-      'inset-x-0 top-[calc(36svh+18vw)] px-4 pl-10 md:top-1/2 md:right-[3vw] md:left-auto md:w-[21vw] md:-translate-y-1/2 md:p-0',
-    name: 'top-[13%] md:top-[84%]',
+      'inset-x-0 top-[calc(36svh+18vw)] px-4 pl-10 md:top-1/2 md:right-[3vw] md:left-auto md:w-[23vw] md:-translate-y-1/2 md:p-0',
+    name: 'top-[20%] md:top-[76%]',
   },
   'monte-vinhedo': {
     overlay: { mobile: true, desktop: true },
@@ -193,15 +192,15 @@ export const TEXT_LAYOUT: Record<ProjectId, TextLayout> = {
     center: false,
     className:
       // Mobile: no canto de baixo do print (o topo dele já tem o título do site). Desktop: canto de cima.
-      'bottom-[calc(56px+4svh)] left-[calc(50vw-min(84vw,(100svh-140px)*0.462)/2+4vw)] right-[calc(50vw-min(84vw,(100svh-140px)*0.462)/2+4vw)] md:top-[calc(50svh-min(90vw,128svh)*0.3125+3.5svh)] md:right-auto md:bottom-auto md:left-[calc((100vw-min(90vw,128svh))/2+2.4vw)] md:w-auto',
-    name: 'top-[50%] md:top-[84%]',
+      'bottom-[calc(64px+4svh)] left-[calc(50vw-min(84vw,(100svh-148px)*0.462)/2+4vw)] right-[calc(50vw-min(84vw,(100svh-148px)*0.462)/2+4vw)] md:top-auto md:right-auto md:bottom-[calc(50svh-min(90vw,118.4svh)*0.3125+3.5svh)] md:left-[calc((100vw-min(90vw,118.4svh))/2+2.4vw)] md:w-auto',
+    name: 'top-[50%] md:top-[76%]',
   },
   torra: {
     overlay: { mobile: false, desktop: false },
     shadow: { mobile: false, desktop: false },
     center: true,
     className:
-      'inset-x-0 bottom-[4svh] px-6 text-center md:right-auto md:bottom-[4svh] md:left-1/2 md:w-[44vw] md:-translate-x-1/2 md:p-0',
+      'inset-x-0 bottom-[4svh] px-6 text-center md:right-auto md:bottom-[72px] md:left-1/2 md:w-[44vw] md:-translate-x-1/2 md:p-0',
     name: 'top-[36%] md:top-[36%]',
   },
   cleane: {
@@ -210,6 +209,6 @@ export const TEXT_LAYOUT: Record<ProjectId, TextLayout> = {
     center: false,
     className:
       'inset-x-0 top-[11svh] px-4 pl-12 md:top-1/2 md:right-[4vw] md:left-auto md:w-[40vw] md:-translate-y-1/2 md:p-0',
-    name: 'top-[72%] md:top-[84%]',
+    name: 'top-[72%] md:top-[76%]',
   },
 }

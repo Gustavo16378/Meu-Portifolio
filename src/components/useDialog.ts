@@ -27,6 +27,13 @@ export function useOverlayState(): { open: boolean; show: () => void; hide: () =
  * Comportamento de diálogo: fechado fica inerte (fora do tab), aberto leva o foco pra dentro,
  * Esc fecha, e ao fechar o foco volta pra quem abriu.
  */
+// Painéis abertos: enquanto houver um, a página (#root) fica inerte e o Tab não sai do painel.
+let openPanels = 0
+const syncPageInert = () => {
+  const root = document.getElementById('root')
+  if (root) root.inert = openPanels > 0
+}
+
 export function useDialog(
   open: boolean,
   onClose: () => void,
@@ -41,12 +48,19 @@ export function useDialog(
     panel.inert = !open
     if (open) {
       returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+      panel.scrollTop = 0
+      openPanels += 1
+      syncPageInert()
       initialFocusRef.current?.focus({ preventScroll: true })
       const onKey = (e: KeyboardEvent) => {
         if (e.key === 'Escape') onClose()
       }
       window.addEventListener('keydown', onKey)
-      return () => window.removeEventListener('keydown', onKey)
+      return () => {
+        window.removeEventListener('keydown', onKey)
+        openPanels -= 1
+        syncPageInert()
+      }
     }
     returnFocus.current?.focus({ preventScroll: true })
     returnFocus.current = null

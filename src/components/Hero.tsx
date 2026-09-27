@@ -171,7 +171,7 @@ export function Hero() {
       <div
         ref={indicatorRef}
         aria-hidden
-        className="pointer-events-none absolute bottom-5 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 font-mono text-[10px] text-muted md:bottom-6 md:text-[11px]"
+        className="pointer-events-none absolute bottom-[72px] left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 font-mono text-[10px] text-muted md:text-[11px]"
       >
         <span>scroll</span>
         <span className="block h-10 w-px overflow-hidden">

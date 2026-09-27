@@ -212,7 +212,7 @@ export function Manifesto() {
   }, [])
 
   return (
-    <section id="faco" data-section className="relative isolate overflow-x-clip px-4 py-28 pl-6 md:px-12 md:py-40">
+    <section id="faco" data-section className="relative isolate overflow-x-clip px-4 pt-28 pb-32 pl-6 md:px-12 md:py-40">
       <SectionChrome id="faco" side="left" />
       <div className="grid gap-12 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] md:gap-16">
         <div className="flex flex-col">

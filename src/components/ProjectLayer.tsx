@@ -60,7 +60,7 @@ export function ProjectLayer({ project, kind, playable, visible = false, layerRe
         <picture>
           <source
             srcSet={`${print.webpSmall} ${print.smallWidth}w, ${print.webp} ${print.width}w`}
-            sizes={kind === 'desktop' ? '(min-width: 768px) 68vw, 96vw' : '(min-width: 768px) 20vw, 60vw'}
+            sizes={kind === 'desktop' ? '(min-width: 768px) 68vw, 96vw' : '(min-width: 768px) 20vw, 84vw'}
             type="image/webp"
           />
           <img
