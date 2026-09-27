@@ -10,23 +10,24 @@ const WRONG = 'Lima'
 const RIGHT = 'Dev'
 
 // Ritmo em segundos. Cada tecla sorteia um intervalo em volta da média, como gente digitando.
+// Somando tudo (digitar, pausar, apagar, segurar e a cortina) dá no máximo 1,8s, contando a espera pela fonte.
 const START_DELAY = 0.04
-const TYPE_MIN = 0.03
-const TYPE_MAX = 0.075
+const TYPE_MIN = 0.02
+const TYPE_MAX = 0.04
 const WORD_START_EXTRA = 0.05 // hesitação antes de começar uma palavra
-const BACKSPACE_MIN = 0.03
-const BACKSPACE_MAX = 0.05
-const PAUSE_BEFORE_ERASE = 0.2
-const PAUSE_BEFORE_RIGHT = 0.08
-const HOLD = 0.5
-const CURTAIN = 0.45
-const FONT_TIMEOUT = 700
+const BACKSPACE_MIN = 0.025
+const BACKSPACE_MAX = 0.035
+const PAUSE_BEFORE_ERASE = 0.15
+const PAUSE_BEFORE_RIGHT = 0.06
+const HOLD = 0.3
+const CURTAIN = 0.38
+const FONT_TIMEOUT = 200
 
 const rand = (min: number, max: number) => min + Math.random() * (max - min)
 
 /**
- * Primeira visita da sessão: digita "Gustavo Lima", apaga "Lima", digita "Dev" em lima,
- * segura meio segundo e a cortina sobe revelando o hero.
+ * Todo carregamento: digita "Gustavo Lima", apaga "Lima", digita "Dev" em lima,
+ * segura 300ms e a cortina sobe revelando o hero, que já estava pronto por trás.
  */
 export function Preloader() {
   const [show, setShow] = useState(true)
