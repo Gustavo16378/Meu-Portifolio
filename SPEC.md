@@ -39,7 +39,7 @@ Grain fino e neutro (só tons de cinza, sem tingir com a cor do ambiente), no m�
 - número da seção em Tanker gigante, só contorno de 1px, apagado, no canto (01, 02...);
 - a grade de fundo;
 - uma linha divisória de 1px no topo, com o número e o nome da seção em mono no meio (não vai na primeira);
-- metadados em mono no rodapé da seção, acima da faixa do HUD (ex.: `02 / 07 · o que eu faço · react · java · postgresql · cloudflare`), definidos em `data/sections.ts`.
+- metadados em mono no rodapé da seção, acima da faixa do HUD (ex.: `02 / 07 · o que eu faço · react · java · postgresql · cloudflare`), definidos em `data/sections.ts`. No celular só número e nome, numa linha (`02 / 07 · o que eu faço`): o resto não cabe em 390px e invadia o conteúdo. Toda seção tem folga embaixo (128px no celular) pra essa linha não encostar em texto ou botão.
 
 ## Tipografia
 
@@ -55,13 +55,13 @@ Nos quatro cantos, em mono pequeno e cinza-verde, informação que dá sensaçã
 - canto inferior esquerdo: seção atual (`01 / 07 · abertura`) que atualiza no scroll
 - canto inferior direito: `status: disponível para projetos` com um ponto lima piscando devagar
 
-O HUD fica fixo; o conteúdo rola por baixo. Pra não misturar com o conteúdo, os cantos ficam sobre duas faixas (topo e pé da tela) com `backdrop-filter: blur(12px)` e degradê do fundo pro transparente. Nada do conteúdo começa por baixo dessas faixas: as seções têm padding-top suficiente e as composições dos projetos respeitam a margem do HUD. No mobile, só o canto superior esquerdo, o inferior esquerdo e o botão `menu`.
+O HUD fica fixo; o conteúdo rola por baixo. Pra não misturar com o conteúdo, os cantos ficam sobre duas faixas (topo e pé da tela) com `backdrop-filter: blur(12px)` e degradê do fundo pro transparente (84px no topo, 64px no pé; no celular 76px e 64px). Nada do conteúdo começa por baixo dessas faixas: as seções têm padding-top suficiente e as composições dos projetos respeitam a margem do HUD. No mobile, só o canto superior esquerdo, o inferior esquerdo e o botão `menu`, que no celular fica no canto inferior direito (onde o polegar alcança) e tem 44px de altura, como o `recrutador?`. O HUD vem antes do conteúdo no DOM: é o primeiro Tab da página.
 
 Navegação: sem menu tradicional. Um botão `menu` em mono no topo direito que abre um overlay preto com os itens em Tanker gigante (projetos, como trabalho, história, contato) e o atalho `recrutador?`. Fechar com Esc ou clique fora. No mobile o botão `menu` continua visível (é a navegação) e o atalho `recrutador?` fica só dentro do menu.
 
 ## Preloader
 
-Fundo preto, só isso na tela, sem log antes. Um cursor de texto fino em lima pisca. Em Tanker gigante, maiúsculas, digita `Gustavo Lima` letra por letra, faz uma pausa curta, apaga `Lima` com backspace letra por letra e digita `Dev` em lima (`Gustavo` fica em osso). Ritmo de digitação humano: intervalos levemente irregulares, com hesitação no começo de palavra; o backspace é um pouco mais rápido. O cursor fica aceso enquanto digita e pisca quando para. Pausa de meio segundo com o nome pronto, e a tela abre pro hero com uma cortina subindo (fade rápido em `prefers-reduced-motion`). O hero começa a entrar junto com a cortina. Total entre 2 e 2,5 segundos. Roda em todo carregamento da página, inclusive ao atualizar.
+Fundo preto, só isso na tela, sem log antes. Um cursor de texto fino em lima pisca. Em Tanker gigante, maiúsculas, digita `Gustavo Lima` letra por letra, faz uma pausa curta, apaga `Lima` com backspace letra por letra e digita `Dev` em lima (`Gustavo` fica em osso). Ritmo de digitação humano: intervalos levemente irregulares, com hesitação no começo de palavra; o backspace é um pouco mais rápido. O cursor fica aceso enquanto digita e pisca quando para. Pausa de 300ms com o nome pronto, e a tela abre pro hero com uma cortina subindo (fade rápido em `prefers-reduced-motion`). O hero começa a entrar junto com a cortina. Total de no máximo 1,8 segundos, contando a espera pela fonte (que está em preload). Roda em todo carregamento da página, inclusive ao atualizar. Por trás dele o hero e as fontes carregam desde o primeiro frame: o título já está pintado (e conta como a maior pintura da página) quando a cortina começa a subir; só nesse instante ele se esconde e entra com mola.
 
 ## Estrutura da página
 
@@ -92,8 +92,11 @@ Direita (preso enquanto os parágrafos passam): um diagrama em mono com quatro b
 
 Os cinco projetos passam num **palco da altura da tela**, entre duas faixas de degradê (preto para a cor do primeiro, cor do último para preto). Nunca em carrossel.
 
-**Scroll em passos.** A seção não tem altura de scroll interna: é uma tela (100svh) presa, e dentro dela o GSAP Observer é o único controle.
-- Entrada: chegando por cima, ao encostar no topo do palco (tolerância de 12px, pra o scroll suave que desacelera não parar a 1px sem prender) o scroll nativo trava (Lenis `stop()`) e entra o primeiro projeto. Chegando por baixo, subindo a página, entra direto o último.
+**Dois modos.** Com mouse e tela de 900px pra cima (`(min-width: 900px) and (pointer: fine)`), o palco preso em passos descrito abaixo. Com toque ou tela mais estreita, a seção vira scroll normal (ver "No toque" mais abaixo): nada trava o scroll no celular.
+
+**Scroll em passos (desktop com mouse).** A seção não tem altura de scroll interna: é uma tela (100svh) presa, e dentro dela o GSAP Observer é o único controle.
+- Entrada: chegando por cima, ao encostar no topo do palco (tolerância de 12px, pra o scroll suave que desacelera não parar a 1px sem prender) o scroll nativo trava (Lenis `stop()`) e entra o primeiro projeto. Chegando por baixo, subindo a página, entra direto o último, já montado: enquanto o palco está inteiro fora da tela, ele fica preparado no projeto pelo qual vai entrar (o último por baixo, o primeiro por cima), então nunca se vê a troca nem um flash de outro projeto. Se o gesto passou da fronteira (flick), o palco desliza até encostar com o Lenis em vez de pular.
+- Nenhuma seção vizinha aparece durante uma troca: a saída só acontece com a troca terminada e o intervalo cumprido, e aí o Lenis é liberado e a página segue com o gesto.
 - Um gesto vale um passo, qualquer que seja a força. O wheel tem detecção própria (não depende do mouse se mover; a escuta fica ligada sempre que a seção está ativa):
   - um gesto termina quando passam 120ms sem evento, quando a força volta a crescer depois de estar caindo (dedo empurrou de novo enquanto a inércia ainda chegava) ou quando o sentido inverte;
   - o passo sai no primeiro evento em que o gesto acumula 30px; o resto do gesto é descartado;
@@ -114,16 +117,18 @@ Os cinco projetos passam num **palco da altura da tela**, entre duas faixas de d
 Desktop:
 1. Stewer: texto à esquerda, frame à direita, celular sobreposto no canto inferior direito.
 2. AUTORIA: frame à esquerda, mais largo; texto à direita.
-3. Monte Vinhedo: frame gigante centralizado, quase a tela toda; só o nome, `ver no ar` e `ficha técnica` sobrepostos no canto superior esquerdo, com sombra.
-4. TORRA: o celular é o protagonista, grande no centro; o desktop atrás, menor e inclinado 6 graus; texto centralizado embaixo.
+3. Monte Vinhedo: frame gigante centralizado, quase a tela toda (33px de folga da faixa do HUD); só o nome, `ver no ar` e `ficha técnica` sobrepostos no canto inferior esquerdo, com sombra (o canto de cima é onde o print tem o próprio título).
+4. TORRA: o celular é o protagonista, grande no centro; o desktop atrás, menor e inclinado 6 graus; texto centralizado embaixo, terminando a 72px do pé (acima da faixa do HUD).
 5. Cleane: metade e metade, frame à esquerda, texto à direita.
 
-Mobile (versão simplificada de cada uma, um frame só). Regra pros cinco: a composição inteira cabe em 100svh, print e texto juntos, sem espaço morto e sem entrar nas faixas do HUD. O texto é medido na página e o bloco (print, espaço e texto) é centralizado na área livre, reduzindo o print quando precisa:
+Mobile (versão simplificada de cada uma, um frame só). Regra pros cinco: a composição inteira cabe em 100svh, print e texto juntos, sem espaço morto e sem entrar nas faixas do HUD. O texto é medido na página e o bloco (print, espaço e texto) é centralizado na área livre, reduzindo o print quando precisa (numa tela muito baixa o bloco cresce em vez de encolher o print demais):
 1. Stewer: print desktop em cima, texto logo abaixo.
-2. AUTORIA: print desktop grande, texto sobreposto na parte de baixo dele, com sombra.
+2. AUTORIA: print desktop grande (88vw, fora do trilho), texto logo abaixo (sobreposto ficava ilegível sobre o carro claro).
 3. Monte Vinhedo: print do celular quase em tela cheia, nome e links sobrepostos no canto de baixo.
 4. TORRA: print do celular grande no centro, texto embaixo.
-5. Cleane: texto em cima, print logo abaixo dos botões, tudo dentro da tela.
+5. Cleane: texto em cima, print logo abaixo dos botões, tudo dentro da tela; o bloco fica encostado embaixo da área livre, pros botões caírem na metade de baixo da tela.
+
+**No toque (ou tela abaixo de 900px): scroll normal.** A seção não prende e não usa Observer. São cinco blocos empilhados, cada um com `min-height: 100svh` e a composição do projeto (a mobile abaixo de 768px, a desktop acima), entre as mesmas faixas de degradê. O Lenis nunca para. Cada bloco entra por ScrollTrigger quando o topo dele chega a 72% da tela: o frame sobe com mola (`back.out`), o texto entra em stagger, e ao voltar pra cima desfaz. A cor de fundo troca na fronteira entre dois blocos com scrub curto: um pano preso atrás dos blocos tem uma camada por projeto, e a do seguinte acende (só opacity) enquanto o topo dele sobe de 85% pra 15% da tela. O trilho `01 / 05` continua, atualizando por ScrollTrigger (o bloco que cruza o meio da tela) e visível enquanto a seção está na tela. O nome em contorno fica atrás com parallax leve. A luz de acento fica parada no frame principal. Sem tilt, sem flutuação e sem brilho na borda; skew leve pela velocidade do scroll continua. Nos blocos a mídia é sempre print.
 
 **Atrás do frame:**
 - Luz radial suave na cor de acento, opacidade baixa: acompanha o mouse devagar no desktop e fica fixa no frame principal no mobile. Troca de cor apagando e acendendo.
@@ -144,11 +149,11 @@ Mobile (versão simplificada de cada uma, um frame só). Regra pros cinco: a com
 - Com economia de dados, conexão 2g/3g ou reduced-motion: só poster, com o botão `ver em movimento`.
 - Meta: Lighthouse mobile acima de 85 com a seção completa.
 
-**O que conecta os cinco:** um trilho vertical fixo na lateral esquerda, em mono, visível enquanto o palco está preso, com `01 / 05`... e uma linha fina que se preenche em lima até `05 / 05`. O número troca com glitch curto. **Sem quebra em blocos.**
+**O que conecta os cinco:** um trilho vertical fixo na lateral esquerda, em mono, visível enquanto o palco está preso (no toque, enquanto a seção está na tela), com `01 / 05`... e uma linha fina que se preenche em lima até `05 / 05`. O número troca com glitch curto. **Sem quebra em blocos.**
 
 A placa: linha de contexto (cliente ou conceito próprio, cidade, ano de entrega, ex.: `cliente · Palmas, TO · entregue em 2025`), nome, uma linha do que é, stack em mono, `ver no ar` e `ficha técnica`. Nada de texto de conceito.
 
-`ficha técnica` abre um painel lateral (portal no body, mesma mecânica do menu) com arquitetura em duas ou três linhas, três decisões técnicas, link do repositório (com o aviso "código privado, projeto de cliente" quando for o caso) e link do site. No mobile ocupa a tela e fecha no botão `fechar` ou com Esc.
+`ficha técnica` abre um painel lateral (portal no body, mesma mecânica do menu) com arquitetura em duas ou três linhas, três decisões técnicas, link do repositório (com o aviso "código privado, projeto de cliente" quando for o caso) e link do site. No mobile ocupa a tela e fecha no botão `fechar` (no topo e, no celular, também no pé do painel, os dois com 44px) ou com Esc. Todo painel reabre no topo, os links têm 44px de alvo, e enquanto um painel está aberto a página (`#root`) fica inerte: o Tab não sai do painel e o foco volta pra quem abriu ao fechar.
 
 Ordem e cores:
 
@@ -215,7 +220,7 @@ As outras poses (`bracos-cruzados`, `frente`, `lado`, `olhando-cima`, `pulando`,
 
 ## Atalho do recrutador
 
-Botão `recrutador?` em mono no menu e no HUD superior direito (ao lado da hora). O texto é só esse, sem complemento. Abre um painel lateral sobre a página (portal no body, mesma mecânica do menu e da ficha): uma linha de resumo, stack agrupada (front, back, mobile, infra) em mono (`data/stack.ts`), experiência em três linhas (a mesma linha do tempo da História), links GitHub e LinkedIn, e-mail, e o botão `baixar CV em PDF`, que baixa `public/cv-gustavo-lima.pdf`. Esc ou clique fora fecha. Do menu, o atalho fecha o menu e abre o painel.
+Botão `recrutador?` em mono no menu e no HUD superior direito (ao lado da hora). O texto é só esse, sem complemento. Abre um painel lateral sobre a página (portal no body, mesma mecânica do menu e da ficha): uma linha de resumo, stack agrupada (front, back, mobile, infra) em mono (`data/stack.ts`), experiência em três linhas (a mesma linha do tempo da História), links GitHub e LinkedIn, WhatsApp, e-mail, e o botão `baixar CV em PDF`, que baixa `public/cv-gustavo-lima.pdf`. Esc ou clique fora fecha. Do menu, o atalho fecha o menu e abre o painel.
 
 ## Física e dinamismo (vale pro site inteiro)
 
@@ -237,9 +242,12 @@ Ferramentas: GSAP (ScrollTrigger, Draggable, InertiaPlugin, Physics2DPlugin, tod
 - Cartões de foto no hero com inclinação 3D, drag com inércia e quique, e espalhamento no scroll.
 - Cursor customizado: ponto lima pequeno com um anel fino que atrasa; cresce em links. Sem texto dentro do cursor.
 - Glitch curto na entrada de textos (seções 02 e 05) e no hover da lista (04).
-- Projetos em passos: palco preso, um gesto por projeto, cada troca uma timeline completa (frames viajando com mola entre as composições, varredura diagonal de cor, nome em contorno trocando, texto saindo pra cima e entrando de baixo); luz na cor de acento atrás do frame, nome deslizando sozinho, frame flutuando com brilho na borda; trilho lateral acompanhando. Sem blocos.
+- Projetos em passos (desktop com mouse): palco preso, um gesto por projeto, cada troca uma timeline completa (frames viajando com mola entre as composições, varredura diagonal de cor, nome em contorno trocando, texto saindo pra cima e entrando de baixo); luz na cor de acento atrás do frame, nome deslizando sozinho, frame flutuando com brilho na borda; trilho lateral acompanhando. Sem blocos. No toque: cinco blocos em scroll normal, frame subindo com mola e texto em stagger por ScrollTrigger, cor trocando na fronteira, Lenis sempre ligado.
 - Skew por velocidade de scroll em títulos e nos frames dos projetos; botões magnéticos.
 - HUD fixo com hora real e seção atual.
+- Navegação (menu, nome no HUD, `ir para o contato`): a seção de destino recebe o foco no fim da rolagem, sem rolar de novo.
+- Contato: o personagem vive numa caixa de tamanho fixo; dormir não mexe no layout.
+- `public/og.png` (1200x630) gerado com a cara do site: nome em Tanker, linha em Synonym e a foto no cartão.
 - Título do contato digitado, como o preloader.
 - Personagem pequeno nos pontos definidos, com mola na entrada e flutuação leve; atravessa o rodapé quando o usuário fica parado.
 - Tudo com GSAP (ScrollTrigger, Draggable, Inertia, Physics2D) + Lenis.
