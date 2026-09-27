@@ -42,6 +42,7 @@ const STEP = 1.1 // duração de uma troca, em segundos
 const WHEEL_GAP = 120 // ms sem wheel que encerram um gesto
 const WHEEL_STEP = 30 // px acumulados num gesto pra dar um passo
 const EDGE = 12 // px da fronteira do palco em que ele já prende
+const ARRIVAL_COOLDOWN = 600 // ms depois de prender em que nenhum gesto conta
 const NAME_OPACITY = 0.55
 const DRIFT = 26 // px/s do nome em contorno, parado
 const label = (i: number) => `p${i}`
@@ -73,7 +74,8 @@ export function useProjectsStage(
     const cooldown = desktop ? 250 : 350
 
     let vw = 0
-    let vh = 0
+    // Altura já conhecida antes do setup: as regras de "palco inteiro fora da tela" dependem dela desde o começo.
+    let vh = els.stage.clientHeight
     let comps: Composition[] = []
     let current = Math.min(memory.current.current, n - 1)
     let engaged = false
@@ -292,6 +294,14 @@ export function useProjectsStage(
     const normalize = (e: WheelEvent) =>
       e.deltaMode === 1 ? e.deltaY * lineHeight : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY
     const blockedNow = () => !!moving || performance.now() < cooldownUntil
+    const nudge = (px: number) => {
+      const lenis = getLenis()
+      if (!lenis) {
+        window.scrollBy(0, px)
+        return
+      }
+      lenis.scrollTo(lenis.targetScroll + px, { programmatic: false, lerp: lenis.options.lerp })
+    }
 
     const onWheel = (e: WheelEvent) => {
       const listening = engaged && !isScrollLocked()
@@ -319,6 +329,7 @@ export function useProjectsStage(
       if (wheel.acc >= WHEEL_STEP) {
         wheel.done = true
         step(sign > 0 ? 1 : -1)
+        if (!engaged) nudge(d)
       }
     }
     window.addEventListener('wheel', onWheel, { passive: false })
@@ -337,6 +348,8 @@ export function useProjectsStage(
 
     let drift = 0
     let boost = 0
+    let focusAfter: 'first' | 'last' | null = null
+    const focusables = (i: number) => Array.from(els.texts[i].querySelectorAll<HTMLElement>('a[href], button:not([disabled])'))
 
     const goto = (next: number, dir: 1 | -1) => {
       setCurrent(next)
@@ -359,6 +372,12 @@ export function useProjectsStage(
       moving = null
       cooldownUntil = performance.now() + cooldown
       syncRing()
+      if (focusAfter) {
+        const list = focusables(current)
+        const el = focusAfter === 'first' ? list[0] : list[list.length - 1]
+        focusAfter = null
+        el?.focus({ preventScroll: true })
+      }
     }
 
     function step(dir: 1 | -1) {
@@ -384,25 +403,44 @@ export function useProjectsStage(
     // De que lado da fronteira a tela está: acima do palco, abaixo, ou acabou de soltar numa direção.
     let side: 'above' | 'below' | 'released-up' | 'released-down' = stageTop() > 0 ? 'above' : 'below'
 
-    // Encosta o palco no topo. Scroll nativo primeiro: com o Lenis parado, a posição que ele guarda fica velha
-    // e um scrollTo pra "onde ele acha que está" não faz nada.
+    // Encosta o palco no topo. Perto, num pulo curto; longe (flick que passou da fronteira), deslizando com o
+    // Lenis, que anima mesmo parado quando forçado. Scroll nativo primeiro no pulo: com o Lenis parado, a posição
+    // que ele guarda fica velha e um scrollTo pra "onde ele acha que está" não faz nada.
+    let snapping = false
+    let snapFallback: gsap.core.Tween | null = null
     const snap = () => {
-      const y = Math.round(stageTop() + window.scrollY)
-      window.scrollTo(0, y)
-      getLenis()?.scrollTo(y, { immediate: true, force: true })
+      const top = stageTop()
+      const y = Math.round(top + window.scrollY)
+      const lenis = getLenis()
+      const dist = Math.abs(top)
+      if (!lenis || dist <= 2 || reduced) {
+        window.scrollTo(0, y)
+        lenis?.scrollTo(y, { immediate: true, force: true })
+        return
+      }
+      snapping = true
+      const end = () => {
+        snapping = false
+        snapFallback?.kill()
+        snapFallback = null
+      }
+      snapFallback?.kill()
+      snapFallback = gsap.delayedCall(0.7, end)
+      lenis.scrollTo(y, { duration: Math.min(0.45, Math.max(0.18, dist / 1400)), force: true, onComplete: end })
     }
 
     const engage = (i: number) => {
       if (engaged || isNavigating() || isScrollLocked()) return
       if (!ready) setup(false)
       engaged = true
-      snap()
+      // Parar o Lenis antes de encostar: o stop mata qualquer animação em voo, inclusive a do encaixe.
       holdScroll()
       if (i !== current) applyInstant(i)
+      snap()
       // O gesto que trouxe até aqui (e a inércia dele) não conta como passo.
       wheel.done = true
       touchUsed = true
-      cooldownUntil = performance.now() + cooldown
+      cooldownUntil = performance.now() + ARRIVAL_COOLDOWN
       listen(true)
       els.stage.dataset.engaged = 'true'
       cb.current.onEngaged(true)
@@ -423,28 +461,55 @@ export function useProjectsStage(
       side = dir > 0 ? 'released-down' : 'released-up'
     }
 
+    // Salto nativo (Home, End, PageDown, scrollTo suave): a página anda em passos grandes sem o Lenis. Só prende
+    // se ela parar dentro do palco; enquanto continua andando, o palco deixa passar.
+    const JUMP = 160
+    let lastY = window.scrollY
+    let jumpTimer: gsap.core.Tween | null = null
+
     // A cada scroll: cruzou a fronteira do palco? Prende.
     const onScroll = () => {
+      const y = window.scrollY
+      const delta = Math.abs(y - lastY)
+      lastY = y
+      jumpTimer?.kill()
+      jumpTimer = null
       if (isNavigating() || isScrollLocked()) return
       const top = stageTop()
       // Preso, mas a página saiu dali (busca na página, tecla Home, salto de âncora): solta.
       if (engaged) {
-        if (Math.abs(top) > EDGE * 2) {
+        if (!snapping && Math.abs(top) > EDGE * 2) {
           disengage()
           side = top > 0 ? 'above' : 'below'
         }
         return
       }
-      // Salto (âncora, tecla End, busca na página) que passou do palco inteiro num evento só: não prende.
-      if (top < -vh) {
+      // Palco inteiro fora da tela: é a hora de deixar pronto o projeto pelo qual ele vai entrar
+      // (o último vindo de baixo, o primeiro vindo de cima), sem ninguém ver a troca.
+      // Também é o caso do salto (âncora, tecla End, busca na página) que passou do palco num evento só: não prende.
+      if (top <= -vh) {
         side = 'below'
+        if (ready && current !== n - 1) applyInstant(n - 1)
         return
       }
-      if (top > vh) {
+      if (top >= vh) {
         side = 'above'
+        if (ready && current !== 0) applyInstant(0)
         return
       }
-      // Perto o bastante da fronteira já prende: o scroll suave desacelera e pode parar a 1px sem cruzar.
+      const lenis = getLenis()
+      if (delta > JUMP && (!lenis || lenis.isScrolling !== 'smooth')) {
+        // Decide só quando a página parar; um evento novo cancela e decide de novo.
+        jumpTimer = gsap.delayedCall(0.12, () => {
+          jumpTimer = null
+          if (!engaged && !isNavigating() && !isScrollLocked()) settle(stageTop())
+        })
+        return
+      }
+      settle(top)
+    }
+    // Perto o bastante da fronteira já prende: o scroll suave desacelera e pode parar a 1px sem cruzar.
+    function settle(top: number) {
       if (side === 'above' && top <= EDGE) engage(0)
       else if (side === 'below' && top >= -EDGE) engage(n - 1)
       else if (side === 'released-up') {
@@ -467,8 +532,35 @@ export function useProjectsStage(
       e.preventDefault()
       if (e.repeat) return
       step(down ? 1 : -1)
+      if (!engaged) nudge((down ? 1 : -1) * (e.key === 'ArrowDown' || e.key === 'ArrowUp' ? 40 : window.innerHeight * 0.85))
     }
     window.addEventListener('keydown', onKey)
+
+    // Tab no último foco da placa avança de projeto (Shift+Tab no primeiro volta); nas pontas solta o palco e deixa
+    // o navegador seguir. Sem isso o foco pulava pra seção seguinte com a página rolando por baixo do palco.
+    const onTab = (e: KeyboardEvent) => {
+      if (!engaged || e.key !== 'Tab') return
+      if (moving) {
+        e.preventDefault()
+        return
+      }
+      const list = focusables(current)
+      const active = document.activeElement
+      if (!list.length || !(active instanceof HTMLElement) || !list.includes(active)) return
+      const atEnd = !e.shiftKey && active === list[list.length - 1]
+      const atStart = e.shiftKey && active === list[0]
+      if (!atEnd && !atStart) return
+      const dir: 1 | -1 = atEnd ? 1 : -1
+      const next = current + dir
+      if (next < 0 || next >= n) {
+        release(dir)
+        return
+      }
+      e.preventDefault()
+      focusAfter = dir > 0 ? 'first' : 'last'
+      goto(next, dir)
+    }
+    window.addEventListener('keydown', onTab)
 
     // Menu e ficha por cima: gestos param de ser lidos enquanto a camada está aberta.
     const offLock = onLockChange((locked) => {
@@ -476,10 +568,11 @@ export function useProjectsStage(
     })
 
     // Navegação pelo menu atravessa o palco sem prender; no fim, prende se parou nele.
-    const offNav = onNavigate((phase) => {
+    const offNav = onNavigate((phase, target) => {
       if (phase === 'start') {
         if (moving) applyInstant(current)
         disengage()
+        if (target === els.stage && ready && current !== 0) applyInstant(0)
         return
       }
       const top = stageTop()
@@ -511,7 +604,7 @@ export function useProjectsStage(
       if (!ready) return
       const dt = tickerDt(deltaMs)
       const velocity = Math.abs(getLenis()?.velocity ?? 0)
-      drift += (DRIFT + velocity * 40 + boost) * dt
+      if (!reduced) drift += (DRIFT + velocity * 40 + boost) * dt
       boost *= Math.exp(-2.5 * dt)
       els.nameTracks.forEach((t, j) => {
         const unit = (t.firstElementChild as HTMLElement | null)?.offsetWidth || vw
@@ -521,8 +614,8 @@ export function useProjectsStage(
       const c = comps[current]
       const main = c.deskOn ? c.desk : c.mob
       const rect = els.stage.getBoundingClientRect()
-      const tx = desktop && pointer ? pointer.x - rect.left : main.cx
-      const ty = desktop && pointer ? pointer.y - rect.top : main.cy
+      const tx = desktop && pointer && !reduced ? pointer.x - rect.left : main.cx
+      const ty = desktop && pointer && !reduced ? pointer.y - rect.top : main.cy
       const k = 1 - Math.exp(-1.6 * dt)
       gx += (tx - gx) * k
       gy += (ty - gy) * k
@@ -605,6 +698,9 @@ export function useProjectsStage(
       window.removeEventListener('touchstart', onTouchStart, { capture: true })
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('keydown', onKey)
+      window.removeEventListener('keydown', onTab)
+      jumpTimer?.kill()
+      snapFallback?.kill()
       window.removeEventListener('pointermove', onPointer)
       window.removeEventListener('resize', onResize)
       els.videos.forEach((v, i) => {
