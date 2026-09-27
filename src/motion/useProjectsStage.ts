@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { gsap, Observer } from './gsap'
+import { gsap, Observer, ScrollTrigger } from './gsap'
 import { getLenis } from './useLenis'
 import { prefersReducedMotion } from './reducedMotion'
 import { holdScroll, isScrollLocked, onLockChange, releaseScroll } from './scrollLock'
@@ -28,6 +28,12 @@ export interface StageEls {
   nameTracks: HTMLElement[]
   texts: HTMLElement[]
   videos: (HTMLVideoElement | null)[]
+  /**
+   * Só no celular: fundo fixo na cor do palco, com a própria varredura, que cobre a tela inteira enquanto o palco
+   * está preso (no iOS, com a barra recolhida, a tela fica mais alta que os 100svh do palco).
+   */
+  backdrop?: HTMLElement | null
+  backdropWipe?: HTMLElement | null
 }
 
 interface Options {
@@ -43,6 +49,7 @@ const WHEEL_GAP = 120 // ms sem wheel que encerram um gesto
 const WHEEL_STEP = 30 // px acumulados num gesto pra dar um passo
 const EDGE = 12 // px da fronteira do palco em que ele já prende
 const ARRIVAL_COOLDOWN = 600 // ms depois de prender em que nenhum gesto conta
+const TOUCH_NUDGE = 0.4 // fração da tela que a página anda quando o swipe solta o palco (celular)
 const NAME_OPACITY = 0.55
 const DRIFT = 26 // px/s do nome em contorno, parado
 const label = (i: number) => `p${i}`
@@ -72,6 +79,12 @@ export function useProjectsStage(
     const n = projects.length
     const reduced = prefersReducedMotion()
     const cooldown = desktop ? 250 : 350
+    // Celular (toque, até 767px): fundo fixo e vizinhas escondidas enquanto preso, inércia segurada, resize da barra
+    // de endereço sem reconstruir. No desktop tudo isso fica de fora e o palco roda como antes.
+    const touchStage = !desktop
+    const backdrop = touchStage ? (els.backdrop ?? null) : null
+    const backdropWipe = touchStage ? (els.backdropWipe ?? null) : null
+    const wipes = backdropWipe ? [els.wipe, backdropWipe] : els.wipe
 
     let vw = 0
     // Altura já conhecida antes do setup: as regras de "palco inteiro fora da tela" dependem dela desde o começo.
@@ -87,6 +100,9 @@ export function useProjectsStage(
     let stopped = false
     let ready = false
     let textHeights = ''
+    let rebuildPending = false
+    let refreshPending = false
+    let refreshCall: gsap.core.Tween | null = null
 
     // --- Frames: tamanho base (o maior que assumem), e daí só transform ---
     const frames = [
@@ -123,6 +139,9 @@ export function useProjectsStage(
         f.travel.style.width = `${f.baseW}px`
         f.travel.style.height = `${f.baseH}px`
       }
+      // A varredura do fundo fixo gira em volta do mesmo centro que a do palco (preso no topo): as bordas se emendam.
+      const holder = backdropWipe?.parentElement
+      if (holder) holder.style.top = `${vh / 2}px`
     }
     const frameVars = (f: (typeof frames)[number], r: FrameRect, on: boolean) => ({
       x: r.cx - f.baseW / 2,
@@ -158,7 +177,8 @@ export function useProjectsStage(
         gsap.set(kids(j), { y: 0, opacity: j === 0 ? 1 : 0 })
       }
       gsap.set(els.stage, { backgroundColor: projects[0].background })
-      gsap.set(els.wipe, { xPercent: -100, backgroundColor: projects[0].background })
+      if (backdrop) gsap.set(backdrop, { backgroundColor: projects[0].background })
+      gsap.set(wipes, { xPercent: -100, backgroundColor: projects[0].background })
       gsap.set(els.glow, { '--glow': projects[0].accent })
 
       const tl = gsap.timeline({ paused: true, onUpdate: syncRing })
@@ -177,13 +197,14 @@ export function useProjectsStage(
         tl.fromTo([els.deskLayers[i + 1], els.mobLayers[i + 1]], { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'none', immediateRender: false }, t + 0.35)
         // Varredura diagonal: a cor do próximo cobre a tela; no fim vira o fundo e a camada volta pro lugar.
         tl.fromTo(
-          els.wipe,
+          wipes,
           { xPercent: -100, backgroundColor: projects[i + 1].background },
           { xPercent: 0, ...move },
           t,
         )
         tl.set(els.stage, { backgroundColor: projects[i + 1].background }, t + STEP)
-        tl.set(els.wipe, { xPercent: -100 }, t + STEP)
+        if (backdrop) tl.set(backdrop, { backgroundColor: projects[i + 1].background }, t + STEP)
+        tl.set(wipes, { xPercent: -100 }, t + STEP)
         // Luz troca de cor apagando e acendendo.
         tl.fromTo(els.glow, { opacity: 1 }, { opacity: 0, duration: 0.35, ease: 'power1.in', immediateRender: false }, t)
         tl.set(els.glow, { '--glow': projects[i + 1].accent }, t + 0.35)
@@ -302,6 +323,13 @@ export function useProjectsStage(
       }
       lenis.scrollTo(lenis.targetScroll + px, { programmatic: false, lerp: lenis.options.lerp })
     }
+    // Celular: o swipe que solta o palco empurra a página quando o dedo sai (enquanto preso o toque não rola nada).
+    const touchNudge = (dir: 1 | -1) => {
+      const target = window.scrollY + dir * Math.round(vh * TOUCH_NUDGE)
+      const lenis = getLenis()
+      if (!lenis) window.scrollTo(0, target)
+      else lenis.scrollTo(target, { duration: 0.8, easing: (p) => 1 - Math.pow(1 - p, 3) })
+    }
 
     const onWheel = (e: WheelEvent) => {
       const listening = engaged && !isScrollLocked()
@@ -336,14 +364,24 @@ export function useProjectsStage(
 
     // Toque: um toque vale no máximo um passo; o Observer só diz pra que lado o dedo foi (40px de tolerância).
     let touchUsed = false
+    let pendingNudge: 0 | 1 | -1 = 0
     const onTouchStart = () => {
       touchUsed = blockedNow()
+      pendingNudge = 0
     }
     window.addEventListener('touchstart', onTouchStart, { capture: true, passive: true })
+    const onTouchEnd = () => {
+      if (!pendingNudge) return
+      const dir = pendingNudge
+      pendingNudge = 0
+      // No quadro seguinte: o touchend do Lenis roda antes e pararia uma animação de scroll começada agora.
+      gsap.delayedCall(0, () => touchNudge(dir))
+    }
+    window.addEventListener('touchend', onTouchEnd, { passive: true })
     const onSwipe = (dir: 1 | -1) => {
       if (touchUsed) return
       touchUsed = true
-      step(dir)
+      step(dir, 'touch')
     }
 
     let drift = 0
@@ -378,12 +416,21 @@ export function useProjectsStage(
         focusAfter = null
         el?.focus({ preventScroll: true })
       }
+      // Celular: o que o resize pediu durante a troca roda agora, com ela inteira.
+      if (rebuildPending) {
+        rebuildPending = false
+        rebuild()
+      }
+      if (refreshPending) {
+        refreshPending = false
+        scheduleRefresh()
+      }
     }
 
-    function step(dir: 1 | -1) {
+    function step(dir: 1 | -1, source: 'touch' | 'other' = 'other') {
       if (!engaged || blockedNow()) return
       const next = current + dir
-      if (next < 0 || next >= n) release(dir)
+      if (next < 0 || next >= n) release(dir, source)
       else goto(next, dir)
     }
 
@@ -408,25 +455,49 @@ export function useProjectsStage(
     // que ele guarda fica velha e um scrollTo pra "onde ele acha que está" não faz nada.
     let snapping = false
     let snapFallback: gsap.core.Tween | null = null
-    const snap = () => {
+    const snapNow = () => {
+      const y = Math.round(stageTop() + window.scrollY)
+      window.scrollTo(0, y)
+      getLenis()?.scrollTo(y, { immediate: true, force: true })
+    }
+    /** Encosta o palco no topo e devolve quanto tempo o encaixe leva (ms). */
+    const snap = (): number => {
       const top = stageTop()
       const y = Math.round(top + window.scrollY)
       const lenis = getLenis()
       const dist = Math.abs(top)
       if (!lenis || dist <= 2 || reduced) {
-        window.scrollTo(0, y)
-        lenis?.scrollTo(y, { immediate: true, force: true })
-        return
+        snapNow()
+        return 0
       }
       snapping = true
       const end = () => {
         snapping = false
         snapFallback?.kill()
         snapFallback = null
+        // Celular: se a inércia empurrou a página durante o encaixe, termina no lugar exato.
+        if (touchStage && engaged && Math.abs(stageTop()) > 1) snapNow()
       }
       snapFallback?.kill()
       snapFallback = gsap.delayedCall(0.7, end)
-      lenis.scrollTo(y, { duration: Math.min(0.45, Math.max(0.18, dist / 1400)), force: true, onComplete: end })
+      const duration = Math.min(0.45, Math.max(0.18, dist / 1400))
+      lenis.scrollTo(y, { duration, force: true, onComplete: end })
+      return duration * 1000
+    }
+
+    // Celular: enquanto o palco está preso nada de fora dele aparece. O fundo fixo na cor do palco cobre o resto da
+    // tela, as seções vizinhas somem até o Lenis ser liberado, e o toque no palco não rola a página.
+    const section = els.stage.closest('section')
+    const neighbors = touchStage
+      ? [section?.previousElementSibling, section?.nextElementSibling].filter((el): el is HTMLElement => el instanceof HTMLElement)
+      : []
+    const holdVisuals = (on: boolean) => {
+      if (!touchStage) return
+      if (backdrop) backdrop.style.opacity = on ? '1' : '0'
+      neighbors.forEach((el) => {
+        el.style.visibility = on ? 'hidden' : ''
+      })
+      els.stage.style.touchAction = on ? 'none' : ''
     }
 
     const engage = (i: number) => {
@@ -435,12 +506,14 @@ export function useProjectsStage(
       engaged = true
       // Parar o Lenis antes de encostar: o stop mata qualquer animação em voo, inclusive a do encaixe.
       holdScroll()
+      holdVisuals(true)
       if (i !== current) applyInstant(i)
-      snap()
-      // O gesto que trouxe até aqui (e a inércia dele) não conta como passo.
+      const snapMs = snap()
+      // O gesto que trouxe até aqui (e a inércia dele) não conta como passo. No celular o gesto de chegada já fica
+      // descartado inteiro, então basta o intervalo normal entre passos, contado depois do encaixe.
       wheel.done = true
       touchUsed = true
-      cooldownUntil = performance.now() + ARRIVAL_COOLDOWN
+      cooldownUntil = performance.now() + (desktop ? ARRIVAL_COOLDOWN : snapMs + cooldown)
       listen(true)
       els.stage.dataset.engaged = 'true'
       cb.current.onEngaged(true)
@@ -450,15 +523,17 @@ export function useProjectsStage(
       if (!engaged) return
       engaged = false
       listen(false)
+      holdVisuals(false)
       releaseScroll()
       delete els.stage.dataset.engaged
       cb.current.onEngaged(false)
     }
 
     // Solta o scroll e deixa a página seguir com o gesto do usuário.
-    function release(dir: 1 | -1) {
+    function release(dir: 1 | -1, source: 'touch' | 'other' = 'other') {
       disengage()
       side = dir > 0 ? 'released-down' : 'released-up'
+      if (touchStage && source === 'touch') pendingNudge = dir
     }
 
     // Salto nativo (Home, End, PageDown, scrollTo suave): a página anda em passos grandes sem o Lenis. Só prende
@@ -478,7 +553,17 @@ export function useProjectsStage(
       const top = stageTop()
       // Preso, mas a página saiu dali (busca na página, tecla Home, salto de âncora): solta.
       if (engaged) {
-        if (!snapping && Math.abs(top) > EDGE * 2) {
+        if (snapping) return
+        // Celular: a inércia do dedo continua depois de prender (no iOS nenhum JS para), então o palco volta pro
+        // lugar a cada passo dela em vez de soltar. Só um salto de mais de uma tela e meia (busca na página) solta.
+        if (touchStage) {
+          if (Math.abs(top) >= vh * 1.5) {
+            disengage()
+            side = top > 0 ? 'above' : 'below'
+          } else if (Math.abs(top) > 1) snapNow()
+          return
+        }
+        if (Math.abs(top) > EDGE * 2) {
           disengage()
           side = top > 0 ? 'above' : 'below'
         }
@@ -498,7 +583,8 @@ export function useProjectsStage(
         return
       }
       const lenis = getLenis()
-      if (delta > JUMP && (!lenis || lenis.isScrolling !== 'smooth')) {
+      // Só no desktop: no celular um flick rápido anda mais que isso por quadro e tem que prender na hora.
+      if (desktop && delta > JUMP && (!lenis || lenis.isScrolling !== 'smooth')) {
         // Decide só quando a página parar; um evento novo cancela e decide de novo.
         jumpTimer = gsap.delayedCall(0.12, () => {
           jumpTimer = null
@@ -656,7 +742,8 @@ export function useProjectsStage(
       ready = true
       measure()
       build()
-      const start = current
+      // Celular: montado com a página abaixo do palco (flick rápido vindo de baixo), já nasce no último projeto.
+      const start = touchStage && !engaged && stageTop() < 0 && !memory.current.engaged ? n - 1 : current
       gx = comps[start].desk.cx
       gy = comps[start].desk.cy
       applyInstant(start)
@@ -668,16 +755,41 @@ export function useProjectsStage(
         if (stopped) return
         const before = textHeights
         const now = els.texts.map((el) => Math.round(el.getBoundingClientRect().height)).join(',')
-        if (now !== before) onResize()
+        if (now !== before) requestRebuild()
+      })
+    }
+
+    function rebuild() {
+      measure()
+      build()
+      applyInstant(current)
+      if (engaged) snap()
+    }
+    // No celular nunca no meio de uma troca (ela seria cortada): espera o fim.
+    function requestRebuild() {
+      if (touchStage && moving) rebuildPending = true
+      else rebuild()
+    }
+    function scheduleRefresh() {
+      refreshCall?.kill()
+      refreshCall = gsap.delayedCall(0.25, () => {
+        refreshCall = null
+        if (moving || isScrollLocked()) refreshPending = true
+        else ScrollTrigger.refresh()
       })
     }
 
     const onResize = () => {
       if (!ready) return
-      measure()
-      build()
-      applyInstant(current)
-      if (engaged) snap()
+      if (desktop) {
+        rebuild()
+        return
+      }
+      // Celular: a barra de endereço muda a altura da janela a cada scroll, mas o palco tem 100svh e não muda.
+      // Só reconstrói se o palco mudou de tamanho de verdade (rotação); os gatilhos da página se ajustam à tela nova.
+      if (els.stage.clientWidth !== vw || els.stage.clientHeight !== vh) requestRebuild()
+      else if (engaged && !snapping && Math.abs(stageTop()) > 1) snapNow()
+      scheduleRefresh()
     }
     window.addEventListener('resize', onResize)
 
@@ -696,6 +808,8 @@ export function useProjectsStage(
       gsap.ticker.remove(tick)
       window.removeEventListener('wheel', onWheel)
       window.removeEventListener('touchstart', onTouchStart, { capture: true })
+      window.removeEventListener('touchend', onTouchEnd)
+      refreshCall?.kill()
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('keydown', onKey)
       window.removeEventListener('keydown', onTab)

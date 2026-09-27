@@ -107,6 +107,8 @@ export function Projects() {
   const mobTiltRef = useRef<HTMLDivElement>(null)
   const deskSkewRef = useRef<HTMLDivElement>(null)
   const mobSkewRef = useRef<HTMLDivElement>(null)
+  const backdropRef = useRef<HTMLDivElement>(null)
+  const backdropWipeRef = useRef<HTMLDivElement>(null)
   const lists = useRef<Record<ListKey, (HTMLElement | null)[]>>({
     deskLayers: [],
     mobLayers: [],
@@ -165,6 +167,8 @@ export function Projects() {
       nameTracks,
       texts,
       videos: videos.current,
+      backdrop: backdropRef.current,
+      backdropWipe: backdropWipeRef.current,
     }
   }, [])
 
@@ -245,6 +249,24 @@ export function Projects() {
 
       {/* Faixa de cor entrando no primeiro projeto */}
       <div aria-hidden className="relative -z-20 h-[30svh]" style={{ backgroundImage: `linear-gradient(to bottom, var(--c-bg), ${first})` }} />
+
+      {/*
+        Só no celular: fundo fixo na cor do palco, com a mesma varredura, que aparece enquanto ele está preso e cobre
+        o resto da tela (no iOS, com a barra recolhida, a tela passa dos 100svh do palco). Fica atrás do palco.
+      */}
+      {!policy.desktop && (
+        <div
+          ref={backdropRef}
+          data-stage-backdrop
+          aria-hidden
+          className="pointer-events-none fixed inset-0 overflow-hidden"
+          style={{ opacity: 0, backgroundColor: first }}
+        >
+          <div className="absolute top-1/2 left-1/2 size-[300vmax] -translate-x-1/2 -translate-y-1/2 rotate-[35deg]">
+            <div ref={backdropWipeRef} className="size-full will-change-transform" />
+          </div>
+        </div>
+      )}
 
       <div ref={stageRef} data-projects-stage className="relative h-svh overflow-hidden" style={{ backgroundColor: first }}>
         {/* Varredura diagonal: a cor do próximo projeto cobre a tela. */}
