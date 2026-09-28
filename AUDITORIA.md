@@ -4,7 +4,7 @@ Auditoria em modo leitura feita antes das mudanças, no dev server, em desktop 1
 
 Gravidade: **quebra** impede de usar ou ler; **incômodo** funciona mas atrapalha; **detalhe** é acabamento.
 
-Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 58 corrigidos nesta rodada. Achados brutos antes da deduplicação: 123.
+Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 55 corrigidos nesta rodada. Achados brutos antes da deduplicação: 123.
 
 ## 01 Abertura
 
@@ -206,7 +206,7 @@ Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 58 corrigidos nesta 
 
 ### A30 · incômodo · ambos · Chegando por baixo, o palco mostra o primeiro projeto e a cor errada até prender, depois troca de vez pro último
 
-- **Situação:** corrigido nos blocos 1 e 2 (no toque não há palco; no desktop o último projeto fica preparado com o palco fora da tela)
+- **Situação:** corrigido: vindo de baixo o palco entra no último projeto já montado, no celular e no desktop (preparado enquanto está fora da tela)
 - **Verificação:** medido de novo pelos testes depois da correção
 - **O que acontece:** Rolando pra cima a partir de #outros, a faixa de degradê de baixo é verde (Cleane) mas o palco que aparece acima dela está com o fundo dourado escuro de Stewer e com o texto e os botões de Stewer visíveis (corte seco de cor na fronteira palco/faixa). Só quando o topo do palco encosta no topo da tela (top >= -12px) o conteúdo troca de vez pra Cleane, no mesmo frame. Reproduzir: scrollIntoView em #outros, esperar 1,5s, window.scrollTo(topoDoPalco + 500): stageTop=-500, h3 visível = índice 0 (Stewer), fundo do palco rgb(20,17,10), faixa abaixo começando em rgb(30,42,31). Depois de 8 swipes pra cima o log por frame mostra h3 [1,0,0,0,0] virando [0,0,0,0,1] de uma vez ao prender. (A mecânica de entrar e sair é do outro auditor; fica aqui porque o conteúdo mostrado durante a aproximação é o projeto errado.)
 - **Causa provável:** src/motion/useProjectsStage.ts: applyInstant(n - 1) só roda dentro de engage(n - 1), chamado por onScroll quando side === 'below' e top >= -EDGE. Antes disso o palco fica no projeto da memória (current = 0) e com backgroundColor de projects[0] (gsap.set em build), enquanto a faixa de baixo em src/components/Projects.tsx usa `last` (projects[4].background). Falta preparar o último projeto (seek na label p4 e cor de fundo) assim que side vira 'below' e o palco entra na tela.
@@ -222,8 +222,8 @@ Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 58 corrigidos nesta 
 
 ### A32 · incômodo · mobile · Cleane: botões 'ver no ar' e 'ficha técnica' na metade de cima da tela
 
-- **Situação:** corrigido no bloco 3 (bloco da Cleane encostado embaixo: botões na metade de baixo da tela)
-- **Verificação:** medido de novo pelos testes depois da correção
+- **Situação:** decisão do Gustavo: Cleane com texto em cima e print logo abaixo dos botões, bloco centralizado na tela
+- **Verificação:** só a medição do auditor
 - **O que acontece:** No projeto 5 (Cleane) o texto vem em cima e o print embaixo: os dois botões ficam em y=366 a 410 (centro em 388px, acima da metade da tela de 844px), fora do alcance do polegar, e sobram 150px vazios entre o print (termina em y=638) e a faixa do HUD (788), além de 158px vazios entre a faixa do topo (76) e o começo do texto (234). Nos outros quatro projetos os botões ficam entre y=580 e 773.
 - **Causa provável:** src/components/projectLayout.ts, mobile() case 'cleane': bloco texto + print centralizado na área livre (start(h)) com o print limitado a vw*0.84, o que empurra o texto e os botões pra cima; TEXT_LAYOUT.cleane 'top-[11svh]'.
 - **Arquivos:** `src/components/projectLayout.ts`
@@ -286,7 +286,7 @@ Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 58 corrigidos nesta 
 
 ### A82 · detalhe · mobile · Flick que chega no palco passa do topo e o snap puxa a página de volta (32px medidos por baixo)
 
-- **Situação:** corrigido no bloco 2 (o encaixe desliza com o Lenis; no toque não há palco)
+- **Situação:** corrigido: o encaixe desliza com o Lenis e, no celular, segura a inércia que continua depois de prender
 - **Verificação:** medido de novo pelos testes depois da correção
 - **O que acontece:** Subindo do 'outros' com um flick (420px em 4 passos de 8ms), o fling passa 32px do topo do palco (scrollY 2219 contra alvo 2251, topo do palco em +32px) e no mesmo frame o snap chama window.scrollTo de volta pra 2251 (delta +32px), um pulinho pra trás visível. Descendo por cima com flick o excesso medido foi 5px (2256 para 2251). Devagar, o ajuste fica em no máximo 12px (EDGE) e não se nota. Flicks mais fortes tendem a passar mais e o pulo de volta cresce (não confirmado acima de 32px).
 - **Causa provável:** src/motion/useProjectsStage.ts: onScroll (linhas 448 e 449) só prende no primeiro evento de scroll depois de cruzar a fronteira, quando o fling já passou do topo; `snap()` (linhas 389 a 393) faz window.scrollTo e lenis.scrollTo imediatos pro topo do palco. EDGE = 12 antecipa o prender mas não limita o excesso.
@@ -294,16 +294,16 @@ Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 58 corrigidos nesta 
 
 ### A83 · detalhe · mobile · Gesto que começa até cerca de 1,45s depois do passo anterior é descartado inteiro, sem fila e sem feedback
 
-- **Situação:** resolvido pelo bloco 1 (no toque a seção rola normal, sem passos)
-- **Verificação:** medido de novo pelos testes depois da correção
+- **Situação:** mantido: o palco em passos voltou no celular (a pedido); o intervalo de 350ms depois de cada troca é o combinado
+- **Verificação:** só a medição do auditor
 - **O que acontece:** Um passo leva 1,1s (o fundo troca em t=1260ms depois do disparo) e depois há 350ms de intervalo; qualquer toque que começa nessa janela não conta e não fica na fila. Medido: segundo swipe começando 1,38s depois do início do primeiro (cerca de 1,2s depois do disparo do passo) foi ignorado (01 para 02 só); começando 1,65s depois contou (01 para 03). Dois swipes com 250ms entre eles: um passo só. Passar os cinco projetos leva no mínimo uns 5,8s de gestos bem espaçados; quem desliza em ritmo natural (um gesto por segundo) perde gestos sem nenhum sinal na tela.
 - **Causa provável:** src/motion/useProjectsStage.ts: STEP = 1.1 (linha 41), cooldown = 350 no mobile (linha 73), `blockedNow()` (linha 294), `onTouchStart` marca `touchUsed = blockedNow()` (linhas 328 a 330) e `onSwipe` descarta o gesto (linhas 332 a 336).
 - **Arquivos:** `src/motion/useProjectsStage.ts`
 
 ### A84 · detalhe · mobile · Sem animação de entrada: o primeiro projeto já aparece montado enquanto o palco rola pra dentro
 
-- **Situação:** resolvido pelo bloco 1 (cada bloco entra com mola e stagger por ScrollTrigger)
-- **Verificação:** medido de novo pelos testes depois da correção
+- **Situação:** fica pra depois (detalhe): com o palco em passos de volta, o primeiro projeto aparece montado enquanto o palco rola pra dentro, como no desktop
+- **Verificação:** só a medição do auditor
 - **O que acontece:** Chegando devagar por cima, o texto e o print de Stewer já estão com opacidade 1 desde que o palco aparece no pé da tela (top=831) até prender (top=0); nada entra em stagger, a única animação é a troca entre projetos. Não há conteúdo invisível esperando animação nem disparo duplo: num swipe, o h3 atual vai de 1 a 0 (204 a 482ms) e o próximo de 0 a 1 (705 a 1018ms), uma vez só. Na chegada rápida (4 flings de 2200px) o conteúdo ficou visibility hidden até o palco estar a 1666px, sem flash.
 - **Causa provável:** src/motion/useProjectsStage.ts: setup() roda quando o IntersectionObserver (rootMargin 100%) vê o palco e chama applyInstant(start), que faz seek na label sem animar; não existe timeline de entrada no mobile.
 - **Arquivos:** `src/motion/useProjectsStage.ts`
@@ -618,7 +618,7 @@ Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 58 corrigidos nesta 
 
 ### A07 · incômodo · mobile · Botão menu com 33px de altura, no topo da tela
 
-- **Situação:** corrigido no bloco 3 (botão menu com 44px; no celular fica no canto de baixo à direita)
+- **Situação:** corrigido: botão menu com 44px; voltou pro canto superior direito (decisão do Gustavo)
 - **Verificação:** medido de novo pelos testes depois da correção
 - **O que acontece:** O único controle de navegação no mobile, o botão 'menu', mede 66x33px (x 308 a 374, y 8 a 41). Fica abaixo dos 44px mínimos de alvo de toque e na parte de cima da tela, fora do alcance do polegar. Medido em posição de leitura do hero, mas é fixo em toda a página.
 - **Causa provável:** src/components/Hud.tsx: botão com 'text-[10px] leading-[1.5] px-3 py-2 -my-2' e borda de 1px: 15px de linha + 16px de padding + 2px de borda = 33px. Posicionado em top: calc(safe-area-inset-top + 16px).

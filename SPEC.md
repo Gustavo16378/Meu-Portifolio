@@ -55,7 +55,7 @@ Nos quatro cantos, em mono pequeno e cinza-verde, informação que dá sensaçã
 - canto inferior esquerdo: seção atual (`01 / 07 · abertura`) que atualiza no scroll
 - canto inferior direito: `status: disponível para projetos` com um ponto lima piscando devagar
 
-O HUD fica fixo; o conteúdo rola por baixo. Pra não misturar com o conteúdo, os cantos ficam sobre duas faixas (topo e pé da tela) com `backdrop-filter: blur(12px)` e degradê do fundo pro transparente (84px no topo, 64px no pé; no celular 76px e 64px). Nada do conteúdo começa por baixo dessas faixas: as seções têm padding-top suficiente e as composições dos projetos respeitam a margem do HUD. No mobile, só o canto superior esquerdo, o inferior esquerdo e o botão `menu`, que no celular fica no canto inferior direito (onde o polegar alcança) e tem 44px de altura, como o `recrutador?`. O HUD vem antes do conteúdo no DOM: é o primeiro Tab da página.
+O HUD fica fixo; o conteúdo rola por baixo. Pra não misturar com o conteúdo, os cantos ficam sobre duas faixas (topo e pé da tela) com `backdrop-filter: blur(12px)` e degradê do fundo pro transparente (84px no topo, 64px no pé; no celular 76px e 64px). Nada do conteúdo começa por baixo dessas faixas: as seções têm padding-top suficiente e as composições dos projetos respeitam a margem do HUD. No mobile, só o canto superior esquerdo, o inferior esquerdo e o botão `menu`, no canto superior direito; ele e o `recrutador?` têm 44px de altura. O HUD vem antes do conteúdo no DOM: é o primeiro Tab da página.
 
 Navegação: sem menu tradicional. Um botão `menu` em mono no topo direito que abre um overlay preto com os itens em Tanker gigante (projetos, como trabalho, história, contato) e o atalho `recrutador?`. Fechar com Esc ou clique fora. No mobile o botão `menu` continua visível (é a navegação) e o atalho `recrutador?` fica só dentro do menu.
 
@@ -92,9 +92,7 @@ Direita (preso enquanto os parágrafos passam): um diagrama em mono com quatro b
 
 Os cinco projetos passam num **palco da altura da tela**, entre duas faixas de degradê (preto para a cor do primeiro, cor do último para preto). Nunca em carrossel.
 
-**Dois modos.** Com mouse e tela de 900px pra cima (`(min-width: 900px) and (pointer: fine)`), o palco preso em passos descrito abaixo. Com toque ou tela mais estreita, a seção vira scroll normal (ver "No toque" mais abaixo): nada trava o scroll no celular.
-
-**Scroll em passos (desktop com mouse).** A seção não tem altura de scroll interna: é uma tela (100svh) presa, e dentro dela o GSAP Observer é o único controle.
+**Scroll em passos.** A seção não tem altura de scroll interna: é uma tela (100svh) presa, e dentro dela o GSAP Observer é o único controle.
 - Entrada: chegando por cima, ao encostar no topo do palco (tolerância de 12px, pra o scroll suave que desacelera não parar a 1px sem prender) o scroll nativo trava (Lenis `stop()`) e entra o primeiro projeto. Chegando por baixo, subindo a página, entra direto o último, já montado: enquanto o palco está inteiro fora da tela, ele fica preparado no projeto pelo qual vai entrar (o último por baixo, o primeiro por cima), então nunca se vê a troca nem um flash de outro projeto. Se o gesto passou da fronteira (flick), o palco desliza até encostar com o Lenis em vez de pular.
 - Nenhuma seção vizinha aparece durante uma troca: a saída só acontece com a troca terminada e o intervalo cumprido, e aí o Lenis é liberado e a página segue com o gesto.
 - Um gesto vale um passo, qualquer que seja a força. O wheel tem detecção própria (não depende do mouse se mover; a escuta fica ligada sempre que a seção está ativa):
@@ -121,14 +119,20 @@ Desktop:
 4. TORRA: o celular é o protagonista, grande no centro; o desktop atrás, menor e inclinado 6 graus; texto centralizado embaixo, terminando a 72px do pé (acima da faixa do HUD).
 5. Cleane: metade e metade, frame à esquerda, texto à direita.
 
-Mobile (versão simplificada de cada uma, um frame só). Regra pros cinco: a composição inteira cabe em 100svh, print e texto juntos, sem espaço morto e sem entrar nas faixas do HUD. O texto é medido na página e o bloco (print, espaço e texto) é centralizado na área livre, reduzindo o print quando precisa (numa tela muito baixa o bloco cresce em vez de encolher o print demais):
+Mobile (versão simplificada de cada uma, um frame só). Regra pros cinco: a composição inteira cabe em 100svh, print e texto juntos, sem espaço morto e sem entrar nas faixas do HUD. O texto é medido na página e o bloco (print, espaço e texto) é centralizado na área livre, reduzindo o print quando precisa:
 1. Stewer: print desktop em cima, texto logo abaixo.
 2. AUTORIA: print desktop grande (88vw, fora do trilho), texto logo abaixo (sobreposto ficava ilegível sobre o carro claro).
 3. Monte Vinhedo: print do celular quase em tela cheia, nome e links sobrepostos no canto de baixo.
 4. TORRA: print do celular grande no centro, texto embaixo.
-5. Cleane: texto em cima, print logo abaixo dos botões, tudo dentro da tela; o bloco fica encostado embaixo da área livre, pros botões caírem na metade de baixo da tela.
+5. Cleane: texto em cima, print logo abaixo dos botões, o bloco inteiro centralizado na área livre, dentro da tela.
 
-**No toque (ou tela abaixo de 900px): scroll normal.** A seção não prende e não usa Observer. São cinco blocos empilhados, cada um com `min-height: 100svh` e a composição do projeto (a mobile abaixo de 768px, a desktop acima), entre as mesmas faixas de degradê. O Lenis nunca para. Cada bloco entra por ScrollTrigger quando o topo dele chega a 72% da tela: o frame sobe com mola (`back.out`), o texto entra em stagger, e ao voltar pra cima desfaz. A cor de fundo troca na fronteira entre dois blocos com scrub curto: um pano preso atrás dos blocos tem uma camada por projeto, e a do seguinte acende (só opacity) enquanto o topo dele sobe de 85% pra 15% da tela. O trilho `01 / 05` continua, atualizando por ScrollTrigger (o bloco que cruza o meio da tela) e visível enquanto a seção está na tela. O nome em contorno fica atrás com parallax leve. A luz de acento fica parada no frame principal. Sem tilt, sem flutuação e sem brilho na borda; skew leve pela velocidade do scroll continua. Nos blocos a mídia é sempre print.
+**No celular (até 767px, toque).** O mesmo palco preso, com os mesmos passos pelo Observer e as mesmas animações e transições. O que muda é só o que o toque e o iOS pedem:
+- Enquanto o palco está preso, nada de fora dele aparece. Ele tem 100svh e fundo opaco; atrás dele, um fundo fixo na cor do projeto atual, com a mesma varredura diagonal (mesmo centro, mesmo tempo), cobre o resto da tela: no iOS, com a barra recolhida, a tela é mais alta que 100svh e sobrava uma faixa embaixo mostrando o degradê seguinte. As seções vizinhas ficam escondidas (`visibility: hidden`) até o Lenis ser liberado, e o palco fica com `touch-action: none`.
+- Entrada e saída com a mesma lógica do desktop: por baixo entra no último projeto já montado (preparado enquanto o palco está inteiro fora da tela, ou já na montagem se ela acontece com a página abaixo dele); por cima, no primeiro; o encaixe desliza se o gesto passou da fronteira. O adiamento de salto do teclado não vale pro toque: um flick rápido prende na hora.
+- A inércia do dedo continua depois de prender (no iOS nenhum JS consegue parar): o palco volta pro lugar a cada passo dela em vez de soltar. Só um salto de mais de uma tela e meia (busca na página) solta.
+- Swipe: um passo por gesto, tolerância de 40px, e 350ms de intervalo depois de cada troca (na chegada, contados depois do encaixe). Gesto que começa durante a troca ou no intervalo é descartado inteiro. Ida e volta são a mesma timeline: a volta percorre o mesmo caminho da ida, ao contrário, com o scroll travado o tempo todo.
+- Nas pontas, o swipe que solta empurra a página 40% da tela quando o dedo sai, e as vizinhas voltam antes dela andar.
+- Barra de endereço: ela muda a altura da janela a cada scroll, mas o palco (100svh) não muda, então nada é reconstruído e a troca em andamento segue inteira. A cada resize os gatilhos da página são recalculados (`ScrollTrigger.refresh()`, depois da troca terminar). Só uma mudança real no tamanho do palco (rotação) reconstrói, e nunca no meio de uma troca.
 
 **Atrás do frame:**
 - Luz radial suave na cor de acento, opacidade baixa: acompanha o mouse devagar no desktop e fica fixa no frame principal no mobile. Troca de cor apagando e acendendo.
@@ -149,7 +153,7 @@ Mobile (versão simplificada de cada uma, um frame só). Regra pros cinco: a com
 - Com economia de dados, conexão 2g/3g ou reduced-motion: só poster, com o botão `ver em movimento`.
 - Meta: Lighthouse mobile acima de 85 com a seção completa.
 
-**O que conecta os cinco:** um trilho vertical fixo na lateral esquerda, em mono, visível enquanto o palco está preso (no toque, enquanto a seção está na tela), com `01 / 05`... e uma linha fina que se preenche em lima até `05 / 05`. O número troca com glitch curto. **Sem quebra em blocos.**
+**O que conecta os cinco:** um trilho vertical fixo na lateral esquerda, em mono, visível enquanto o palco está preso, com `01 / 05`... e uma linha fina que se preenche em lima até `05 / 05`. O número troca com glitch curto. **Sem quebra em blocos.**
 
 A placa: linha de contexto (cliente ou conceito próprio, cidade, ano de entrega, ex.: `cliente · Palmas, TO · entregue em 2025`), nome, uma linha do que é, stack em mono, `ver no ar` e `ficha técnica`. Nada de texto de conceito.
 
@@ -242,7 +246,7 @@ Ferramentas: GSAP (ScrollTrigger, Draggable, InertiaPlugin, Physics2DPlugin, tod
 - Cartões de foto no hero com inclinação 3D, drag com inércia e quique, e espalhamento no scroll.
 - Cursor customizado: ponto lima pequeno com um anel fino que atrasa; cresce em links. Sem texto dentro do cursor.
 - Glitch curto na entrada de textos (seções 02 e 05) e no hover da lista (04).
-- Projetos em passos (desktop com mouse): palco preso, um gesto por projeto, cada troca uma timeline completa (frames viajando com mola entre as composições, varredura diagonal de cor, nome em contorno trocando, texto saindo pra cima e entrando de baixo); luz na cor de acento atrás do frame, nome deslizando sozinho, frame flutuando com brilho na borda; trilho lateral acompanhando. Sem blocos. No toque: cinco blocos em scroll normal, frame subindo com mola e texto em stagger por ScrollTrigger, cor trocando na fronteira, Lenis sempre ligado.
+- Projetos em passos (desktop e celular): palco preso, um gesto por projeto, cada troca uma timeline completa (frames viajando com mola entre as composições, varredura diagonal de cor, nome em contorno trocando, texto saindo pra cima e entrando de baixo); luz na cor de acento atrás do frame, nome deslizando sozinho, frame flutuando com brilho na borda; trilho lateral acompanhando. Sem blocos. No celular, enquanto preso, fundo fixo na cor do palco e vizinhas escondidas.
 - Skew por velocidade de scroll em títulos e nos frames dos projetos; botões magnéticos.
 - HUD fixo com hora real e seção atual.
 - Navegação (menu, nome no HUD, `ir para o contato`): a seção de destino recebe o foco no fim da rolagem, sem rolar de novo.
