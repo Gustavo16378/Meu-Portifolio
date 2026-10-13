@@ -55,9 +55,9 @@ Nos quatro cantos, em mono pequeno e cinza-verde, informação que dá sensaçã
 - canto inferior esquerdo: seção atual (`01 / 07 · abertura`) que atualiza no scroll
 - canto inferior direito: `status: disponível para projetos` com um ponto lima piscando devagar
 
-O HUD fica fixo; o conteúdo rola por baixo. Pra não misturar com o conteúdo, os cantos ficam sobre duas faixas (topo e pé da tela) com `backdrop-filter: blur(12px)` e degradê do fundo pro transparente (84px no topo, 64px no pé; no celular 76px e 64px). Nada do conteúdo começa por baixo dessas faixas: as seções têm padding-top suficiente e as composições dos projetos respeitam a margem do HUD. No mobile, só o canto superior esquerdo, o inferior esquerdo e o botão `menu`, no canto superior direito; ele e o `recrutador?` têm 44px de altura. O HUD vem antes do conteúdo no DOM: é o primeiro Tab da página.
+O HUD fica fixo; o conteúdo rola por baixo. Pra não misturar com o conteúdo, os cantos ficam sobre duas faixas (topo e pé da tela) com `backdrop-filter: blur(12px)` e degradê do fundo pro transparente (84px no topo, 64px no pé; no celular 76px e 64px). Nada do conteúdo começa por baixo dessas faixas: as seções têm padding-top suficiente e as composições dos projetos respeitam a margem do HUD. No mobile, o canto superior esquerdo, o inferior esquerdo, o botão `menu` no canto superior direito e o `recrutador?` no canto inferior direito (no alcance do polegar, com fundo escuro e desfoque próprios pra o conteúdo que passa por baixo não cruzar o texto); os dois botões têm 44px de altura. Cabe em 360px com folga (84px entre o rótulo da seção e o botão no pior caso). O HUD vem antes do conteúdo no DOM: é o primeiro Tab da página.
 
-Navegação: sem menu tradicional. Um botão `menu` em mono no topo direito que abre um overlay preto com os itens em Tanker gigante (projetos, como funciona, história, contato) e o atalho `recrutador?`. Fechar com Esc ou clique fora. No mobile o botão `menu` continua visível (é a navegação) e o atalho `recrutador?` fica só dentro do menu.
+Navegação: sem menu tradicional. Um botão `menu` em mono no topo direito que abre um overlay preto com os itens em Tanker gigante (projetos, como funciona, história, contato) e o atalho `recrutador?`. Fechar com Esc ou clique fora. No mobile o botão `menu` continua visível (é a navegação) e o atalho `recrutador?` fica no canto inferior direito do HUD e também no menu.
 
 ## Preloader
 
@@ -84,9 +84,14 @@ Sem botão de "contratar" no hero. Um indicador `scroll` em mono no rodapé da s
 
 ### 02 O que eu faço
 
-Duas colunas. Esquerda: título Tanker `NÃO É SÓ A TELA`, o personagem apontando pro diagrama, e abaixo três parágrafos curtos e normais, bem espaçados: design e front feitos do zero, sem template; back-end, API e banco; deploy (domínio, hospedagem, SEO, acompanhamento). As linhas entram com glitch curto (deslocamento horizontal de 2 a 3 frames) e estabilizam.
+Título Tanker `NÃO É SÓ A TELA` e, logo abaixo, um palco da altura da tela em quatro passos: TELA, API, BANCO e DEPLOY. Ele usa o mesmo mecanismo do palco de projetos (`src/motion/steppedStage.ts`): prende ao encostar no topo, um gesto vale um passo (wheel, swipe, tecla), por baixo entra direto no último passo já montado, segura a inércia e a barra do iOS, e nas pontas solta a página. Ida e volta são a mesma timeline. Dados em `data/layers.ts`.
 
-Direita (preso enquanto os parágrafos passam): um diagrama em mono com quatro blocos, `tela`, `API`, `banco` e `deploy`, cada um com a stack embaixo, ligados por linhas de 1px. Um pulso lima percorre tela, API, banco e deploy em loop de 3s, como uma requisição. Quando cada parágrafo entra no scroll, acende o bloco do que ele fala (design e front acende tela; back, API e banco acende API e banco; deploy acende deploy) e apaga ao voltar. Os blocos flutuam de leve em repouso. No celular o diagrama vem logo depois do título. Em reduced-motion o diagrama fica estático, com todos os blocos acesos.
+- **Cartões com física:** uma pilha de cartões como os de foto da abertura (borda fina, sombra, legenda em mono). A cada passo o cartão da frente sai voando com mola pra uma pilha menor, acima, e revela o de trás em tamanho cheio: o print do site, a resposta da API em JSON, a tabela do banco e o domínio no ar.
+- **Projetos reais, marcados:** cada cartão traz uma etiqueta pequena com o projeto de onde vem. Tela e deploy são da TORRA (print e `torra-cafe.pages.dev`, em mono minúsculo); API e banco são do Ecommerce Café (a resposta de `GET /ecommerce/produtos/1` e a tabela `produto` com os quatro cafés do seed). São projetos separados: a etiqueta deixa claro que um não é o back-end do outro. Nada na tela cita a disciplina de onde o Ecommerce Café saiu.
+- **Palavra da camada:** a palavra do passo atual em Tanker gigante entra em contorno lima e enche de lima; embaixo, uma linha de log em mono (ex.: `GET /ecommerce/produtos/1 · 200 OK`) e o projeto com a stack.
+- **Texto:** três parágrafos curtos e normais, um de cada vez: design e front feitos do zero, sem template (tela); back-end, API e banco (API e banco); deploy, com domínio, hospedagem, SEO e acompanhamento (deploy).
+- **Personagem:** um só, que troca de pose a cada passo com o tranco curto: `apontando` (tela), `sentado` (API), `olhando-cima` (banco) e `pulando` (deploy).
+- No celular a palavra e o log vêm em cima, os cartões no meio e o texto embaixo; no desktop os cartões ficam à esquerda. Em reduced-motion o passo troca com um fade simples.
 
 ### 03 Projetos (cinco, em passos)
 
@@ -213,7 +218,7 @@ Regras: sempre pequeno (120 a 220px de altura no desktop, 80 a 140px no mobile),
 Onde aparece:
 - Preloader: `digitando`, no canto inferior esquerdo; sai junto com a cortina.
 - Hero: `espiando`, saindo de trás da borda direita do primeiro cartão de foto (a faixa escura da imagem é a parede e se confunde com a borda do cartão). Aparece depois que os cartões assentam e some com fade na primeira vez que o usuário arrasta um cartão.
-- 02 O que eu faço: `apontando`, embaixo do título, apontando pro texto.
+- 02 O que eu faço: um por passo do palco, trocando de pose: `apontando`, `sentado`, `olhando-cima` e `pulando`.
 - 05 Como funciona: uma pose por passo (`pensando`, `desenhando`, `digitando`, `comemorando`), cada uma entrando com fade e quique leve.
 - 06 História: `cafe`, ao lado da linha do tempo.
 - 07 Contato: `acenando` perto do botão do WhatsApp, com balanço lento; depois de 20 segundos sem interação, troca pra `dormindo`; qualquer interação acorda.
@@ -224,7 +229,7 @@ As outras poses (`bracos-cruzados`, `frente`, `lado`, `olhando-cima`, `pulando`,
 
 ## Atalho do recrutador
 
-Botão `recrutador?` em mono no menu e no HUD superior direito (ao lado da hora). O texto é só esse, sem complemento. Abre um painel lateral sobre a página (portal no body, mesma mecânica do menu e da ficha): uma linha de resumo, stack agrupada (front, back, mobile, infra) em mono (`data/stack.ts`), experiência em três linhas (a mesma linha do tempo da História), links GitHub e LinkedIn, WhatsApp, e-mail, e o botão `baixar CV em PDF`, que baixa `public/cv-gustavo-lima.pdf`. Esc ou clique fora fecha. Do menu, o atalho fecha o menu e abre o painel.
+Botão `recrutador?` em mono no menu e no HUD: no desktop no canto superior direito (ao lado da hora), no celular no canto inferior direito. O texto é só esse, sem complemento. Abre um painel lateral sobre a página (portal no body, mesma mecânica do menu e da ficha): uma linha de resumo, stack agrupada (front, back, mobile, infra) em mono (`data/stack.ts`), experiência em três linhas (a mesma linha do tempo da História), links GitHub e LinkedIn, WhatsApp, e-mail, e o botão `baixar CV em PDF`, que baixa `public/cv-gustavo-lima.pdf`. Esc ou clique fora fecha. Do menu, o atalho fecha o menu e abre o painel.
 
 ## Física e dinamismo (vale pro site inteiro)
 
@@ -245,7 +250,8 @@ Ferramentas: GSAP (ScrollTrigger, Draggable, InertiaPlugin, Physics2DPlugin, tod
 - Preloader digitando `Gustavo Lima`, apagando `Lima` e digitando `Dev`, com cortina subindo.
 - Cartões de foto no hero com inclinação 3D, drag com inércia e quique, e espalhamento no scroll.
 - Cursor customizado: ponto lima pequeno com um anel fino que atrasa; cresce em links. Sem texto dentro do cursor.
-- Glitch curto na entrada de textos (seções 02 e 05) e no hover da lista (04).
+- Glitch curto na entrada de textos (seção 05) e no hover da lista (04).
+- Seção 02 em passos (mesmo mecanismo do palco de projetos): pilha de cartões que voam com mola, palavra da camada enchendo de lima, log em mono, personagem trocando de pose.
 - Projetos em passos (desktop e celular): palco preso, um gesto por projeto, cada troca uma timeline completa (frames viajando com mola entre as composições, varredura diagonal de cor, nome em contorno trocando, texto saindo pra cima e entrando de baixo); luz na cor de acento atrás do frame, nome deslizando sozinho, frame flutuando com brilho na borda; trilho lateral acompanhando. Sem blocos. No celular, enquanto preso, fundo fixo na cor do palco e vizinhas escondidas.
 - Skew por velocidade de scroll em títulos e nos frames dos projetos; botões magnéticos.
 - HUD fixo com hora real e seção atual.

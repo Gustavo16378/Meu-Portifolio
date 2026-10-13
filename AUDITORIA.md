@@ -4,7 +4,7 @@ Auditoria em modo leitura feita antes das mudanças, no dev server, em desktop 1
 
 Gravidade: **quebra** impede de usar ou ler; **incômodo** funciona mas atrapalha; **detalhe** é acabamento.
 
-Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 55 corrigidos nesta rodada. Achados brutos antes da deduplicação: 123. Em 13/10: A74 corrigido (56 corrigidos) e A92 anotado como pendência (92 achados, 29 incômodos).
+Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 55 corrigidos nesta rodada. Achados brutos antes da deduplicação: 123. Em 13/10: A74 corrigido (56 corrigidos), A92 anotado como pendência (92 achados, 29 incômodos), e A46, A47, A49 e A50 superados pela seção 02 nova.
 
 ## 01 Abertura
 
@@ -100,7 +100,7 @@ Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 55 corrigidos nesta 
 
 ### A46 · detalhe · desktop · Diagrama 'preso' na direita quase não chega a prender
 
-- **Situação:** fica pra depois (detalhe)
+- **Situação:** superado em 13/10: a seção 02 foi refeita como palco em passos (o diagrama preso saiu)
 - **Verificação:** só a medição do auditor
 - **O que acontece:** A seção inteira tem 1154px de altura (top 900, fim 2054) e a coluna de texto cabe numa tela de 900px. O sticky top-[16svh] (144px) só segura o diagrama entre y ≈ 916 e y ≈ 1200 (uns 280px de scroll); no resto do trajeto ele rola junto com o texto. Medido: em y=840 o diagrama está em 220..770 (ainda não preso), em y=1154 em 144..694 (preso), e logo depois a seção sai da tela. O efeito descrito na SPEC (diagrama parado enquanto os parágrafos passam) fica praticamente invisível no desktop; os blocos acendem certo mesmo assim (tela em y633, API+banco em y856, deploy em y1057).
 - **Causa provável:** src/components/Manifesto.tsx: os parágrafos usam md:gap-[16svh] e md:pb-[10svh], o que dá uma coluna de ~830px, quase igual ao quadro do diagrama (440x550) mais o top de 144px; sobra pouco trecho de sticky. Não é defeito, é escolha de ritmo; se a intenção é o diagrama ficar parado enquanto o texto passa, a coluna de texto precisa ser bem mais alta que o quadro.
@@ -108,7 +108,7 @@ Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 55 corrigidos nesta 
 
 ### A47 · detalhe · desktop · Cópia mobile do diagrama monta timelines do GSAP mesmo escondida no desktop
 
-- **Situação:** fica pra depois (detalhe)
+- **Situação:** superado em 13/10: a seção 02 foi refeita como palco em passos (o diagrama, e a cópia dele no celular, saiu)
 - **Verificação:** só a medição do auditor
 - **O que acontece:** O componente Diagram é renderizado duas vezes (um bloco md:hidden pro celular e um hidden md:block pro desktop). No desktop a cópia mobile está com display none, mas o useEffect dela roda igual: cria a timeline do pulso (repeat -1), quatro tweens de flutuação e um ResizeObserver, tudo com largura e altura 0. O watchVisibility em elemento sem caixa fica ativo só com scroll perto de 0, então o custo é pequeno e só durante o hero. Não confirmado em runtime (o gsap não fica exposto em window pra contar tweens).
 - **Causa provável:** src/components/Manifesto.tsx: <div className="mt-10 md:hidden"><Diagram lit={lit} /></div> e <div className="hidden md:block">...<Diagram lit={lit} /></div>. O efeito em Diagram não checa se o quadro está visível (clientWidth 0) antes de montar as animações. Alternativa: renderizar uma única instância e mover só a posição via CSS, ou sair do efeito quando box.clientWidth === 0.
@@ -124,7 +124,7 @@ Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 55 corrigidos nesta 
 
 ### A49 · detalhe · mobile · Diagrama já saiu da tela quando o terceiro parágrafo está em posição de leitura
 
-- **Situação:** fica pra depois (detalhe)
+- **Situação:** superado em 13/10: a seção 02 foi refeita como palco em passos (o diagrama saiu; agora o palco em passos mostra uma camada por vez, com o texto dela)
 - **Verificação:** só a medição do auditor
 - **O que acontece:** No mobile o diagrama fica entre o título e os parágrafos. Quando o parágrafo 3 dispara (topo em 78%, scrollY≈1180) o bloco 'deploy' acende em y 198..251 e ainda dá pra ver, mas o bloco 'tela' já está em -47..6 (fora/embaixo do HUD). Assim que o usuário sobe mais um pouco pra ler o p3 no meio da tela (p3 em ~400px), o diagrama inteiro está acima de y=9 e a reação 'acende o bloco' não é vista. Os blocos de p1 e p2 acendem com o diagrama visível (tela em 305..358 no gatilho do p1; API 210..263 e banco 293..346 no gatilho do p2).
 - **Causa provável:** Composição mobile em src/components/Manifesto.tsx: diagrama de 322px logo após o título e gap de 12svh entre parágrafos; a seção tem 1151px, então o p3 só entra com o diagrama a -56px. Opções: gap menor entre parágrafos no mobile, ou diagrama sticky também no mobile com altura menor.
@@ -132,7 +132,7 @@ Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 55 corrigidos nesta 
 
 ### A50 · detalhe · mobile · Entrada do título começa com a segunda linha por baixo da faixa inferior do HUD
 
-- **Situação:** fica pra depois (detalhe)
+- **Situação:** superado em 13/10: a seção 02 foi refeita como palco em passos (o título não tem mais animação de entrada)
 - **Verificação:** só a medição do auditor
 - **O que acontece:** O gatilho do título é 'top 85%' (717px). O h2 tem 125px de altura, então no primeiro frame da animação (medido h2top=708) a base do título está em 833px, 45px por baixo da faixa inferior do HUD (788..844). Rolando devagar, a linha 'A TELA' termina de subir com mola (back.out, 1.1s) parcialmente escondida pela faixa. Em rolagem normal o título já subiu quando a animação termina (audit-faco-m-A-titulo.png mostra o título inteiro em y=380).
 - **Causa provável:** src/components/Manifesto.tsx: scrollTrigger do título com start 'top 85%' num h2 de 125px em viewport de 844px com faixa de 56px embaixo. Um start de 'top 78%' ou 'bottom 93%' deixa o título inteiro acima da faixa quando a mola roda.

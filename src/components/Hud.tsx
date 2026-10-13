@@ -131,6 +131,24 @@ export function Hud({ menuOpen, onMenu, onRecruiter, sectionsReady }: HudProps) 
         </p>
       </div>
 
+      {/* Celular: o atalho do recrutador fica no canto de baixo, no alcance do polegar. No desktop ele fica em cima. */}
+      <button
+        type="button"
+        onClick={onRecruiter}
+        className="pointer-events-auto absolute -mb-[7px] min-h-11 rounded-[3px] px-3 text-acid md:hidden"
+        // Fundo próprio: no pé da faixa o conteúdo ainda passa por baixo e cruzaria o texto do botão.
+        style={{
+          bottom: edge.bottom,
+          right: edge.right,
+          border: '1px solid var(--c-acid)',
+          background: 'var(--button-ghost)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+        }}
+      >
+        recrutador?
+      </button>
+
       <div className="absolute hidden items-center gap-2 md:flex" style={{ bottom: edge.bottom, right: edge.right }}>
         <span className="hud-dot inline-block size-1.5 rounded-full bg-acid" aria-hidden />
         <p>status: disponível para projetos</p>
