@@ -151,7 +151,7 @@ export function Hud({ menuOpen, onMenu, onRecruiter, sectionsReady }: HudProps) 
 
       <div className="absolute hidden items-center gap-2 md:flex" style={{ bottom: edge.bottom, right: edge.right }}>
         <span className="hud-dot inline-block size-1.5 rounded-full bg-acid" aria-hidden />
-        <p>status: disponível para projetos</p>
+        <p>status: disponível para projetos e vagas</p>
       </div>
     </div>
   )

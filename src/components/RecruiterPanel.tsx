@@ -94,7 +94,7 @@ export function RecruiterPanel({ open, onClose }: RecruiterPanelProps) {
           <div>
             <h2 className="font-display text-[13vw] leading-[0.86] uppercase md:text-6xl">Gustavo Barbosa Lima</h2>
             <p className="mt-4 leading-snug text-bone md:text-lg">
-              Desenvolvedor full-stack em Palmas, TO. Faço sites, sistemas e APIs, do front ao deploy.
+              Desenvolvedor full-stack em Palmas, TO. React e TypeScript no front, Java (Quarkus e Spring Boot) e Node.js no back, React Native no mobile.
             </p>
           </div>
 

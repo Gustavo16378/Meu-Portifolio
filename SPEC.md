@@ -53,7 +53,7 @@ Nos quatro cantos, em mono pequeno e cinza-verde, informação que dá sensaçã
 - canto superior esquerdo: `GUSTAVO BARBOSA LIMA` e abaixo `full-stack · palmas, to`. É um botão: rola pro topo com Lenis (o cursor mostra que é clicável).
 - canto superior direito: o atalho `recrutador?` em mono lima com borda de 1px lima, ao lado a hora local em tempo real e as coordenadas de Palmas (`10°10'S 48°20'W`), e o botão `menu` na ponta, com borda de 1px e padding. Os dois têm que parecer clicáveis pra qualquer pessoa.
 - canto inferior esquerdo: seção atual (`01 / 07 · abertura`) que atualiza no scroll
-- canto inferior direito: `status: disponível para projetos` com um ponto lima piscando devagar
+- canto inferior direito: `status: disponível para projetos e vagas` com um ponto lima piscando devagar
 
 O HUD fica fixo; o conteúdo rola por baixo. Pra não misturar com o conteúdo, os cantos ficam sobre duas faixas (topo e pé da tela) com `backdrop-filter: blur(12px)` e degradê do fundo pro transparente (84px no topo, 64px no pé; no celular 76px e 64px). Nada do conteúdo começa por baixo dessas faixas: as seções têm padding-top suficiente e as composições dos projetos respeitam a margem do HUD. No mobile, o canto superior esquerdo, o inferior esquerdo, o botão `menu` no canto superior direito e o `recrutador?` no canto inferior direito (no alcance do polegar, com fundo escuro e desfoque próprios pra o conteúdo que passa por baixo não cruzar o texto); os dois botões têm 44px de altura. Cabe em 360px com folga (84px entre o rótulo da seção e o botão no pior caso). O HUD vem antes do conteúdo no DOM: é o primeiro Tab da página.
 
@@ -69,7 +69,7 @@ Numeração de seção em mono. Cada seção abre com um título em Tanker, dire
 
 ### 01 Abertura
 
-Composição: à esquerda, título em Tanker gigante em duas ou três linhas, maiúsculas: `GUSTAVO` em osso e `DEV` em lima, ou `FULL-STACK` em osso com `DEV` em lima. Abaixo, uma linha em Synonym: "Sites, sistemas e APIs. Front e back, do design ao deploy." Abaixo, em mono: `react · typescript · java · spring · quarkus · postgresql`.
+Composição: à esquerda, título em Tanker gigante em duas ou três linhas, maiúsculas: `GUSTAVO` em osso e `DEV` em lima, ou `FULL-STACK` em osso com `DEV` em lima. Abaixo, uma linha em Synonym: "Sites, sistemas e APIs. Front e back, do design ao deploy." Abaixo, em mono: `react · typescript · java · quarkus · spring · postgresql`.
 
 À direita, as fotos do Gustavo **naturais, sem tratamento de cor** (`assets/foto/gustavo-original.png` e `assets/foto/foto2.png`; `foto1.png` é opcional, é a do site antigo). Elas aparecem como **objetos físicos**: dois ou três cartões fotográficos com borda fina e leve sombra, empilhados de forma torta, que:
 - flutuam devagar em repouso (leve oscilação, como se tivessem massa);
@@ -168,8 +168,8 @@ Ordem e cores:
 
 1. **Stewer Gabriel** (2025, cliente) · stewergabriel.com · Visagista e consultor de imagem. Fundo preto-dourado `#14110A`, acento dourado apagado `#8A7A45`. Stack: React, TypeScript, Tailwind, Vite, Cloudflare. Código privado.
 2. **AUTORIA.** (2026, conceito próprio) · autoria-6kz.pages.dev · Concessionária de carros com fotos tratadas em pipeline próprio. Fundo preto, acento âmbar-ouro `#C9A24A`. Stack: React, TypeScript, Playwright + rembg.
-3. **Monte Vinhedo** (2026, conceito próprio) · monte-vinhedo.pages.dev · Vinícola boutique de vinhos de altitude. Fundo vinho `#3A0F1E`, acento rosé `#C46A7A`. Stack: React, GSAP.
-4. **TORRA** (2026, conceito próprio) · torra-cafe.pages.dev · Cafeteria de torra própria. Fundo marrom-café `#2A1B12`, acento laranja queimado `#D8843A`. Stack: React, TypeScript, Tailwind.
+3. **Monte Vinhedo** (2026, conceito próprio) · monte-vinhedo.pages.dev · Vinícola boutique de vinhos de altitude. Fundo vinho `#3A0F1E`, acento rosé `#C46A7A`. Stack: React, GSAP, Cloudflare Pages.
+4. **TORRA** (2026, conceito próprio) · torra-cafe.pages.dev · Cafeteria de torra própria, com cardápio completo e mapa da loja. Fundo marrom-café `#2A1B12`, acento laranja queimado `#D8843A`. Stack: React, TypeScript, Tailwind, Leaflet, Cloudflare Pages.
 5. **Cleane Barbosa** (2025, cliente, primeira cliente) · cleanebarbosa.com.br · Psicanalista e terapeuta EFT. Fundo verde-oliva `#1E2A1F`, acento verde-sálvia `#9BB79A`. Stack: React, TypeScript, Tailwind, Cloudflare. Código privado.
 
 Ritmo: dourado, âmbar, vinho, laranja, verde.
@@ -185,11 +185,11 @@ Lista logo depois do quinto projeto, visível sem clicar. Título Tanker: `OUTRO
 Prints em `prints-outros/` (`<projeto>-desktop.png` e `-mobile.png`), servidos de `public/prints-outros/` em WebP com versões menores pro srcset.
 
 Ordem (a ONG vem primeiro e já aberta, porque é o design mais forte; as outras fechadas):
-- ONG Arte de Amar (2026, projeto em grupo) · arte-de-amar-site.pages.dev · one page de ONG de Palmas, com preloader e um fio verde contínuo em GSAP · React, GSAP
+- ONG Arte de Amar (2026, projeto em grupo, com o desenvolvimento comigo) · arte-de-amar-site.pages.dev · one page de ONG de Palmas, com um fio verde contínuo em GSAP · React, Vite, GSAP
 - Tina Aires (2025, cliente) · tinaaires.com.br · neuropsicopedagoga em Porto Nacional, site institucional com SEO técnico completo (robots, sitemap, JSON-LD, Search Console) · React
 - Suelen Pratas e Perfumaria (2025, cliente) · suelen.pages.dev · semijoias em prata 925 e perfumaria, editorial claro, catálogo que leva a venda pro WhatsApp · React
-- Autômato celular (2026, projeto em grupo) · simulação 2D de acidente nuclear, contaminação e retomada da natureza, com controles de execução e cenário · stack a definir
-- FinControl (2026, projeto em grupo) · sistema de controle financeiro · Java, Spring Boot, PostgreSQL · sem imagem por enquanto (iniciais)
+- Retomada (autômato celular) (2026, projeto em grupo, com o código comigo) · simulação 2D de acidente nuclear e da vegetação retomando a cidade, com controles de execução e cenário · TypeScript, Vite, Canvas, Vitest
+- FinControl (2026, projeto em dupla) · sistema de controle financeiro · Java, Quarkus, Angular · sem imagem por enquanto (iniciais); sem link no ar, só o botão `código` (repositório fincontrol-api)
 
 Na tela nunca aparece "faculdade" nem "vitrine": a ONG é "projeto em grupo" e a Suelen tem "catálogo".
 

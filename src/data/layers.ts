@@ -47,13 +47,14 @@ export const LAYERS: Layer[] = [
   },
 ]
 
-// Parágrafo de cada camada: o primeiro na tela, o segundo em API e banco, o terceiro no deploy.
+// Um parágrafo por camada.
 export const LAYER_TEXTS = [
-  'Eu desenho e construo cada site do zero. Não uso template: layout, animação e código saem pensados pra aquele projeto.',
-  'O trabalho não para na tela. Faço o back-end, a API e o banco de dados que ficam por trás dela.',
-  'E coloco no ar: domínio, hospedagem, SEO e o acompanhamento depois da entrega.',
+  'Cada site sai do zero: layout, tipografia e animação pensados pro projeto, em React e TypeScript. Nada de template.',
+  'Por trás da tela vem a API. Escrevo em Java com Quarkus ou Spring Boot, com autenticação, validação e erros padronizados.',
+  'Modelo o banco em PostgreSQL, com migrations versionadas, pra o sistema crescer sem quebrar o que já existe.',
+  'E coloco no ar: domínio, HTTPS, SEO técnico e deploy automático a cada atualização.',
 ]
-export const LAYER_TEXT_OF = [0, 1, 1, 2]
+export const LAYER_TEXT_OF = [0, 1, 2, 3]
 
 /**
  * Resposta de GET /ecommerce/produtos/1 no Ecommerce Café, com os dados do seed (DataInitializerService) e o

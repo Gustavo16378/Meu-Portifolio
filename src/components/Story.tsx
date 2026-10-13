@@ -8,8 +8,8 @@ import { Personagem } from './Personagem'
 import { SectionChrome } from './SectionChrome'
 
 const paragraphs = [
-  'Sou de Palmas, no Tocantins, e programo desde os 16 anos. Comecei montando sites por curiosidade e fui descendo pro back-end, pra API e pro banco de dados.',
-  'Desde 2024 trabalho como freelancer, fazendo sites e sistemas pra clientes daqui e de fora. Hoje procuro projetos em que eu cuide do produto inteiro, e também uma equipe em que eu continue aprendendo.',
+  'Sou de Palmas, no Tocantins, e programo desde os 16. Comecei fazendo sites por curiosidade e fui descendo pro back-end: APIs em Java, banco de dados, deploy.',
+  'Desde 2024 faço sites e sistemas como freelancer, e em 2026 abri meu CNPJ. Também passei pela DS Web Dev, em projetos de clientes, e pelo suporte técnico da Platano Solution. Hoje procuro projetos em que eu cuide do produto inteiro e um time onde eu continue crescendo.',
 ]
 
 /** Seção 06. Foto natural do capuz como cartão que inclina com o mouse, texto, linha do tempo e o personagem com café. */

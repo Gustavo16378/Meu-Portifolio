@@ -13,19 +13,19 @@ import { SectionChrome } from './SectionChrome'
 const steps = [
   {
     title: 'Conversa',
-    text: 'Você conta o que precisa e eu entendo o negócio, o público e o prazo. Daí sai um escopo por escrito.',
+    text: 'Você conta o que precisa e eu entendo o negócio, o público e o prazo. Daí sai um escopo por escrito, com o que entra e o que fica de fora.',
   },
   {
     title: 'Identidade e design',
-    text: 'Defino cores, tipografia e layout do projeto. Você aprova antes de eu começar a construir.',
+    text: 'Defino cores, tipografia e layout. Você aprova as telas antes de qualquer linha de código.',
   },
   {
     title: 'Construção',
-    text: 'Front, back, API e banco de dados. Você acompanha o andamento por um link de teste.',
+    text: 'Front, back, API e banco. Você acompanha tudo por um link de teste que atualiza a cada entrega.',
   },
   {
     title: 'Deploy e acompanhamento',
-    text: 'Coloco no ar com domínio, SEO e hospedagem configurados, e sigo por perto nos primeiros ajustes.',
+    text: 'Publico com domínio, HTTPS e SEO configurados, e acompanho os primeiros ajustes depois que está no ar.',
   },
 ]
 

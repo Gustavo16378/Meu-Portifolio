@@ -143,7 +143,7 @@ export function Hero() {
               Sites, sistemas e APIs. Front e back, do design ao deploy.
             </p>
             <p className="mt-3 font-mono text-[11px] text-muted md:mt-4 md:text-[clamp(0.75rem,0.8vw,0.95rem)]">
-              react · typescript · java · spring · quarkus · postgresql
+              react · typescript · java · quarkus · spring · postgresql
             </p>
           </div>
         </div>
