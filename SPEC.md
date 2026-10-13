@@ -153,7 +153,7 @@ Mobile (versão simplificada de cada uma, um frame só). Regra pros cinco: a com
 - Com economia de dados, conexão 2g/3g ou reduced-motion: só poster, com o botão `ver em movimento`.
 - Meta: Lighthouse mobile acima de 85 com a seção completa.
 
-**O que conecta os cinco:** um trilho vertical fixo na lateral esquerda, em mono, visível enquanto o palco está preso, com `01 / 05`... e uma linha fina que se preenche em lima até `05 / 05`. O número troca com glitch curto. **Sem quebra em blocos.**
+**O que conecta os cinco:** um trilho vertical fixo na lateral esquerda, em mono, visível enquanto o palco está preso, com `01 / 05`... e uma linha fina que se preenche em lima até `05 / 05`. O número troca com glitch curto. **Sem quebra em blocos.** No desktop ele fica no meio da altura da tela; no celular fica na metade de baixo (começa em 54svh), ao lado do texto, porque no meio caía sobre a borda dos prints largos do Stewer e do AUTORIA.
 
 A placa: linha de contexto (cliente ou conceito próprio, cidade, ano de entrega, ex.: `cliente · Palmas, TO · entregue em 2025`), nome, uma linha do que é, stack em mono, `ver no ar` e `ficha técnica`. Nada de texto de conceito.
 

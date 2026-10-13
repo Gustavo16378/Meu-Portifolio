@@ -342,8 +342,8 @@ Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 55 corrigidos nesta 
 
 ### A89 · detalhe · mobile · Trilho 02/05 desenhado por cima do print de AUTORIA
 
-- **Situação:** corrigido no bloco 3 (print do Autoria em 88vw, fora do trilho)
-- **Verificação:** medido de novo pelos testes depois da correção
+- **Situação:** corrigido em 13/10: no celular o trilho saiu do meio da tela e começa em 54svh (y 358 a 542 no iPhone 14), ao lado do texto. A correção do bloco 3 (print do Autoria em 88vw) não bastava: o "02" ainda encostava no print do Autoria (1,6 px) e no Stewer (print de 92vw, começando em x 15,6) o "01 / 05" ficava 9,4 px por cima do print e a linha lima 3,9 px dentro da borda.
+- **Verificação:** medido de novo no WebKit 26.6 como iPhone 14 depois da correção: Stewer e Autoria com o print terminando acima do trilho (y 344 e 343) e o texto a 24 e 16 px; Monte Vinhedo, Torra e Cleane sem mudança (a Cleane continua a 6,2 px do print); no desktop o trilho continua centralizado
 - **O que acontece:** O trilho fixo (x=12 a 24, y=311 a 533) fica sobre a borda esquerda do print de AUTORIA, que ocupa x=8 a 382. Nos outros projetos o print começa depois de x=31 e não há sobreposição. O texto da placa nunca encosta no trilho (começa em x>=40).
 - **Causa provável:** src/components/ProjectRail.tsx fixed em left 12px com z-hud; composição 'autoria' em projectLayout.ts usa w = vw * 0.96.
 - **Arquivos:** `src/components/ProjectRail.tsx`, `src/components/projectLayout.ts`
