@@ -57,11 +57,11 @@ Nos quatro cantos, em mono pequeno e cinza-verde, informação que dá sensaçã
 
 O HUD fica fixo; o conteúdo rola por baixo. Pra não misturar com o conteúdo, os cantos ficam sobre duas faixas (topo e pé da tela) com `backdrop-filter: blur(12px)` e degradê do fundo pro transparente (84px no topo, 64px no pé; no celular 76px e 64px). Nada do conteúdo começa por baixo dessas faixas: as seções têm padding-top suficiente e as composições dos projetos respeitam a margem do HUD. No mobile, só o canto superior esquerdo, o inferior esquerdo e o botão `menu`, no canto superior direito; ele e o `recrutador?` têm 44px de altura. O HUD vem antes do conteúdo no DOM: é o primeiro Tab da página.
 
-Navegação: sem menu tradicional. Um botão `menu` em mono no topo direito que abre um overlay preto com os itens em Tanker gigante (projetos, como trabalho, história, contato) e o atalho `recrutador?`. Fechar com Esc ou clique fora. No mobile o botão `menu` continua visível (é a navegação) e o atalho `recrutador?` fica só dentro do menu.
+Navegação: sem menu tradicional. Um botão `menu` em mono no topo direito que abre um overlay preto com os itens em Tanker gigante (projetos, como funciona, história, contato) e o atalho `recrutador?`. Fechar com Esc ou clique fora. No mobile o botão `menu` continua visível (é a navegação) e o atalho `recrutador?` fica só dentro do menu.
 
 ## Preloader
 
-Fundo preto, só isso na tela, sem log antes. Um cursor de texto fino em lima pisca. Em Tanker gigante, maiúsculas, digita `Gustavo Lima` letra por letra, faz uma pausa curta, apaga `Lima` com backspace letra por letra e digita `Dev` em lima (`Gustavo` fica em osso). Ritmo de digitação humano: intervalos levemente irregulares, com hesitação no começo de palavra; o backspace é um pouco mais rápido. O cursor fica aceso enquanto digita e pisca quando para. Pausa de 300ms com o nome pronto, e a tela abre pro hero com uma cortina subindo (fade rápido em `prefers-reduced-motion`). O hero começa a entrar junto com a cortina. Total de no máximo 1,8 segundos, contando a espera pela fonte (que está em preload). Roda em todo carregamento da página, inclusive ao atualizar. Por trás dele o hero e as fontes carregam desde o primeiro frame: o título já está pintado (e conta como a maior pintura da página) quando a cortina começa a subir; só nesse instante ele se esconde e entra com mola.
+Fundo preto, só isso na tela, sem log antes. Um cursor de texto fino em lima pisca. Em Tanker gigante, maiúsculas, digita `Gustavo Lima` letra por letra, faz uma pausa curta, apaga `Lima` com backspace letra por letra e digita `Dev` em lima (`Gustavo` fica em osso). Ritmo de digitação humano: intervalos levemente irregulares, com hesitação no começo de palavra; o backspace é um pouco mais rápido. O cursor fica aceso enquanto digita e pisca quando para. Pausa de 300ms com o nome pronto, e a tela abre pro hero com uma cortina subindo (fade rápido em `prefers-reduced-motion`). O hero começa a entrar junto com a cortina. Com a rede rápida tudo leva uns 1,5 segundo. A cortina só sobe com o essencial do hero carregado (Tanker, Synonym e Commit Mono, e as duas fotos dos cartões já decodificadas): com a rede lenta o nome termina inteiro e o cursor fica piscando até lá, com um teto de 10 segundos pra nunca prender a página. Roda em todo carregamento da página, inclusive ao atualizar. Por trás dele o hero e as fontes carregam desde o primeiro frame: o título já está pintado (e conta como a maior pintura da página) quando a cortina começa a subir; só nesse instante ele se esconde e entra com mola.
 
 ## Estrutura da página
 
@@ -188,7 +188,7 @@ Ordem (a ONG vem primeiro e já aberta, porque é o design mais forte; as outras
 
 Na tela nunca aparece "faculdade" nem "vitrine": a ONG é "projeto em grupo" e a Suelen tem "catálogo".
 
-### 05 Como eu trabalho
+### 05 Como funciona
 
 Título Tanker: `COMO FUNCIONA`. Quatro passos em linha horizontal (empilhados no celular), numerados em mono, cada um com o personagem na pose do passo, título curto e duas linhas de texto normal: conversa; identidade e design; construção (front, back, API, banco); deploy e acompanhamento. Os blocos entram um a um com o mesmo glitch curto da seção 02. Abaixo, uma linha: "Cada projeto tem escopo e orçamento próprios. O primeiro passo é uma conversa." e o botão `ir para o contato`, que rola até o contato.
 

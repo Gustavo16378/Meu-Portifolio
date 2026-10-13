@@ -10,7 +10,8 @@ const WRONG = 'Lima'
 const RIGHT = 'Dev'
 
 // Ritmo em segundos. Cada tecla sorteia um intervalo em volta da média, como gente digitando.
-// Somando tudo (digitar, pausar, apagar, segurar e a cortina) dá no máximo 1,8s, contando a espera pela fonte.
+// Com a rede rápida, tudo (digitar, pausar, apagar, segurar e a cortina) dá uns 1,5s. A cortina só sobe com o
+// essencial do hero carregado (ESSENTIAL_FONTS e as fotos); com a rede lenta o cursor fica piscando até lá.
 const START_DELAY = 0.04
 const TYPE_MIN = 0.02
 const TYPE_MAX = 0.04
@@ -22,8 +23,23 @@ const PAUSE_BEFORE_RIGHT = 0.06
 const HOLD = 0.3
 const CURTAIN = 0.38
 const FONT_TIMEOUT = 200
+// Teto da espera pelo essencial: se algo nunca chegar, a página abre mesmo assim.
+const MAX_WAIT = 10
+
+// Fontes que o hero usa na primeira tela.
+const ESSENTIAL_FONTS = ['1em Tanker', '1em Synonym', '1em "Commit Mono"']
 
 const rand = (min: number, max: number) => min + Math.random() * (max - min)
+
+/** Fontes do hero e as fotos dos cartões carregadas e decodificadas (imagem com erro conta como pronta). */
+function heroEssentials(): Promise<unknown> {
+  const fonts = ESSENTIAL_FONTS.map((f) => document.fonts.load(f).catch(() => undefined))
+  // Os cartões de foto; o personagem espiando é lazy e entra depois, não segura a abertura.
+  const photos = Array.from(document.querySelectorAll<HTMLImageElement>('#abertura img'))
+    .filter((img) => img.loading !== 'lazy')
+    .map((img) => img.decode().catch(() => undefined))
+  return Promise.all([...fonts, ...photos])
+}
 
 /**
  * Todo carregamento: digita "Gustavo Lima", apaga "Lima", digita "Dev" em lima,
@@ -50,6 +66,9 @@ export function Preloader() {
     const reduced = prefersReducedMotion()
     let cancelled = false
     let tl: gsap.core.Timeline | undefined
+    let out: gsap.core.Timeline | undefined
+    let typed = false
+    let loaded = false
 
     lockScroll()
     window.scrollTo(0, 0)
@@ -62,8 +81,30 @@ export function Preloader() {
     // Enquanto digita o cursor fica aceso; parado, pisca.
     const typing = (on: boolean) => caret.classList.toggle('is-typing', on)
 
+    // A cortina sobe quando o nome terminou (com a pausa) e o essencial do hero chegou, o que vier por último.
+    const reveal = () => {
+      if (cancelled || out || !typed || !loaded) return
+      out = gsap.timeline({ onComplete: finish })
+      out.call(finishIntro, undefined, 0)
+      if (reduced) out.to(root, { opacity: 0, duration: 0.3, ease: 'power1.out' }, 0)
+      else out.to(root, { yPercent: -100, duration: CURTAIN, ease: 'power4.inOut' }, 0)
+    }
+    const ready = () => {
+      if (loaded) return
+      loaded = true
+      cap.kill()
+      reveal()
+    }
+    const cap = gsap.delayedCall(MAX_WAIT, ready)
+    heroEssentials().then(ready)
+
     const build = () => {
-      tl = gsap.timeline({ onComplete: finish })
+      tl = gsap.timeline({
+        onComplete: () => {
+          typed = true
+          reveal()
+        },
+      })
       let t = START_DELAY
       tl.call(typing, [true], t)
 
@@ -98,10 +139,9 @@ export function Preloader() {
       type(second, '', RIGHT)
       tl.call(typing, [false], t + 0.02)
 
+      // Segura o nome pronto; a timeline acaba aqui e a cortina fica com reveal().
       t += HOLD
-      tl.call(finishIntro, undefined, t)
-      if (reduced) tl.to(root, { opacity: 0, duration: 0.3, ease: 'power1.out' }, t)
-      else tl.to(root, { yPercent: -100, duration: CURTAIN, ease: 'power4.inOut' }, t)
+      tl.set({}, {}, t)
     }
 
     // Só começa com a Tanker pronta, pra não digitar na fonte reserva.
@@ -114,6 +154,8 @@ export function Preloader() {
     return () => {
       cancelled = true
       tl?.kill()
+      out?.kill()
+      cap.kill()
       gsap.set(root, { clearProps: 'transform,opacity' })
       first.textContent = ''
       second.textContent = ''

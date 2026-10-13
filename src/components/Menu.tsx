@@ -13,7 +13,7 @@ interface MenuItemData {
 
 const items: MenuItemData[] = [
   { id: 'projetos', label: 'projetos' },
-  { id: 'processo', label: 'como trabalho' },
+  { id: 'processo', label: 'como funciona' },
   { id: 'historia', label: 'história' },
   { id: 'contato', label: 'contato' },
 ]

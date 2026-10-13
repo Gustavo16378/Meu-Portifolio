@@ -23,6 +23,8 @@ interface PersonagemProps {
   show?: boolean
   /** Espera antes de entrar, em segundos. */
   delay?: number
+  /** Sem `show`: em que altura da tela ele aparece (start do ScrollTrigger). */
+  start?: string
   /** Entrada: spring (sobe com mola) ou hop (fade com quique leve). */
   enter?: 'spring' | 'hop'
   /** Balanço lento em volta dos pés (acenando). */
@@ -44,6 +46,7 @@ export function Personagem({
   sizes,
   show,
   delay = 0,
+  start = 'top 88%',
   enter = 'spring',
   sway = false,
   flip = false,
@@ -63,15 +66,40 @@ export function Personagem({
 
   // Sem controle de fora: aparece a primeira vez que entra na tela.
   useEffect(() => {
-    if (show !== undefined || !rootRef.current) return
-    const st = ScrollTrigger.create({
-      trigger: rootRef.current,
-      start: 'top 88%',
+    const root = rootRef.current
+    if (show !== undefined || !root) return
+    const img = root.querySelector('img')
+    let cancelled = false
+    // A imagem é lazy: uma tela antes ela já começa a carregar, pra ele não entrar vazio.
+    const preload = ScrollTrigger.create({
+      trigger: root,
+      start: 'top bottom+=100%',
       once: true,
-      onEnter: () => setInView(true),
+      onEnter: () => {
+        if (img) img.loading = 'eager'
+      },
     })
-    return () => st.kill()
-  }, [show])
+    const st = ScrollTrigger.create({
+      trigger: root,
+      start,
+      once: true,
+      onEnter: () => {
+        // Se a imagem ainda não chegou, espera por ela no máximo 0,8s.
+        const loaded =
+          !img || img.complete
+            ? Promise.resolve()
+            : Promise.race([img.decode().catch(() => undefined), new Promise<void>((r) => gsap.delayedCall(0.8, r))])
+        loaded.then(() => {
+          if (!cancelled) setInView(true)
+        })
+      },
+    })
+    return () => {
+      cancelled = true
+      preload.kill()
+      st.kill()
+    }
+  }, [show, start])
 
   // Entrada e saída.
   useLayoutEffect(() => {
@@ -92,7 +120,7 @@ export function Personagem({
     if (reduced) {
       gsap.fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5, delay, immediateRender: false })
     } else if (enter === 'hop') {
-      gsap.fromTo(el, { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.7, delay, ease: 'back.out(3)', immediateRender: false })
+      gsap.fromTo(el, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.45, delay, ease: 'back.out(2.6)', immediateRender: false })
     } else {
       gsap.fromTo(
         el,

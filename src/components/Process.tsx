@@ -43,15 +43,23 @@ export function Process() {
     if (!list) return
     const blocks = Array.from(list.querySelectorAll('[data-step-text]'))
     const reduced = prefersReducedMotion()
-    const ctx = gsap.context(() => {
+    const mm = gsap.matchMedia(list)
+    // As duas condições: com a sintaxe de objeto o matchMedia só roda a função quando alguma delas vale.
+    mm.add({ desktop: '(min-width: 768px)', mobile: 'not all and (min-width: 768px)' }, (ctx) => {
       gsap.set(blocks, { opacity: 0 })
-      const tl = gsap.timeline({
-        scrollTrigger: { trigger: list, start: 'top 75%', toggleActions: 'play none none reset' },
-      })
-      if (reduced) tl.to(blocks, { opacity: 1, duration: 0.5, stagger: 0.12 })
-      else addGlitchIn(tl, blocks, 0, { amp: 12, stagger: 0.18 })
-    }, list)
-    return () => ctx.revert()
+      // Desktop: os quatro lado a lado entram um a um quando a fileira aparece. Celular: empilhados, cada bloco
+      // tem o próprio gatilho (com um só pra lista, do 2 ao 4 o glitch rodava fora da tela).
+      const desktop = Boolean(ctx.conditions?.desktop)
+      const groups = desktop ? [{ trigger: list, start: 'top 75%', targets: blocks }] : blocks.map((b) => ({ trigger: b, start: 'top 88%', targets: [b] }))
+      for (const g of groups) {
+        const tl = gsap.timeline({
+          scrollTrigger: { trigger: g.trigger, start: g.start, toggleActions: 'play none none reset' },
+        })
+        if (reduced) tl.to(g.targets, { opacity: 1, duration: 0.5, stagger: 0.12 })
+        else addGlitchIn(tl, g.targets, 0, { amp: 12, stagger: 0.18 })
+      }
+    })
+    return () => mm.revert()
   }, [])
 
   const goContact = (e: MouseEvent) => {
@@ -73,7 +81,8 @@ export function Process() {
       <ol ref={listRef} className="mt-12 grid gap-12 md:mt-20 md:grid-cols-4 md:gap-8">
         {steps.map((s, i) => (
           <li key={s.title} className="flex flex-col">
-            <Personagem pose={PROCESS_POSES[i]} size="sm" enter="hop" delay={0.15 + i * 0.18} className="mb-5 self-start" />
+            {/* Aparece assim que entra no pé da tela; o atraso curto só escalona os quatro lado a lado no desktop. */}
+            <Personagem pose={PROCESS_POSES[i]} size="sm" enter="hop" start="top 96%" delay={i * 0.06} className="mb-5 self-start" />
             <div data-step-text className="will-change-transform" style={{ borderTop: '1px solid var(--c-border)' }}>
               <p className="pt-4 font-mono text-[11px] text-acid md:text-xs">{pad2(i + 1)}</p>
               <h3 className="mt-2 font-display text-3xl leading-[0.9] uppercase md:text-4xl">{s.title}</h3>

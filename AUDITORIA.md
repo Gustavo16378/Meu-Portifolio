@@ -4,7 +4,7 @@ Auditoria em modo leitura feita antes das mudanças, no dev server, em desktop 1
 
 Gravidade: **quebra** impede de usar ou ler; **incômodo** funciona mas atrapalha; **detalhe** é acabamento.
 
-Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 55 corrigidos nesta rodada. Achados brutos antes da deduplicação: 123.
+Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 55 corrigidos nesta rodada. Achados brutos antes da deduplicação: 123. Em 13/10: A74 corrigido (56 corrigidos) e A92 anotado como pendência (92 achados, 29 incômodos).
 
 ## 01 Abertura
 
@@ -474,8 +474,8 @@ Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 55 corrigidos nesta 
 
 ### A74 · detalhe · mobile · Glitch dos passos 02 a 04 roda fora da tela e o personagem dos passos de baixo aparece atrasado
 
-- **Situação:** fica pra depois (detalhe)
-- **Verificação:** só a medição do auditor
+- **Situação:** corrigido em 13/10. No celular cada bloco de texto tem o próprio gatilho (top 88%); no desktop a fileira continua com um gatilho só e o stagger. Personagens: gatilho em top 96%, atraso de 0,06s por passo (era 0,15 + 0,18 por passo), entrada de 0,45s (era 0,7s), e a imagem lazy começa a carregar uma tela antes (no celular o 4º animava antes de a imagem chegar).
+- **Verificação:** medido no WebKit como iPhone 14 e em 1440x900: textos começam a entrar com o topo a 86 a 89% da altura da tela, personagens a 89 a 94%, todos com a imagem carregada
 - **O que acontece:** No mobile os passos ficam empilhados (cada li com 270 a 295px de altura), mas o gatilho da entrada é um só na lista inteira (top 75%). Quando dispara (lista em 627px), os blocos 02, 03 e 04 estão em cerca de 920, 1190 e 1460px, fora da tela; a sequência termina em ~480ms (11180 a 11662ms) e o usuário chega neles já prontos, sem entrada. Já os personagens entram um a um por li (top 88%) com delay 0.15 + i*0.18s e 0.7s de duração: no passo 04 o boneco aparece ~0.7s depois de entrar na tela, deixando um vão de 80px vazio em cima de um texto que já está lá. A intenção da SPEC ('os blocos entram um a um') só se vê no passo 01.
 - **Causa provável:** src/components/Process.tsx linha 49 (ScrollTrigger único na `ol`) e linha 76 (`delay={0.15 + i * 0.18}`, pensado pra linha de quatro colunas do desktop). No mobile faria mais sentido um trigger por li e delay fixo.
 - **Arquivos:** `src/components/Process.tsx`
@@ -608,11 +608,19 @@ Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 55 corrigidos nesta 
 
 ### A36 · detalhe · ambos · Preloader leva cerca de 2,6s até sumir
 
-- **Situação:** corrigido no bloco 4 (preloader em no máximo 1,8s)
-- **Verificação:** medido de novo pelos testes depois da correção
+- **Situação:** corrigido no bloco 4 (preloader em no máximo 1,8s). Mudado em 13/10: a cortina agora espera o essencial do hero (fontes e as duas fotos decodificadas), com teto de 10s; com a rede rápida continua em uns 1,6s na tela
+- **Verificação:** medido de novo pelos testes depois da correção; em 13/10, no build de produção com a rede em 3G do DevTools, a cortina passou a subir aos 14,6s, com as fotos prontas (antes subia aos 10,5s sem elas)
 - **O que acontece:** Tempo entre o domcontentloaded e a remoção do preloader (div com z-index 10000) medido em três carregamentos: 2656ms, 2641ms (reduced-motion) e 2575ms. A SPEC pede entre 2 e 2,5s e o pedido novo é no máximo 1,8s. O scroll fica travado (body position fixed) durante esse tempo: um swipe aos 1200ms não moveu a página (scrollY 0), o que está correto.
 - **Causa provável:** src/components/Preloader.tsx: soma de TYPE_MIN/TYPE_MAX (0,03 a 0,075s por tecla em 15 teclas) + WORD_START_EXTRA + PAUSE_BEFORE_ERASE 0,2s + 4 backspaces + PAUSE_BEFORE_RIGHT + HOLD 0,5s + CURTAIN 0,45s, mais até 0,7s de espera pela fonte (FONT_TIMEOUT).
 - **Arquivos:** `src/components/Preloader.tsx`
+
+### A92 · incômodo · mobile · Tela vazia por uns 9s no 3G antes do preloader aparecer
+
+- **Situação:** pendente, combinado pra depois do bloco 2 (13/10): um preloader estático no index.html (fundo, cursor piscando, sem depender do JS), que o componente React assume quando o bundle chegar
+- **Verificação:** só a medição de 13/10
+- **O que acontece:** No build de produção com a rede em 3G do DevTools (400 kbps efetivos, 2s de latência, sem cache), emulando iPhone 14 no Chrome, o preloader só aparece aos 9,1 a 9,3s. Até lá a tela fica vazia, só com a cor de fundo. O preloader é um componente React, então ele depende do bundle (146 KB com gzip) inteiro chegar e rodar.
+- **Causa provável:** index.html só tem o `<div id="root">`; nada é pintado antes de o src/main.tsx rodar.
+- **Arquivos:** `index.html`, `src/components/Preloader.tsx`
 
 ## HUD
 
