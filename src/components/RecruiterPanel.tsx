@@ -5,7 +5,7 @@ import { prefersReducedMotion } from '../motion/reducedMotion'
 import { useMagnetic } from '../motion/useMagnetic'
 import { stackGroups } from '../data/stack'
 import { timeline } from '../data/timeline'
-import { contact, social } from '../data/contact'
+import { contact, cvs, social } from '../data/contact'
 import { useDialog } from './useDialog'
 
 interface RecruiterPanelProps {
@@ -20,11 +20,14 @@ export function RecruiterPanel({ open, onClose }: RecruiterPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
-  const cvRef = useRef<HTMLAnchorElement>(null)
+  const cvPtRef = useRef<HTMLAnchorElement>(null)
+  const cvEnRef = useRef<HTMLAnchorElement>(null)
+  const cvRefs = [cvPtRef, cvEnRef]
 
   useDialog(open, onClose, panelRef, closeRef)
   useMagnetic(closeRef, { enabled: open })
-  useMagnetic(cvRef, { enabled: open })
+  useMagnetic(cvPtRef, { enabled: open })
+  useMagnetic(cvEnRef, { enabled: open })
 
   // Blocos entram um a um, deslizando da borda.
   useEffect(() => {
@@ -136,14 +139,22 @@ export function RecruiterPanel({ open, onClose }: RecruiterPanelProps) {
             </div>
           </section>
 
-          <a
-            ref={cvRef}
-            href={contact.cv}
-            download
-            className="inline-flex min-h-11 w-fit items-center gap-2 rounded-[3px] bg-acid px-5 font-mono text-xs font-bold text-bg md:text-sm"
-          >
-            baixar CV em PDF <span aria-hidden>↓</span>
-          </a>
+          <div className="flex flex-wrap gap-3">
+            {cvs.map((cv, i) => (
+              <a
+                key={cv.href}
+                ref={cvRefs[i]}
+                href={cv.href}
+                hrefLang={cv.lang}
+                type="application/pdf"
+                download
+                className="inline-flex min-h-11 w-fit items-center gap-2 rounded-[3px] bg-acid px-5 font-mono text-xs font-bold text-bg md:text-sm"
+              >
+                {cv.label} <span className="sr-only">em PDF, {cv.language}</span>
+                <span aria-hidden>↓</span>
+              </a>
+            ))}
+          </div>
         <button
           type="button"
           onClick={onClose}

@@ -670,7 +670,7 @@ Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 55 corrigidos nesta 
 
 ### A68 · detalhe · ambos · O CV baixado é um PDF placeholder de 684 bytes
 
-- **Situação:** pendente com o Gustavo: trocar public/cv-gustavo-lima.pdf pelo CV real antes do deploy
+- **Situação:** corrigido em 13/10: CV real em português (public/cv-gustavo-lima.pdf, 5,7 KB) e em inglês (public/cv-gustavo-lima-en.pdf, 5,6 KB), uma página cada; o painel do recrutador tem os botões `CV (PT)` e `CV (EN)`
 - **Verificação:** só a medição do auditor
 - **O que acontece:** O botão 'baixar CV em PDF' aponta pra /cv-gustavo-lima.pdf com atributo download; a requisição responde 200 application/pdf, mas o arquivo tem 684 bytes e uma página só com o texto 'Gustavo Barbosa Lima' e 'CV em preparacao. Este arquivo sera substituido pelo curriculo...'. Um recrutador que baixar hoje recebe esse aviso em vez do currículo. Mecânica do botão está certa; é só o conteúdo do arquivo.
 - **Causa provável:** public/cv-gustavo-lima.pdf ainda é o arquivo provisório. Trocar pelo PDF real antes do deploy.

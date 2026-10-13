@@ -229,7 +229,7 @@ As outras poses (`bracos-cruzados`, `frente`, `lado`, `olhando-cima`, `pulando`,
 
 ## Atalho do recrutador
 
-Botão `recrutador?` em mono no menu e no HUD: no desktop no canto superior direito (ao lado da hora), no celular no canto inferior direito. O texto é só esse, sem complemento. Abre um painel lateral sobre a página (portal no body, mesma mecânica do menu e da ficha): uma linha de resumo, stack agrupada (front, back, mobile, infra) em mono (`data/stack.ts`), experiência em três linhas (a mesma linha do tempo da História), links GitHub e LinkedIn, WhatsApp, e-mail, e o botão `baixar CV em PDF`, que baixa `public/cv-gustavo-lima.pdf`. Esc ou clique fora fecha. Do menu, o atalho fecha o menu e abre o painel.
+Botão `recrutador?` em mono no menu e no HUD: no desktop no canto superior direito (ao lado da hora), no celular no canto inferior direito. O texto é só esse, sem complemento. Abre um painel lateral sobre a página (portal no body, mesma mecânica do menu e da ficha): uma linha de resumo, stack agrupada (front, back, mobile, infra) em mono (`data/stack.ts`), experiência em três linhas (a mesma linha do tempo da História), links GitHub e LinkedIn, WhatsApp, e-mail, e dois botões de CV em PDF: `CV (PT)`, que baixa `public/cv-gustavo-lima.pdf`, e `CV (EN)`, que baixa `public/cv-gustavo-lima-en.pdf` (lista em `data/contact.ts`). Esc ou clique fora fecha. Do menu, o atalho fecha o menu e abre o painel.
 
 ## Física e dinamismo (vale pro site inteiro)
 
