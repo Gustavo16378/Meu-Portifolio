@@ -89,9 +89,9 @@ Título Tanker `NÃO É SÓ A TELA` e, logo abaixo, um palco da altura da tela e
 - **Cartões com física:** uma pilha de cartões como os de foto da abertura (borda fina, sombra, legenda em mono). A cada passo o cartão da frente sai voando com mola pra uma pilha menor, acima, e revela o de trás em tamanho cheio: o print do site, a resposta da API em JSON, a tabela do banco e o domínio no ar.
 - **Projetos reais, marcados:** cada cartão traz uma etiqueta pequena com o projeto de onde vem. Tela e deploy são da TORRA (print e `torra-cafe.pages.dev`, em mono minúsculo); API e banco são do Ecommerce Café (a resposta de `GET /ecommerce/produtos/1` e a tabela `produto` com os quatro cafés do seed). São projetos separados: a etiqueta deixa claro que um não é o back-end do outro. Nada na tela cita a disciplina de onde o Ecommerce Café saiu.
 - **Palavra da camada:** a palavra do passo atual em Tanker gigante entra em contorno lima e enche de lima; embaixo, uma linha de log em mono (ex.: `GET /ecommerce/produtos/1 · 200 OK`) e o projeto com a stack.
-- **Texto:** três parágrafos curtos e normais, um de cada vez: design e front feitos do zero, sem template (tela); back-end, API e banco (API e banco); deploy, com domínio, hospedagem, SEO e acompanhamento (deploy).
-- **Personagem:** um só, que troca de pose a cada passo com o tranco curto: `apontando` (tela), `sentado` (API), `olhando-cima` (banco) e `pulando` (deploy).
-- No celular a palavra e o log vêm em cima, os cartões no meio e o texto embaixo; no desktop os cartões ficam à esquerda. Em reduced-motion o passo troca com um fade simples.
+- **Texto:** um parágrafo curto por passo: front feito do zero em React e TypeScript (tela); API em Java com Quarkus ou Spring Boot (API); banco em PostgreSQL com migrations versionadas (banco); domínio, HTTPS, SEO técnico e deploy automático (deploy).
+- **Personagem:** um só, em pé sobre o canto direito da pilha (fica parado enquanto os cartões da frente voam), que troca de pose a cada passo com o tranco curto: `apontando` (tela), `sentado` (API), `olhando-cima` (banco) e `pulando` (deploy).
+- **Composição:** no desktop, a pilha de cartões à esquerda com 47% da largura, centralizada na altura; à direita, um bloco só, também centralizado, com a palavra, o log e o parágrafo juntos. No celular a palavra e o log vêm em cima, a pilha (com o personagem) no meio e o texto embaixo. Em reduced-motion o passo troca com um fade simples.
 
 ### 03 Projetos (cinco, em passos)
 

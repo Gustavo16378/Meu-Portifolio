@@ -10,7 +10,7 @@ import { SectionChrome } from './SectionChrome'
 
 function ApiCard() {
   return (
-    <div className="flex h-full flex-col justify-center p-3 font-mono text-[9px] leading-[1.5] text-muted md:p-5 md:text-[11px]">
+    <div className="flex h-full flex-col justify-center p-3 font-mono text-[9px] leading-[1.5] text-muted md:p-5 md:text-[clamp(11px,0.88vw,18px)]">
       <p className="mb-1 text-bone">GET /ecommerce/produtos/1</p>
       {API_RESPONSE.map((l) => (
         <p key={l.line} className={`whitespace-pre ${l.mobile ? '' : 'hidden md:block'}`}>
@@ -24,7 +24,7 @@ function ApiCard() {
 
 function DbCard() {
   return (
-    <div className="flex h-full flex-col justify-center p-3 font-mono text-[9px] leading-[1.6] text-muted md:p-5 md:text-[11px]">
+    <div className="flex h-full flex-col justify-center p-3 font-mono text-[9px] leading-[1.6] text-muted md:p-5 md:text-[clamp(11px,0.88vw,18px)]">
       <p className="mb-2 text-bone">{DB_QUERY}</p>
       <div className="grid grid-cols-[1.6em_1fr_auto] gap-x-3 md:grid-cols-[1.6em_1fr_auto_auto]">
         {DB_COLUMNS.map((c, k) => (
@@ -47,7 +47,7 @@ function DbCard() {
 
 function DeployCard() {
   return (
-    <div className="flex h-full flex-col justify-center gap-1 p-3 font-mono text-[9px] text-muted md:p-5 md:text-[11px]">
+    <div className="flex h-full flex-col justify-center gap-1 p-3 font-mono text-[9px] text-muted md:p-5 md:text-[clamp(11px,0.88vw,18px)]">
       <p className="text-[4.2vw] leading-tight text-bone md:text-[1.35vw]">torra-cafe.pages.dev</p>
       <p className="mt-1">cloudflare pages</p>
       <p>https · certificado ok</p>
@@ -110,8 +110,8 @@ export function Manifesto() {
     // Pilha dos que já passaram: menores, acima, cada um num ângulo (em % do próprio cartão).
     const pile = (k: number) =>
       desktop
-        ? { xPercent: -36 + k * 20, yPercent: -66 - (k % 2) * 8, rotation: [-9, 5, -3][k], scale: 0.48 }
-        : { xPercent: -28 + k * 26, yPercent: -70 - (k % 2) * 4, rotation: [-8, 6, -4][k], scale: 0.4 }
+        ? { xPercent: -30 + k * 22, yPercent: -60 - (k % 2) * 6, rotation: [-9, 5, -3][k], scale: 0.42 }
+        : { xPercent: -34 + k * 20, yPercent: -70 - (k % 2) * 4, rotation: [-8, 6, -4][k], scale: 0.4 }
 
     const build = () => {
       // Estado do passo 0 aplicado na hora (a timeline nasce pausada no 0).
@@ -193,11 +193,11 @@ export function Manifesto() {
       <div ref={stageRef} data-layers-stage className="relative mt-[8svh] h-svh overflow-hidden bg-bg">
         <div
           ref={contentRef}
-          className="flex h-full flex-col justify-center gap-4 px-4 pt-[84px] pb-[72px] pl-6 md:grid md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:items-center md:gap-16 md:px-12 md:pt-[96px]"
+          className="flex h-full flex-col justify-center gap-4 px-4 pt-[84px] pb-[72px] pl-6 md:grid md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] md:grid-rows-[1fr_auto_auto_1fr] md:gap-x-[5vw] md:gap-y-6 md:px-[6vw] md:pt-[96px]"
         >
-          {/* Celular: palavra e log em cima; desktop: na coluna da direita. */}
-          <div className="flex flex-col gap-2 md:order-2 md:gap-5">
-            <div className="flex items-end justify-between gap-4">
+          {/* Celular: palavra e log em cima; desktop: topo do bloco da direita, junto do parágrafo. */}
+          <div className="flex flex-col gap-2 md:col-start-2 md:row-start-2 md:gap-4">
+            <div className="flex items-end gap-4">
               <div className="relative font-display text-[18vw] leading-[0.86] uppercase md:text-[9vw]">
                 {/* Reserva o tamanho da palavra mais longa. */}
                 <span aria-hidden className="invisible block">
@@ -226,7 +226,6 @@ export function Manifesto() {
                   </div>
                 ))}
               </div>
-              <Personagem pose={LAYERS[current].pose} size="sm" className="shrink-0" />
             </div>
             <div className="relative h-[2.6em] font-mono text-[10px] leading-[1.3em] md:text-xs">
               {LAYERS.map((l, i) => (
@@ -249,7 +248,9 @@ export function Manifesto() {
           </div>
 
           {/* Pilha de cartões. Margem em cima: a pilha dos que já passaram fica acima do atual. */}
-          <div className="relative mx-auto mt-[26vw] aspect-[4/3] w-[64vw] md:order-1 md:row-span-2 md:mt-[11vw] md:aspect-[16/10] md:w-[34vw]">
+          <div className="relative mx-auto mt-[26vw] aspect-[4/3] w-[64vw] md:col-start-1 md:row-span-4 md:row-start-1 md:mt-[11.5vw] md:self-center md:aspect-[16/10] md:w-[47vw]">
+            {/* Em pé sobre a pilha: fica no lugar enquanto os cartões da frente voam. */}
+            <Personagem pose={LAYERS[current].pose} size="sm" className="absolute right-[3%] bottom-full z-30" />
             {LAYERS.map((l, k) => (
               <div
                 key={l.id}
@@ -264,7 +265,7 @@ export function Manifesto() {
                 >
                   <div className="min-h-0 flex-1 overflow-hidden bg-bg">{CARD_BODY[k]}</div>
                   <div
-                    className="flex justify-between gap-2 pt-[6px] pb-[1px] font-mono text-[9px] leading-none md:text-[10px]"
+                    className="flex justify-between gap-2 pt-[6px] pb-[1px] font-mono text-[9px] leading-none md:text-[clamp(10px,0.7vw,13px)]"
                     style={{ color: 'var(--c-muted-hi)' }}
                   >
                     <span>
@@ -278,7 +279,7 @@ export function Manifesto() {
             ))}
           </div>
 
-          <div className="relative min-h-[5.6em] max-w-[34rem] text-base leading-snug text-bone md:order-3 md:col-start-2 md:min-h-[5em] md:text-[clamp(1.125rem,1.4vw,1.5rem)]">
+          <div className="relative min-h-[5.6em] max-w-[34rem] text-base leading-snug text-bone md:col-start-2 md:row-start-3 md:min-h-[5em] md:text-[clamp(1.125rem,1.35vw,1.6rem)]">
             {LAYER_TEXTS.map((t, i) => (
               <p
                 key={t}
