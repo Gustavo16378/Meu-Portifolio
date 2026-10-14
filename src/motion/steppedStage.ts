@@ -296,12 +296,17 @@ export function createSteppedStage(opts: SteppedStageOptions): SteppedStage {
 
   // Celular: enquanto o palco está preso nada de fora dele aparece. O fundo fixo na cor do palco cobre o resto da
   // tela, as seções vizinhas somem até o Lenis ser liberado, e o toque no palco não rola a página.
+  // As vizinhas são procuradas na hora de prender: as seções montam uma por quadro e, quando o palco é criado, a de
+  // baixo pode ainda não existir. Ao soltar, mostra de volta as mesmas que escondeu.
   const section = stage.closest('section')
-  const neighbors = touchStage
-    ? [section?.previousElementSibling, section?.nextElementSibling].filter((el): el is HTMLElement => el instanceof HTMLElement)
-    : []
+  let neighbors: HTMLElement[] = []
   const holdVisuals = (on: boolean) => {
     if (!touchStage) return
+    if (on) {
+      neighbors = [section?.previousElementSibling, section?.nextElementSibling].filter(
+        (el): el is HTMLElement => el instanceof HTMLElement,
+      )
+    }
     if (backdrop) backdrop.style.opacity = on ? '1' : '0'
     neighbors.forEach((el) => {
       el.style.visibility = on ? 'hidden' : ''

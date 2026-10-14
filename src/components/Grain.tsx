@@ -14,11 +14,12 @@ export function Grain({ sectionsReady = true }: { sectionsReady?: boolean }) {
   const layerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    const layer = layerRef.current
     const canvas = document.createElement('canvas')
     canvas.width = TILE
     canvas.height = TILE
     const ctx = canvas.getContext('2d')
-    if (!ctx || !layerRef.current) return
+    if (!ctx || !layer) return
 
     const img = ctx.createImageData(TILE, TILE)
     for (let i = 0; i < img.data.length; i += 4) {
@@ -29,7 +30,18 @@ export function Grain({ sectionsReady = true }: { sectionsReady?: boolean }) {
       img.data[i + 3] = 255
     }
     ctx.putImageData(img, 0, 0)
-    layerRef.current.style.backgroundImage = `url(${canvas.toDataURL('image/png')})`
+    // A codificação do PNG fica fora da thread principal (toBlob é assíncrono; o toDataURL travava o carregamento).
+    let url = ''
+    let alive = true
+    canvas.toBlob((blob) => {
+      if (!alive || !blob) return
+      url = URL.createObjectURL(blob)
+      layer.style.backgroundImage = `url(${url})`
+    }, 'image/png')
+    return () => {
+      alive = false
+      if (url) URL.revokeObjectURL(url)
+    }
   }, [])
 
   useEffect(() => {

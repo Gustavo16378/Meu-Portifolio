@@ -18,6 +18,9 @@ import { Contact } from './components/Contact'
 import { IdleWalker } from './components/IdleWalker'
 import { RecruiterPanel } from './components/RecruiterPanel'
 
+/** Seções abaixo do hero, na ordem da página. Montam uma por quadro (ver App). */
+const SECTIONS = [Manifesto, Projects, Others, Process, Story, Contact]
+
 export default function App() {
   const { open: menuOpen, show: openMenu, hide: closeMenu } = useOverlayState()
 
@@ -40,34 +43,32 @@ export default function App() {
     showRecruiter()
   }, [closeMenu, showRecruiter])
 
-  // O hero monta primeiro; o resto entra numa transição, que o React renderiza em fatias curtas
-  // (sem travar a página por quase um segundo no celular). O preloader cobre esse tempo.
-  const [sectionsReady, setSectionsReady] = useState(false)
+  // O hero monta primeiro; as outras seções entram uma por quadro, cada uma numa transição. Montar as seis de uma vez
+  // virava uma tarefa só de quase um segundo no celular (DOM, estilo e gatilhos), travando a digitação do preloader,
+  // que cobre esse tempo.
+  const [mounted, setMounted] = useState(0)
+  const sectionsReady = mounted === SECTIONS.length
   useEffect(() => {
-    startTransition(() => setSectionsReady(true))
-  }, [])
+    if (sectionsReady) return
+    const id = requestAnimationFrame(() => startTransition(() => setMounted((n) => n + 1)))
+    return () => cancelAnimationFrame(id)
+  }, [mounted, sectionsReady])
 
   return (
     <LenisProvider>
       <Hud menuOpen={menuOpen} onMenu={openMenu} onRecruiter={openRecruiter} sectionsReady={sectionsReady} />
       <main>
         <Hero />
-        {sectionsReady && (
-          <>
-            <Manifesto />
-            <Projects />
-            <Others />
-            <Process />
-            <Story />
-            <Contact />
-          </>
-        )}
+        {/* A lista só cresce e nunca muda de ordem: a posição serve de chave. */}
+        {SECTIONS.slice(0, mounted).map((Section, i) => (
+          <Section key={i} />
+        ))}
       </main>
       <IdleWalker />
       <Grain sectionsReady={sectionsReady} />
       <Menu open={menuOpen} onClose={closeMenu} onNavigate={navigate} onRecruiter={openRecruiter} />
       <RecruiterPanel open={recruiter.open} onClose={recruiter.hide} />
-      <Preloader />
+      <Preloader pageReady={sectionsReady} />
       <Cursor />
     </LenisProvider>
   )

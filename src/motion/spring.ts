@@ -40,12 +40,10 @@ export const clamp = (v: number, min: number, max: number): number => Math.min(m
  * o que importa é o trecho em que o sticky fica preso, ou seja, o pai dele.
  */
 function visibilityTarget(el: Element): Element {
-  let node: Element | null = el
-  while (node && node !== document.body) {
-    if (getComputedStyle(node).position === 'sticky') return node.parentElement ?? node
-    node = node.parentElement
-  }
-  return el
+  // Os stickies do site são marcados com data-sticky (o mesmo que o scrollLock congela). Procurar o atributo não lê
+  // estilo; getComputedStyle em cada ancestral forçava cálculo de estilo pra cada elemento observado.
+  const sticky = el.closest('[data-sticky]')
+  return sticky ? (sticky.parentElement ?? sticky) : el
 }
 
 /** Chama `onChange(true|false)` quando o elemento entra ou sai da viewport. Pra pausar loops contínuos. */

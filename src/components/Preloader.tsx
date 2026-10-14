@@ -45,12 +45,20 @@ function heroEssentials(): Promise<unknown> {
  * Todo carregamento: digita "Gustavo Lima", apaga "Lima", digita "Dev" em lima,
  * segura 300ms e a cortina sobe revelando o hero, que já estava pronto por trás.
  */
-export function Preloader() {
+export function Preloader({ pageReady = true }: { pageReady?: boolean }) {
   const [show, setShow] = useState(true)
   const rootRef = useRef<HTMLDivElement>(null)
   const firstRef = useRef<HTMLSpanElement>(null)
   const secondRef = useRef<HTMLSpanElement>(null)
   const caretRef = useRef<HTMLSpanElement>(null)
+  // As seções abaixo do hero montam aos poucos por trás: a cortina também espera por elas.
+  const pageReadyRef = useRef(pageReady)
+  pageReadyRef.current = pageReady
+  const revealRef = useRef<() => void>(() => undefined)
+
+  useEffect(() => {
+    if (pageReady) revealRef.current()
+  }, [pageReady])
 
   // Assume o lugar do preloader estático do index.html no mesmo quadro (antes da pintura), sem piscar.
   useLayoutEffect(() => {
@@ -74,21 +82,50 @@ export function Preloader() {
     let out: gsap.core.Timeline | undefined
     let typed = false
     let loaded = false
+    let locked = true
 
     lockScroll()
     window.scrollTo(0, 0)
 
+    // Durante a cortina a página continua parada: roda, toque e teclas de rolagem são barrados na captura, antes de
+    // chegar no Lenis. Parar o Lenis não serve: o overflow: clip dele tira a barra de rolagem e muda a largura medida.
+    const SCROLL_KEYS = new Set([' ', 'ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End'])
+    const stop = (e: Event) => {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    const stopKey = (e: KeyboardEvent) => {
+      if (SCROLL_KEYS.has(e.key)) stop(e)
+    }
+    const block = (on: boolean) => {
+      const opts = { capture: true, passive: false }
+      if (on) {
+        window.addEventListener('wheel', stop, opts)
+        window.addEventListener('touchmove', stop, opts)
+        window.addEventListener('keydown', stopKey, opts)
+      } else {
+        window.removeEventListener('wheel', stop, opts)
+        window.removeEventListener('touchmove', stop, opts)
+        window.removeEventListener('keydown', stopKey, opts)
+      }
+    }
+
     const finish = () => {
-      unlockScroll()
+      block(false)
       setShow(false)
     }
 
     // Enquanto digita o cursor fica aceso; parado, pisca.
     const typing = (on: boolean) => caret.classList.toggle('is-typing', on)
 
-    // A cortina sobe quando o nome terminou (com a pausa) e o essencial do hero chegou, o que vier por último.
+    // A cortina sobe quando o nome terminou (com a pausa), o essencial do hero chegou e as seções montaram.
     const reveal = () => {
-      if (cancelled || out || !typed || !loaded) return
+      if (cancelled || out || !typed || !loaded || !pageReadyRef.current) return
+      // Destrava o corpo (e refaz a medida dos gatilhos) agora, com o nome ainda na tela: no fim da cortina esse
+      // refresh caía no meio da mola do título. Até a cortina terminar, a página segue parada pelos bloqueadores.
+      block(true)
+      unlockScroll()
+      locked = false
       out = gsap.timeline({ onComplete: finish })
       out.call(finishIntro, undefined, 0)
       if (reduced) out.to(root, { opacity: 0, duration: 0.3, ease: 'power1.out' }, 0)
@@ -102,6 +139,7 @@ export function Preloader() {
     }
     const cap = gsap.delayedCall(MAX_WAIT, ready)
     heroEssentials().then(ready)
+    revealRef.current = reveal
 
     const build = () => {
       tl = gsap.timeline({
@@ -165,7 +203,10 @@ export function Preloader() {
       first.textContent = ''
       second.textContent = ''
       typing(false)
-      unlockScroll()
+      revealRef.current = () => undefined
+      block(false)
+      // Solta só o que este preloader travou (o contador do scrollLock é global).
+      if (locked) unlockScroll()
     }
   }, [show])
 
