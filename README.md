@@ -1,10 +1,28 @@
-# Kit do novo portfólio gustavodev.dev
+# gustavodev.dev
 
-1. Crie a pasta do projeto e copie pra dentro dela: `CLAUDE.md`, `SPEC.md`, `PLAN.md` e a pasta `assets/`.
-2. Abra no VS Code, inicie o Claude Code na pasta.
-3. Cole o conteúdo de `PROMPT.md` (a parte abaixo da linha).
-4. Aprove etapa por etapa seguindo `PLAN.md`.
+Portfólio de Gustavo Barbosa Lima, desenvolvedor full-stack em Palmas, TO. One page em React 18, TypeScript, Vite e Tailwind, com GSAP (ScrollTrigger, Observer, Draggable, Inertia) e Lenis.
 
-`assets/prints/` tem o hero de cada um dos cinco projetos em desktop e mobile. `assets/foto/` tem as fotos naturais (`gustavo-original.png` é a de fundo azul, `foto2.png` a do capuz, `foto1.png` a do site antigo, opcional) e `gustavo-sem-fundo.png` já recortada. As versões preto e lima ficaram de fora.
+## Rodar
 
-Falta você providenciar depois: CV em PDF (1 página) pro painel do recrutador, e-mail e WhatsApp reais pro contato.
+```bash
+npm install
+npm run dev       # http://localhost:5173
+npm run build     # tsc + vite build, gera dist/
+npm run preview   # serve o dist/ pra conferir o build
+```
+
+## Deploy
+
+Cloudflare Pages, projeto `meu-portifolio`, build `npm run build` com saída em `dist`. Cada push publica uma versão; a branch de produção é a que responde em gustavodev.dev.
+
+## Onde está cada coisa
+
+- `src/components`: um arquivo por seção, mais HUD, menu, painéis e personagem.
+- `src/motion`: GSAP, Lenis e o palco em passos (`steppedStage.ts`), usado pelos projetos e pela seção 02.
+- `src/data`: projetos, camadas da seção 02, stack, linha do tempo e contato.
+- `src/styles`: cores em `tokens.css` (único lugar com cor literal), fontes e estilos globais.
+- `public`: fontes, fotos, prints, personagem, CVs, og.png, robots.txt e sitemap.xml.
+- `docs`: SPEC (design e conteúdo), PLAN (ordem de construção) e AUDITORIA.
+- `CLAUDE.md`: regras de código e de trabalho.
+
+Os originais em alta (prints, poses do personagem, vídeos, fotos) ficam fora do repositório, em `C:\Users\Gustavo\Documents\gustavodev-originais`.

@@ -2,3 +2,13 @@ node_modules
 dist
 *.local
 .DS_Store
+
+# variáveis de ambiente (hoje não existe nenhuma)
+.env
+.env.*
+
+*.log
+
+# saídas de ferramentas de teste e de cópias de protótipo
+.playwright-cli/
+.vite-cache/

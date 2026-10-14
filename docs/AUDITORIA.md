@@ -4,7 +4,7 @@ Auditoria em modo leitura feita antes das mudanças, no dev server, em desktop 1
 
 Gravidade: **quebra** impede de usar ou ler; **incômodo** funciona mas atrapalha; **detalhe** é acabamento.
 
-Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 55 corrigidos nesta rodada. Achados brutos antes da deduplicação: 123. Em 13/10: A74 corrigido (56 corrigidos), A92 anotado como pendência (92 achados, 29 incômodos), e A46, A47, A49 e A50 superados pela seção 02 nova.
+Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 55 corrigidos nesta rodada. Achados brutos antes da deduplicação: 123. Em 13/10: A74 corrigido (56 corrigidos), A92 anotado como pendência (92 achados, 29 incômodos), e A46, A47, A49 e A50 superados pela seção 02 nova. Os caminhos de arquivo citados nos achados são os da época: desde a limpeza de 13/10, SPEC, PLAN e esta auditoria ficam em docs/, e assets/, personagem-gustavo-poses/ e videos-projetos/ saíram do projeto (originais em C:\Users\Gustavo\Documents\gustavodev-originais).
 
 ## 01 Abertura
 

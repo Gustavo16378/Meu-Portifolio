@@ -1,6 +1,6 @@
 # SPEC · novo portfólio gustavodev.dev
 
-> Esta é a especificação de design e conteúdo do site. Leia inteira antes de qualquer tarefa. Regras de código e fluxo de trabalho estão em CLAUDE.md; ordem de construção em PLAN.md.
+> Esta é a especificação de design e conteúdo do site. Leia inteira antes de qualquer tarefa. Regras de código e fluxo de trabalho estão em CLAUDE.md, na raiz; ordem de construção em docs/PLAN.md. Os arquivos originais (prints em alta, poses do personagem, vídeos, fotos) ficam fora do projeto, em `C:\Users\Gustavo\Documents\gustavodev-originais`; o site só usa as versões tratadas de `public/`.
 
 > O motion é o produto. Um frame parado deste site não diz nada. Nada de componente genérico, nada de layout que pareça template de portfólio de dev.
 
@@ -71,7 +71,7 @@ Numeração de seção em mono. Cada seção abre com um título em Tanker, dire
 
 Composição: à esquerda, título em Tanker gigante em duas ou três linhas, maiúsculas: `GUSTAVO` em osso e `DEV` em lima, ou `FULL-STACK` em osso com `DEV` em lima. Abaixo, uma linha em Synonym: "Sites, sistemas e APIs. Front e back, do design ao deploy." Abaixo, em mono: `react · typescript · java · quarkus · spring · postgresql`.
 
-À direita, as fotos do Gustavo **naturais, sem tratamento de cor** (`assets/foto/gustavo-original.png` e `assets/foto/foto2.png`; `foto1.png` é opcional, é a do site antigo). Elas aparecem como **objetos físicos**: dois ou três cartões fotográficos com borda fina e leve sombra, empilhados de forma torta, que:
+À direita, as fotos do Gustavo **naturais, sem tratamento de cor** (`public/foto/gustavo-sem-fundo` e `public/foto/foto2`, em WebP com PNG de fallback; os originais, inclusive `gustavo-original.png` e `foto1.png`, a do site antigo, ficam em `gustavodev-originais/fotos`). Elas aparecem como **objetos físicos**: dois ou três cartões fotográficos com borda fina e leve sombra, empilhados de forma torta, que:
 - flutuam devagar em repouso (leve oscilação, como se tivessem massa);
 - inclinam em 3D seguindo o mouse (perspective + rotateX/rotateY, com mola, não instantâneo);
 - podem ser **arrastados e jogados**: soltou, o cartão continua com inércia, quica nas bordas do hero e desacelera (GSAP Draggable + InertiaPlugin); onde parou, fica. Não existe retorno automático por tempo. A única exceção: se o cartão parar cobrindo o título, ele volta pro lugar com mola depois de um respiro;
@@ -151,7 +151,7 @@ Mobile (versão simplificada de cada uma, um frame só). Regra pros cinco: a com
 
 **Física e vida só nos frames:** viajam com mola, flutuam de leve em repouso (2 a 3px, ciclo de 6s), inclinam 2 a 3 graus seguindo o mouse, skew leve pela velocidade do scroll, e um brilho fino atravessa a borda a cada 8s. Tilt, skew e flutuação ficam em wrappers com `will-change: transform`, nunca no `<video>`. Nada além disso.
 
-**Vídeos (quando `media: "video"`):** arquivos em `videos-projetos/`, copiados pra `public/videos/`.
+**Vídeos (quando `media: "video"`):** os arquivos ficam fora do projeto, em `C:\Users\Gustavo\Documents\gustavodev-originais\videos`; pra ligar, copiar os do projeto pra `public/videos/` (hoje a pasta não existe, porque nenhum projeto usa vídeo).
 - `preload="none"` e poster sempre; o `src` só entra quando o palco está a uma tela de distância e só pro projeto atual e os vizinhos; sai quando se afasta.
 - Só um vídeo toca por vez. Em cada projeto só um frame tem vídeo (o desktop, ou o celular na TORRA); o outro mostra o poster.
 - WebM primeiro, MP4 de fallback. No mobile os vídeos desktop não carregam.
@@ -182,7 +182,7 @@ Lista logo depois do quinto projeto, visível sem clicar. Título Tanker: `OUTRO
 
 **Linha aberta:** clicar em qualquer ponto da linha abre; só uma aberta por vez; clicar de novo ou Esc fecha. A abertura não anima altura (regra do CLAUDE.md: só transform e opacity): o layout muda de uma vez e as linhas de baixo deslizam com mola da posição antiga pra nova (FLIP), e o conteúdo entra com fade. Dentro: o print desktop grande à esquerda e o mobile menor ao lado; à direita, dois ou três parágrafos normais sobre o projeto (o que é, o que foi feito, decisões técnicas), a stack completa em mono, `ver no ar` como botão preenchido e `código` com borda quando houver repositório. No celular, imagem em cima e texto embaixo.
 
-Prints em `prints-outros/` (`<projeto>-desktop.png` e `-mobile.png`), servidos de `public/prints-outros/` em WebP com versões menores pro srcset.
+Prints originais em alta em `gustavodev-originais/prints` (`<projeto>-desktop.png` e `-mobile.png`), servidos de `public/prints-outros/` em WebP com versões menores pro srcset.
 
 Ordem (a ONG vem primeiro e já aberta, porque é o design mais forte; as outras fechadas):
 - ONG Arte de Amar (2026, projeto em grupo, com o desenvolvimento comigo) · arte-de-amar-site.pages.dev · one page de ONG de Palmas, com um fio verde contínuo em GSAP · React, Vite, GSAP
@@ -211,7 +211,7 @@ Footer autoral, uma faixa em mono: GitHub (github.com/Gustavo16378), LinkedIn (l
 
 ## Personagem
 
-Uma versão ilustrada do Gustavo, em 18 poses com fundo transparente (`personagem-gustavo-poses/gustavo-*.png`, servidas de `public/personagem/` em WebP com PNG de fallback; as três folhas originais não vão pro site). Componente `Personagem` recebe pose e tamanho.
+Uma versão ilustrada do Gustavo, em 18 poses com fundo transparente (originais em `gustavodev-originais/personagem/gustavo-*.png`, servidas de `public/personagem/` em WebP com PNG de fallback; as três folhas originais não vão pro site). Componente `Personagem` recebe pose e tamanho.
 
 Regras: sempre pequeno (120 a 220px de altura no desktop, 80 a 140px no mobile), nunca compete com o conteúdo, nunca intercepta clique. Entra com mola, flutua de leve em repouso (pausa fora da tela), troca de pose com um tranco curto. Em reduced-motion aparece parado, só com fade. **Nunca dentro da seção de projetos.**
 
@@ -243,7 +243,7 @@ Tudo que se move tem massa. Regras gerais:
 - Listas e blocos entram com stagger, nunca todos de uma vez.
 - Em `prefers-reduced-motion`, tudo isso vira fade simples.
 
-Ferramentas: GSAP (ScrollTrigger, Draggable, InertiaPlugin, Physics2DPlugin, todos gratuitos desde o GSAP 3.13), Lenis para scroll e velocidade. Sem engine de física separada (matter.js) a menos que o GSAP não dê conta; avisar antes.
+Ferramentas: GSAP (ScrollTrigger, Observer, Draggable, InertiaPlugin, gratuitos desde o GSAP 3.13; Physics2DPlugin e SplitText ficam disponíveis, mas só são registrados quando alguma seção usar), Lenis para scroll e velocidade. Sem engine de física separada (matter.js) a menos que o GSAP não dê conta; avisar antes.
 
 ## Motion, resumo do que precisa existir
 
@@ -260,4 +260,4 @@ Ferramentas: GSAP (ScrollTrigger, Draggable, InertiaPlugin, Physics2DPlugin, tod
 - `public/og.png` (1200x630) gerado com a cara do site: nome em Tanker, linha em Synonym e a foto no cartão.
 - Título do contato digitado, como o preloader.
 - Personagem pequeno nos pontos definidos, com mola na entrada e flutuação leve; atravessa o rodapé quando o usuário fica parado.
-- Tudo com GSAP (ScrollTrigger, Draggable, Inertia, Physics2D) + Lenis.
+- Tudo com GSAP (ScrollTrigger, Observer, Draggable, Inertia) + Lenis.

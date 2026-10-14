@@ -3,7 +3,7 @@
 Uma etapa por sessão do Claude Code. Cada etapa termina com `npm run dev` rodando e uma lista do que conferir no navegador. Só avançar com aprovação.
 
 ## Etapa 0 · Scaffold
-Vite + React + TS + Tailwind. Fontes locais (Tanker, Synonym, Commit Mono) em `public/fonts` com @font-face. `tokens.css` com a paleta da SPEC. Lenis ligado. Grain e grade de fundo como componentes reutilizáveis. `index.html` com SEO e OG completos. Estrutura de pastas do CLAUDE.md. Copiar `assets/` do kit pra `public/`. Página em branco preta com o HUD nos quatro cantos (hora real, coordenadas, seção atual, status).
+Vite + React + TS + Tailwind. Fontes locais (Tanker, Synonym, Commit Mono) em `public/fonts` com @font-face. `tokens.css` com a paleta da SPEC. Lenis ligado. Grain e grade de fundo como componentes reutilizáveis. `index.html` com SEO e OG completos. Estrutura de pastas do CLAUDE.md. Copiar os assets do kit pra `public/` (os originais hoje ficam em `C:\Users\Gustavo\Documents\gustavodev-originais`). Página em branco preta com o HUD nos quatro cantos (hora real, coordenadas, seção atual, status).
 Conferir: fontes carregando, HUD atualizando a hora, scroll suave.
 
 ## Etapa 1 · Hero com física
@@ -39,7 +39,7 @@ Um gesto vale um passo (rajada de wheel, swipe de 40px ou tecla), gestos durante
 Conferir: flick forte no trackpad anda um projeto só; ida e volta iguais; entra direto no último subindo a página.
 
 ## Etapa 4.2 · Personagem (Bloco B)
-Componente Personagem com as poses de `personagem-gustavo-poses/` (copiadas pra `public/personagem/`), sempre pequeno, nos pontos definidos na SPEC: preloader, hero espiando, seção 02, Como funciona, História, Contato (dorme depois de 20s), ocioso atravessando o rodapé depois de 30s, e 404. Sem personagem dentro dos projetos. Em Como funciona, História e Contato ele entra já no lugar previsto; o conteúdo dessas seções vem na Etapa 5.
+Componente Personagem com as poses originais (hoje em `gustavodev-originais/personagem`, tratadas pra `public/personagem/`), sempre pequeno, nos pontos definidos na SPEC: preloader, hero espiando, seção 02, Como funciona, História, Contato (dorme depois de 20s), ocioso atravessando o rodapé depois de 30s, e 404. Sem personagem dentro dos projetos. Em Como funciona, História e Contato ele entra já no lugar previsto; o conteúdo dessas seções vem na Etapa 5.
 Conferir: tamanho discreto, entrada com mola, some no primeiro arrasto do hero, dorme no contato, walker some ao mexer.
 
 ## Etapa 4.3 · Testes (Bloco C)
