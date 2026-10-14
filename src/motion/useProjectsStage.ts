@@ -272,22 +272,40 @@ export function useProjectsStage(
     let gx = 0
     let gy = 0
 
+    // Largura de uma repetição do nome em contorno, por faixa. Medida pelo ResizeObserver (depois do layout, e de novo
+    // quando a fonte carrega ou a tela muda): ler offsetWidth a cada quadro, logo depois da troca escrever --ring,
+    // forçava layout em todo quadro e derrubava a troca pra uns 30 quadros por segundo em celular lento.
+    const units = els.nameTracks.map(() => 0)
+    const unitObserver = new ResizeObserver((entries) => {
+      for (const e of entries) {
+        const j = els.nameTracks.findIndex((t) => t.firstElementChild === e.target)
+        if (j < 0) continue
+        // Aqui o layout já está pronto: ler offsetWidth não força nada (e dá o mesmo valor inteiro de antes).
+        units[j] = (e.target as HTMLElement).offsetWidth
+      }
+    })
+    els.nameTracks.forEach((t) => {
+      if (t.firstElementChild) unitObserver.observe(t.firstElementChild)
+    })
+
     const tick = (_t: number, deltaMs: number) => {
       if (!comps.length) return
       const dt = tickerDt(deltaMs)
       const velocity = Math.abs(getLenis()?.velocity ?? 0)
       if (!reduced) drift += (DRIFT + velocity * 40 + boost) * dt
       boost *= Math.exp(-2.5 * dt)
-      els.nameTracks.forEach((t, j) => {
-        const unit = (t.firstElementChild as HTMLElement | null)?.offsetWidth || vw
+      els.nameTracks.forEach((_t2, j) => {
+        const unit = units[j] || vw
         trackX[j](-(((drift % unit) + unit) % unit))
       })
-      // Luz: segue o mouse devagar no desktop; no mobile fica no frame principal.
+      // Luz: segue o mouse devagar no desktop; no mobile fica no frame principal. A posição do palco só é lida quando
+      // o mouse manda (no celular ela nunca é usada, e ler a cada quadro também forçava layout).
       const c = comps[current]
       const main = c.deskOn ? c.desk : c.mob
-      const rect = els.stage.getBoundingClientRect()
-      const tx = desktop && pointer && !reduced ? pointer.x - rect.left : main.cx
-      const ty = desktop && pointer && !reduced ? pointer.y - rect.top : main.cy
+      const followPointer = desktop && pointer && !reduced
+      const rect = followPointer ? els.stage.getBoundingClientRect() : null
+      const tx = followPointer && pointer && rect ? pointer.x - rect.left : main.cx
+      const ty = followPointer && pointer && rect ? pointer.y - rect.top : main.cy
       const k = 1 - Math.exp(-1.6 * dt)
       gx += (tx - gx) * k
       gy += (ty - gy) * k
@@ -368,6 +386,7 @@ export function useProjectsStage(
       nearIO.disconnect()
       loops.forEach((l) => l.kill())
       gsap.ticker.remove(tick)
+      unitObserver.disconnect()
       window.removeEventListener('pointermove', onPointer)
       els.videos.forEach((v, i) => {
         v?.removeEventListener('error', onVideoError)
