@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from '../motion/gsap'
 import { prefersReducedMotion } from '../motion/reducedMotion'
 import { lockScroll, unlockScroll } from '../motion/scrollLock'
@@ -51,6 +51,11 @@ export function Preloader() {
   const firstRef = useRef<HTMLSpanElement>(null)
   const secondRef = useRef<HTMLSpanElement>(null)
   const caretRef = useRef<HTMLSpanElement>(null)
+
+  // Assume o lugar do preloader estático do index.html no mesmo quadro (antes da pintura), sem piscar.
+  useLayoutEffect(() => {
+    document.getElementById('boot')?.remove()
+  }, [])
 
   useEffect(() => {
     if (!show) {

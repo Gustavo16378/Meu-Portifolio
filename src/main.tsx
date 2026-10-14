@@ -12,6 +12,9 @@ if (!root) throw new Error('#root não encontrado')
 // One page: qualquer outro caminho é a página de não encontrado.
 const isHome = ['/', '/index.html'].includes(window.location.pathname)
 
+// O preloader estático do index.html: na home o Preloader o substitui; nas outras páginas ele só sai.
+if (!isHome) document.getElementById('boot')?.remove()
+
 createRoot(root).render(
   <StrictMode>
     {isHome ? (
