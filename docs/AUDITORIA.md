@@ -4,7 +4,7 @@ Auditoria em modo leitura feita antes das mudanças, no dev server, em desktop 1
 
 Gravidade: **quebra** impede de usar ou ler; **incômodo** funciona mas atrapalha; **detalhe** é acabamento.
 
-Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 55 corrigidos nesta rodada. Achados brutos antes da deduplicação: 123. Em 13/10: A74 corrigido (56 corrigidos), A92 anotado como pendência (92 achados, 29 incômodos), e A46, A47, A49 e A50 superados pela seção 02 nova. Os caminhos de arquivo citados nos achados são os da época: desde a limpeza de 13/10, SPEC, PLAN e esta auditoria ficam em docs/, e assets/, personagem-gustavo-poses/ e videos-projetos/ saíram do projeto (originais em C:\Users\Gustavo\Documents\gustavodev-originais).
+Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 55 corrigidos nesta rodada. Achados brutos antes da deduplicação: 123. Em 13/10: A74 e A92 corrigidos (57 corrigidos), A93 anotado como pendência (93 achados, 29 incômodos, 59 detalhes), e A46, A47, A49 e A50 superados pela seção 02 nova. Os caminhos de arquivo citados nos achados são os da época: desde a limpeza de 13/10, SPEC, PLAN e esta auditoria ficam em docs/, e assets/, personagem-gustavo-poses/ e videos-projetos/ saíram do projeto (originais em C:\Users\Gustavo\Documents\gustavodev-originais).
 
 ## 01 Abertura
 
@@ -616,11 +616,19 @@ Resumo: 91 achados (5 quebras, 28 incômodos, 58 detalhes), 55 corrigidos nesta 
 
 ### A92 · incômodo · mobile · Tela vazia por uns 9s no 3G antes do preloader aparecer
 
-- **Situação:** pendente, combinado pra depois do bloco 2 (13/10): um preloader estático no index.html (fundo, cursor piscando, sem depender do JS), que o componente React assume quando o bundle chegar
-- **Verificação:** só a medição de 13/10
+- **Situação:** corrigido em 13/10: preloader estático no index.html (fundo e cursor piscando na mesma posição do Preloader.tsx, que o remove ao montar) e o CSS do site embutido no HTML no build, sem a requisição que bloqueava a primeira pintura
+- **Verificação:** medido de novo: em 3G o preloader aparece aos 2,2 s (antes 9,1 s); o cursor estático e o do React ficam no mesmo pixel no celular e no desktop (diferença 0)
 - **O que acontece:** No build de produção com a rede em 3G do DevTools (400 kbps efetivos, 2s de latência, sem cache), emulando iPhone 14 no Chrome, o preloader só aparece aos 9,1 a 9,3s. Até lá a tela fica vazia, só com a cor de fundo. O preloader é um componente React, então ele depende do bundle (146 KB com gzip) inteiro chegar e rodar.
 - **Causa provável:** index.html só tem o `<div id="root">`; nada é pintado antes de o src/main.tsx rodar.
 - **Arquivos:** `index.html`, `src/components/Preloader.tsx`
+
+### A93 · detalhe · mobile · Palco de projetos abaixo de 60 quadros por segundo em celular lento
+
+- **Situação:** pendente (13/10). Melhorado sem mudar nada visível (o tick não lê mais layout a cada quadro); o resto pede mexer na estrutura do palco
+- **Verificação:** medido em 13/10 no Chrome como iPhone 14 com a CPU 4x mais lenta, 3 rodadas de 4 trocas: antes 31 a 38 fps e 23 quadros acima de 50 ms; depois 34 a 42 fps e 11 quadros acima de 50 ms. A seção 02, no mesmo teste, fica em 56 a 60 fps. Com a CPU normal, as duas ficam em 60 fps
+- **O que acontece:** Num trace de uma troca (1,2 s), a thread principal gasta uns 420 ms recalculando estilo (cerca de 60 vezes), 220 ms em layerização, 190 ms em script e 90 ms em pintura. O recálculo vem das propriedades que o GSAP escreve em muitos elementos a cada quadro (frames, as duas varreduras, nome em contorno, os filhos da placa, a luz); tirar a herança da --ring (A43) foi testado e não mudou nada.
+- **Causa provável:** muitas camadas animadas ao mesmo tempo na troca (src/motion/useProjectsStage.ts, build()), com will-change em vários wrappers dos frames (src/components/Projects.tsx).
+- **Arquivos:** `src/motion/useProjectsStage.ts`, `src/components/Projects.tsx`
 
 ## HUD
 
