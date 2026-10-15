@@ -32,8 +32,8 @@
     <link rel="preload" href="/fonts/Synonym-Regular.woff2" as="font" type="font/woff2" crossorigin />
 
     <!--
-      Preloader estático: pinta o fundo e o cursor piscando antes do JS chegar (em 3G a tela ficava vazia por uns 9 s).
-      Mesma caixa, fonte e posição do cursor do Preloader.tsx, que o remove ao montar. As cores vêm de tokens.css
+      Preloader estático: pinta o fundo e a linha de carregamento antes do JS chegar (em 3G a tela ficava vazia por
+      uns 9 s). Mesma posição e texto da linha do Preloader.tsx, que o remove ao montar. As cores vêm de tokens.css
       (CSS embutido no build); o valor depois da vírgula só vale no dev, antes do CSS chegar.
     -->
     <style>
@@ -41,49 +41,24 @@
         position: fixed;
         inset: 0;
         z-index: 10000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         background: var(--c-bg, #0b0f0c);
       }
-      #boot .box {
-        position: relative;
-        font-family: 'Tanker', 'Arial Narrow', sans-serif;
-        font-size: min(15vw, 26svh);
-        line-height: 1;
-        white-space: pre;
-        text-transform: uppercase;
-      }
-      #boot .ghost {
-        visibility: hidden;
-      }
-      #boot .line {
+      #boot p {
         position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-      }
-      #boot .caret {
-        display: inline-block;
-        margin-left: 0.04em;
-        width: 3px;
-        height: 0.78em;
-        background: var(--c-acid, #c6f24e);
-        animation: boot-blink 1s steps(1) infinite;
+        left: 0;
+        right: 0;
+        bottom: calc(env(safe-area-inset-bottom) + 24px);
+        margin: 0;
+        text-align: center;
+        font-family: 'Commit Mono', ui-monospace, monospace;
+        font-size: 11px;
+        line-height: 1.5;
+        color: var(--c-muted, #a9afa3);
       }
       @media (min-width: 768px) {
-        #boot .caret {
-          width: 4px;
-        }
-      }
-      @keyframes boot-blink {
-        0%,
-        49% {
-          opacity: 1;
-        }
-        50%,
-        100% {
-          opacity: 0;
+        #boot p {
+          font-size: 12px;
+          line-height: 16px;
         }
       }
     </style>
@@ -108,10 +83,7 @@
     </script>
   </head>
   <body>
-    <!-- Sem espaço entre as tags da caixa: ela usa white-space: pre. -->
-    <div id="boot" aria-hidden="true">
-      <div class="box"><span class="ghost">Gustavo Lima</span><span class="line"><span class="caret"></span></span></div>
-    </div>
+    <div id="boot" aria-hidden="true"><p>carregando · fontes 0/3 · fotos 0/2</p></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

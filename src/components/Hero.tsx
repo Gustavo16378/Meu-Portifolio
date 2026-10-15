@@ -74,7 +74,7 @@ export function Hero() {
 
   // Entrada do título e do texto, e o indicador sumindo quando a página rola.
   // O título fica pintado (e conta como maior pintura da página) desde o primeiro frame, por trás do
-  // preloader; só na hora em que a cortina começa a subir ele é escondido e entra com mola.
+  // preloader; na saída do preloader as letras dele viajam até cada letra do título e trocam por ele no mesmo quadro.
   useEffect(() => {
     const hero = heroRef.current
     const indicator = indicatorRef.current
@@ -89,8 +89,8 @@ export function Hero() {
     }, hero)
     const cancel = onIntroDone(() => {
       ctx.add(() => {
-        // Um instante depois da cortina começar a subir, pra mola do título não acontecer escondida.
-        const intro = gsap.timeline({ delay: 0.12 })
+        // O título já chegou com as letras do preloader; aqui entram o texto e o indicador.
+        const intro = gsap.timeline()
         const lines = [line1.current, line2.current]
         const copy = copyRef.current ? Array.from(copyRef.current.children) : []
         const marks = Array.from(indicator.children)
@@ -98,17 +98,8 @@ export function Hero() {
           intro.from([...lines, ...copy, ...marks], { opacity: 0, duration: 0.8, stagger: 0.1 })
         } else {
           intro
-            .from(lines, {
-              yPercent: 70,
-              rotation: 4,
-              opacity: 0,
-              duration: 1.1,
-              stagger: 0.12,
-              ease: 'back.out(1.6)',
-              transformOrigin: '0% 100%',
-            })
-            .from(copy, { y: 24, opacity: 0, duration: 0.9, stagger: 0.08, ease: 'back.out(1.4)' }, 0.35)
-            .from(marks, { opacity: 0, duration: 0.8, stagger: 0.1 }, 1.2)
+            .from(copy, { y: 24, opacity: 0, duration: 0.9, stagger: 0.08, ease: 'back.out(1.4)' }, 0.3)
+            .from(marks, { opacity: 0, duration: 0.8, stagger: 0.1 }, 1)
         }
       })
     })

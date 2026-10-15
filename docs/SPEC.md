@@ -61,7 +61,7 @@ Navegação: sem menu tradicional. Um botão `menu` em mono no topo direito que 
 
 ## Preloader
 
-Fundo preto, só isso na tela, sem log antes. Um cursor de texto fino em lima pisca. Em Tanker gigante, maiúsculas, digita `Gustavo Lima` letra por letra, faz uma pausa curta, apaga `Lima` com backspace letra por letra e digita `Dev` em lima (`Gustavo` fica em osso). Ritmo de digitação humano: intervalos levemente irregulares, com hesitação no começo de palavra; o backspace é um pouco mais rápido. O cursor fica aceso enquanto digita e pisca quando para. Pausa de 300ms com o nome pronto, e a tela abre pro hero com uma cortina subindo (fade rápido em `prefers-reduced-motion`). O hero começa a entrar junto com a cortina. Com a rede rápida tudo leva uns 1,5 segundo. A cortina só sobe com o essencial do hero carregado (Tanker, Synonym e Commit Mono, e as duas fotos dos cartões já decodificadas): com a rede lenta o nome termina inteiro e o cursor fica piscando até lá, com um teto de 10 segundos pra nunca prender a página. Roda em todo carregamento da página, inclusive ao atualizar. Antes do JS chegar, um preloader estático no index.html (com o CSS do site embutido no HTML) já mostra o fundo e o cursor piscando, no mesmo pixel em que o do React aparece; o do React assume no primeiro quadro, sem troca visível. Por trás dele o hero e as fontes carregam desde o primeiro frame: o título já está pintado (e conta como a maior pintura da página) quando a cortina começa a subir; só nesse instante ele se esconde e entra com mola.
+Fundo preto e, embaixo, uma linha pequena em mono com o progresso real: `carregando · fontes 0/3 · fotos 0/2`, cada item fica lima quando completa. Com a Tanker pronta, `GUSTAVO` cai letra por letra em Tanker gigante, maiúsculas, em osso: cada letra vem de cima, girada e esticada, e assenta com mola. `DEV` cai do mesmo jeito, só no contorno lima, e enche de lima de baixo pra cima conforme o essencial do hero chega (Tanker, Synonym e Commit Mono, as duas fotos dos cartões já decodificadas e as seções montadas): o enchimento é a barra de progresso. No celular o nome fica em duas linhas, como no hero; no desktop, numa linha. O personagem fica em pé ao lado de `DEV`, na linha de base, apontando pra ele enquanto enche; quando enche, comemora. Com `DEV` cheio, cada letra viaja (posição e escala) até a letra correspondente do título do hero e troca por ela no mesmo quadro, sem diferença visível; o fundo some por baixo durante a viagem e os cartões e o texto do hero entram enquanto as letras chegam. Não tem cortina: o preloader vira a abertura. Com a rede rápida tudo leva uns 2 segundos; com a rede lenta o nome fica montado e `DEV` vai enchendo, com um teto de 10 segundos pra nunca prender a página. Em `prefers-reduced-motion`: sem queda nem viagem, as letras aparecem, o lima entra por opacidade e o preloader some num fade, com o título do hero entrando em fade. Roda em todo carregamento da página, inclusive ao atualizar. Antes do JS chegar, um preloader estático no index.html (com o CSS do site embutido no HTML) já mostra o fundo e a linha de progresso no mesmo lugar em que a do React aparece; o do React assume no primeiro quadro, sem troca visível. Por trás dele o hero e as fontes carregam desde o primeiro frame: o título já está pintado (e conta como a maior pintura da página); ele só se esconde quando as letras do preloader começam a viagem.
 
 ## Estrutura da página
 
@@ -203,7 +203,7 @@ Título Tanker: `DESDE OS 16`. Esquerda: a foto do Gustavo (`assets/foto/foto2.p
 
 ### 07 Contato
 
-Título Tanker gigante, uma palavra por linha: `VAMOS` / `CONVERSAR?`, a última palavra em lima. Ao entrar na seção o título é digitado letra por letra, no mesmo ritmo do preloader, com o cursor de texto lima (em reduced-motion aparece pronto). Abaixo, e-mail e WhatsApp em texto grande e clicável e o botão lima `chamar no WhatsApp`, com o personagem acenando ao lado.
+Título Tanker gigante, uma palavra por linha: `VAMOS` / `CONVERSAR?`, a última palavra em lima. Ao entrar na seção o título é digitado letra por letra, com ritmo de gente digitando e o cursor de texto lima (em reduced-motion aparece pronto). Abaixo, e-mail e WhatsApp em texto grande e clicável e o botão lima `chamar no WhatsApp`, com o personagem acenando ao lado.
 
 Contato (em `data/contact.ts`, o mesmo em todo lugar: contato, painel do recrutador, rodapé e JSON-LD): e-mail `gustavo@gustavodev.dev`; WhatsApp `(63) 99111-4551`, link `https://wa.me/5563991114551?text=Oi%20Gustavo`.
 
@@ -216,7 +216,7 @@ Uma versão ilustrada do Gustavo, em 18 poses com fundo transparente (originais 
 Regras: sempre pequeno (120 a 220px de altura no desktop, 80 a 140px no mobile), nunca compete com o conteúdo, nunca intercepta clique. Entra com mola, flutua de leve em repouso (pausa fora da tela), troca de pose com um tranco curto. Em reduced-motion aparece parado, só com fade. **Nunca dentro da seção de projetos.**
 
 Onde aparece:
-- Preloader: `digitando`, no canto inferior esquerdo; sai junto com a cortina.
+- Preloader: em pé ao lado de `DEV`, na linha de base, `apontando` (espelhado, apontando pro `DEV`) enquanto enche e `comemorando` quando enche; some no meio da viagem das letras.
 - Hero: `espiando`, saindo de trás da borda direita do primeiro cartão de foto (a faixa escura da imagem é a parede e se confunde com a borda do cartão). Aparece depois que os cartões assentam e some com fade na primeira vez que o usuário arrasta um cartão.
 - 02 O que eu faço: um por passo do palco, trocando de pose: `apontando`, `sentado`, `olhando-cima` e `pulando`.
 - 05 Como funciona: uma pose por passo (`pensando`, `desenhando`, `digitando`, `comemorando`), cada uma entrando com fade e quique leve.
@@ -247,7 +247,7 @@ Ferramentas: GSAP (ScrollTrigger, Observer, Draggable, InertiaPlugin, gratuitos 
 
 ## Motion, resumo do que precisa existir
 
-- Preloader digitando `Gustavo Lima`, apagando `Lima` e digitando `Dev`, com cortina subindo.
+- Preloader: `GUSTAVO DEV` caindo letra por letra com mola, `DEV` enchendo de lima com o progresso real, e as letras viajando até o título do hero, sem cortina.
 - Cartões de foto no hero com inclinação 3D, drag com inércia e quique, e espalhamento no scroll.
 - Cursor customizado: ponto lima pequeno com um anel fino que atrasa; cresce em links. Sem texto dentro do cursor.
 - Glitch curto na entrada de textos (seção 05) e no hover da lista (04).
@@ -258,6 +258,6 @@ Ferramentas: GSAP (ScrollTrigger, Observer, Draggable, InertiaPlugin, gratuitos 
 - Navegação (menu, nome no HUD, `ir para o contato`): a seção de destino recebe o foco no fim da rolagem, sem rolar de novo.
 - Contato: o personagem vive numa caixa de tamanho fixo; dormir não mexe no layout.
 - `public/og.png` (1200x630) gerado com a cara do site: nome em Tanker, linha em Synonym e a foto no cartão.
-- Título do contato digitado, como o preloader.
+- Título do contato digitado letra por letra, com cursor lima.
 - Personagem pequeno nos pontos definidos, com mola na entrada e flutuação leve; atravessa o rodapé quando o usuário fica parado.
 - Tudo com GSAP (ScrollTrigger, Observer, Draggable, Inertia) + Lenis.
