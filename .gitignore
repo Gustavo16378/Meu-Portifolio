@@ -12,3 +12,6 @@ dist
 # saídas de ferramentas de teste e de cópias de protótipo
 .playwright-cli/
 .vite-cache/
+
+# uso local com o Claude Code, fora do repositório
+CLAUDE.md

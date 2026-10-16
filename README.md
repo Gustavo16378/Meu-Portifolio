@@ -22,7 +22,5 @@ Cloudflare Pages, projeto `meu-portifolio`, build `npm run build` com saída em 
 - `src/data`: projetos, camadas da seção 02, stack, linha do tempo e contato.
 - `src/styles`: cores em `tokens.css` (único lugar com cor literal), fontes e estilos globais.
 - `public`: fontes, fotos, prints, personagem, CVs, og.png, robots.txt e sitemap.xml.
-- `docs`: SPEC (design e conteúdo), PLAN (ordem de construção) e AUDITORIA.
-- `CLAUDE.md`: regras de código e de trabalho.
 
 Os originais em alta (prints, poses do personagem, vídeos, fotos) ficam fora do repositório, em `C:\Users\Gustavo\Documents\gustavodev-originais`.
